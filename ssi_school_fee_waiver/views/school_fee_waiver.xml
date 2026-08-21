@@ -1,0 +1,221 @@
+<?xml version="1.0" encoding="utf-8" ?>
+<!-- Copyright 2026 OpenSynergy Indonesia
+     Copyright 2026 PT. Simetri Sinergi Indonesia
+     License AGPL-3.0 or later (http://www.gnu.org/licenses/agpl). -->
+<odoo>
+<record id="school_fee_waiver_view_search" model="ir.ui.view">
+    <field name="name">school_fee_waiver - search</field>
+    <field name="model">school_fee_waiver</field>
+    <field
+            name="inherit_id"
+            ref="ssi_transaction_mixin.mixin_transaction_view_search"
+        />
+    <field name="mode">primary</field>
+    <field name="arch" type="xml">
+        <data>
+            <xpath expr="//search" position="inside">
+                <field name="student_id" />
+                <field name="type_id" />
+                <field name="reason_id" />
+                <field name="school_id" />
+                <field name="academic_year_id" />
+                <group expand="0" string="Group By">
+                    <filter
+                            name="group_by_type_id"
+                            string="Type"
+                            context="{'group_by': 'type_id'}"
+                        />
+                    <filter
+                            name="group_by_reason_id"
+                            string="Reason"
+                            context="{'group_by': 'reason_id'}"
+                        />
+                    <filter
+                            name="group_by_school_id"
+                            string="School"
+                            context="{'group_by': 'school_id'}"
+                        />
+                </group>
+            </xpath>
+        </data>
+    </field>
+</record>
+
+<record id="school_fee_waiver_view_tree" model="ir.ui.view">
+    <field name="name">school_fee_waiver - tree</field>
+    <field name="model">school_fee_waiver</field>
+    <field name="mode">primary</field>
+    <field name="inherit_id" ref="ssi_transaction_mixin.mixin_transaction_view_tree" />
+    <field name="arch" type="xml">
+        <data>
+            <xpath expr="//field[@name='company_id']" position="after">
+                <field name="date" />
+                <field name="student_id" />
+                <field name="type_id" />
+                <field name="reason_id" />
+                <field name="coverage" />
+                <field name="amount_waived" widget="monetary" />
+                <field name="company_currency_id" invisible="1" />
+            </xpath>
+        </data>
+    </field>
+</record>
+
+<record id="school_fee_waiver_view_form" model="ir.ui.view">
+    <field name="name">school_fee_waiver - form</field>
+    <field name="model">school_fee_waiver</field>
+    <field name="mode">primary</field>
+    <field name="inherit_id" ref="ssi_transaction_mixin.mixin_transaction_view_form" />
+    <field name="arch" type="xml">
+        <data>
+            <xpath expr="//header" position="inside">
+                <field name="generate_schedule_ok" invisible="1" />
+                <button
+                        name="action_generate_schedule"
+                        type="object"
+                        string="Generate Schedule"
+                        attrs="{'invisible': [('generate_schedule_ok', '=', False)]}"
+                    />
+            </xpath>
+            <xpath expr="//field[@name='user_id']" position="after">
+                <field name="type_id" />
+                <field name="reason_id" />
+                <field name="student_id" />
+                <field name="source_type" />
+                <field
+                        name="enrollment_id"
+                        domain="[('student_id', '=', student_id)]"
+                        attrs="{'required': [('source_type', '=', 'enrollment')], 'invisible': [('source_type', '!=', 'enrollment')]}"
+                    />
+                <field name="school_id" />
+                <field name="grade_id" />
+                <field name="academic_year_id" />
+                <field name="coverage" />
+                <field
+                        name="payment_term_id"
+                        domain="[('enrollment_id', '=', enrollment_id)]"
+                        attrs="{'invisible': [('coverage', '!=', 'single_term')], 'required': [('coverage', '=', 'single_term')]}"
+                    />
+                <field
+                        name="date_start"
+                        attrs="{'invisible': [('coverage', '!=', 'multi_term')]}"
+                    />
+                <field
+                        name="date_end"
+                        attrs="{'invisible': [('coverage', '!=', 'multi_term')]}"
+                    />
+            </xpath>
+            <xpath expr="//group[@name='header_right']" position="inside">
+                <field name="date" />
+                <field name="company_currency_id" invisible="1" />
+                <field
+                        name="amount_waived"
+                        widget="monetary"
+                        options="{'currency_field': 'company_currency_id'}"
+                    />
+            </xpath>
+            <xpath expr="//page[1]" position="before">
+                <page name="line" string="Lines">
+                    <field name="line_ids" colspan="4" nolabel="1">
+                        <tree editable="bottom">
+                            <field name="product_id" />
+                            <field name="product_category_id" />
+                            <field name="computation" />
+                            <field
+                                    name="percentage"
+                                    attrs="{'invisible': [('computation', '!=', 'percentage')]}"
+                                />
+                            <field
+                                    name="amount_fixed"
+                                    attrs="{'invisible': [('computation', '!=', 'fixed')]}"
+                                />
+                            <field name="max_amount" />
+                            <field name="currency_id" invisible="1" />
+                        </tree>
+                        <form>
+                            <group col="2">
+                                <field name="product_id" />
+                                <field name="product_category_id" />
+                                <field name="computation" />
+                                <field
+                                        name="percentage"
+                                        attrs="{'invisible': [('computation', '!=', 'percentage')]}"
+                                    />
+                                <field
+                                        name="amount_fixed"
+                                        attrs="{'invisible': [('computation', '!=', 'fixed')]}"
+                                    />
+                                <field name="max_amount" />
+                                <field name="currency_id" invisible="1" />
+                            </group>
+                        </form>
+                    </field>
+                </page>
+                <page name="schedule" string="Schedule">
+                    <field name="schedule_ids" colspan="4" nolabel="1">
+                        <tree editable="bottom">
+                            <field name="line_id" />
+                            <field name="payment_term_id" />
+                            <field name="date" />
+                            <field name="base_amount" />
+                            <field name="amount_planned" />
+                            <field name="amount_realized" />
+                            <field name="state" />
+                            <field name="note" />
+                            <field name="currency_id" invisible="1" />
+                            <button
+                                    name="action_skip"
+                                    type="object"
+                                    string="Skip"
+                                    attrs="{'invisible': [('state', 'not in', ['draft', 'scheduled'])]}"
+                                />
+                            <button
+                                    name="action_cancel_schedule"
+                                    type="object"
+                                    string="Cancel"
+                                    attrs="{'invisible': [('state', 'not in', ['draft', 'scheduled'])]}"
+                                />
+                        </tree>
+                        <form>
+                            <group col="2">
+                                <field name="line_id" />
+                                <field name="payment_term_id" />
+                                <field name="date" />
+                                <field name="base_amount" />
+                                <field name="amount_planned" />
+                                <field name="amount_realized" />
+                                <field name="state" />
+                                <field name="currency_id" invisible="1" />
+                            </group>
+                            <field name="note" />
+                        </form>
+                    </field>
+                </page>
+                <page name="note" string="Note">
+                    <field name="note" colspan="4" nolabel="1" />
+                </page>
+            </xpath>
+            <xpath expr="//group[@name='policy_2']" position="inside">
+                <field name="generate_schedule_ok" />
+            </xpath>
+        </data>
+    </field>
+</record>
+
+<record id="school_fee_waiver_action" model="ir.actions.act_window">
+    <field name="name">Fee Waivers</field>
+    <field name="type">ir.actions.act_window</field>
+    <field name="res_model">school_fee_waiver</field>
+    <field name="view_mode">tree,form</field>
+</record>
+
+<menuitem
+        id="school_fee_waiver_menu"
+        name="Fee Waivers"
+        parent="menu_school_fee_waiver"
+        action="school_fee_waiver_action"
+        groups="school_fee_waiver_viewer_group"
+        sequence="10"
+    />
+
+</odoo>

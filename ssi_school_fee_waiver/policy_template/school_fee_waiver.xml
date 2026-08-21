@@ -1,0 +1,189 @@
+<?xml version="1.0" encoding="utf-8" ?>
+<!-- Copyright 2026 OpenSynergy Indonesia
+     Copyright 2026 PT. Simetri Sinergi Indonesia
+     License AGPL-3.0 or later (http://www.gnu.org/licenses/agpl). -->
+<odoo>
+<record id="policy_template_school_fee_waiver" model="policy.template">
+    <field name="name">Standard</field>
+    <field name="model_id" ref="model_school_fee_waiver" />
+    <field
+            name="state_field_id"
+            search="[('model_id.model','=','school_fee_waiver'),('name','=','state')]"
+        />
+    <field name="sequence" eval="100" />
+    <field name="python_code">result=True</field>
+</record>
+
+<!-- Confirm -->
+<record id="policy_template_school_fee_waiver_confirm" model="policy.template_detail">
+    <field name="template_id" ref="policy_template_school_fee_waiver" />
+    <field
+            name="field_id"
+            search="[('model_id.model','=','school_fee_waiver'),('name','=','confirm_ok')]"
+        />
+    <field name="restrict_state" eval="1" />
+    <field
+            name="state_ids"
+            search="[('field_id.model_id.model','=','school_fee_waiver'),('value','=','draft')]"
+        />
+    <field name="restrict_user" eval="1" />
+    <field name="computation_method">use_group</field>
+    <field name="group_ids" eval="[(6,0,[ref('school_fee_waiver_user_group')])]" />
+    <field name="restrict_additional" eval="0" />
+</record>
+
+<!-- Restart Approval Process -->
+<record
+        id="policy_template_school_fee_waiver_restart_approval"
+        model="policy.template_detail"
+    >
+    <field name="template_id" ref="policy_template_school_fee_waiver" />
+    <field
+            name="field_id"
+            search="[('model_id.model','=','school_fee_waiver'),('name','=','restart_approval_ok')]"
+        />
+    <field name="restrict_state" eval="1" />
+    <field
+            name="state_ids"
+            search="[('field_id.model_id.model','=','school_fee_waiver'),('value','=','confirm')]"
+        />
+    <field name="restrict_user" eval="1" />
+    <field name="computation_method">use_group</field>
+    <field name="group_ids" eval="[(6,0,[ref('school_fee_waiver_validator_group')])]" />
+    <field name="restrict_additional" eval="0" />
+</record>
+
+<!-- Generate Schedule -->
+<record
+        id="policy_template_school_fee_waiver_generate_schedule"
+        model="policy.template_detail"
+    >
+    <field name="template_id" ref="policy_template_school_fee_waiver" />
+    <field
+            name="field_id"
+            search="[('model_id.model','=','school_fee_waiver'),('name','=','generate_schedule_ok')]"
+        />
+    <field name="restrict_state" eval="1" />
+    <field
+            name="state_ids"
+            search="[('field_id.model_id.model','=','school_fee_waiver'),('value','=','open')]"
+        />
+    <field name="restrict_user" eval="1" />
+    <field name="computation_method">use_group</field>
+    <field name="group_ids" eval="[(6,0,[ref('school_fee_waiver_user_group')])]" />
+    <field name="restrict_additional" eval="0" />
+</record>
+
+<!-- Done -->
+<record id="policy_template_school_fee_waiver_done" model="policy.template_detail">
+    <field name="template_id" ref="policy_template_school_fee_waiver" />
+    <field
+            name="field_id"
+            search="[('model_id.model','=','school_fee_waiver'),('name','=','done_ok')]"
+        />
+    <field name="restrict_state" eval="1" />
+    <field
+            name="state_ids"
+            search="[('field_id.model_id.model','=','school_fee_waiver'),('value','=','open')]"
+        />
+    <field name="restrict_user" eval="1" />
+    <field name="computation_method">use_group</field>
+    <field name="group_ids" eval="[(6,0,[ref('school_fee_waiver_user_group')])]" />
+    <field name="restrict_additional" eval="0" />
+</record>
+
+<!-- Cancel -->
+<record id="policy_template_school_fee_waiver_cancel" model="policy.template_detail">
+    <field name="template_id" ref="policy_template_school_fee_waiver" />
+    <field
+            name="field_id"
+            search="[('model_id.model','=','school_fee_waiver'),('name','=','cancel_ok')]"
+        />
+    <field name="restrict_state" eval="1" />
+    <field
+            name="state_ids"
+            search="[('field_id.model_id.model','=','school_fee_waiver'),('value','in',['draft','confirm','open'])]"
+        />
+    <field name="restrict_user" eval="1" />
+    <field name="computation_method">use_group</field>
+    <field name="group_ids" eval="[(6,0,[ref('school_fee_waiver_validator_group')])]" />
+    <field name="restrict_additional" eval="0" />
+</record>
+
+<!-- Restart -->
+<record id="policy_template_school_fee_waiver_restart" model="policy.template_detail">
+    <field name="template_id" ref="policy_template_school_fee_waiver" />
+    <field
+            name="field_id"
+            search="[('model_id.model','=','school_fee_waiver'),('name','=','restart_ok')]"
+        />
+    <field name="restrict_state" eval="1" />
+    <field
+            name="state_ids"
+            search="[('field_id.model_id.model','=','school_fee_waiver'),('value','in',['cancel','reject'])]"
+        />
+    <field name="restrict_user" eval="1" />
+    <field name="computation_method">use_group</field>
+    <field name="group_ids" eval="[(6,0,[ref('school_fee_waiver_validator_group')])]" />
+    <field name="restrict_additional" eval="0" />
+</record>
+
+<!-- Reject -->
+<record id="policy_template_school_fee_waiver_reject" model="policy.template_detail">
+    <field name="template_id" ref="policy_template_school_fee_waiver" />
+    <field
+            name="field_id"
+            search="[('model_id.model','=','school_fee_waiver'),('name','=','reject_ok')]"
+        />
+    <field name="restrict_state" eval="1" />
+    <field
+            name="state_ids"
+            search="[('field_id.model_id.model','=','school_fee_waiver'),('value','=','confirm')]"
+        />
+    <field name="restrict_user" eval="0" />
+    <field name="restrict_additional" eval="1" />
+    <field name="additional_python_code">result = False
+if env.user.id in document.active_approver_user_ids.ids:
+    result = True</field>
+</record>
+
+<!-- Approve -->
+<record id="policy_template_school_fee_waiver_approve" model="policy.template_detail">
+    <field name="template_id" ref="policy_template_school_fee_waiver" />
+    <field
+            name="field_id"
+            search="[('model_id.model','=','school_fee_waiver'),('name','=','approve_ok')]"
+        />
+    <field name="restrict_state" eval="1" />
+    <field
+            name="state_ids"
+            search="[('field_id.model_id.model','=','school_fee_waiver'),('value','=','confirm')]"
+        />
+    <field name="restrict_user" eval="0" />
+    <field name="restrict_additional" eval="1" />
+    <field name="additional_python_code">result = False
+if env.user.id in document.active_approver_user_ids.ids:
+    result = True</field>
+</record>
+
+<!-- Manual Number -->
+<record
+        id="policy_template_school_fee_waiver_manual_number"
+        model="policy.template_detail"
+    >
+    <field name="template_id" ref="policy_template_school_fee_waiver" />
+    <field
+            name="field_id"
+            search="[('model_id.model','=','school_fee_waiver'),('name','=','manual_number_ok')]"
+        />
+    <field name="restrict_state" eval="1" />
+    <field
+            name="state_ids"
+            search="[('field_id.model_id.model','=','school_fee_waiver'),('value','=','draft')]"
+        />
+    <field name="restrict_user" eval="1" />
+    <field name="computation_method">use_group</field>
+    <field name="group_ids" eval="[(6,0,[ref('school_fee_waiver_validator_group')])]" />
+    <field name="restrict_additional" eval="0" />
+</record>
+</odoo>
