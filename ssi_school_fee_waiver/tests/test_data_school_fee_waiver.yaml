@@ -301,42 +301,14 @@ scenarios:
             type: "value"
             expected: "cancel"
 
-      # ── Negative: required header fields ──────────────────────────
-      - step: "Create without Type must be rejected"
-        action: "create"
-        model: "school_fee_waiver"
-        expect_error:
-          type: "ValidationError"
-        values:
-          reason_id: "REC: fw1_reason.id"
-          student_id: "REC: fw1_student.id"
-          enrollment_id: "REC: fw1_enrollment.id"
-          coverage: "single_term"
-          payment_term_id: "REC: fw1_term1.id"
-
-      - step: "Create without Reason must be rejected"
-        action: "create"
-        model: "school_fee_waiver"
-        expect_error:
-          type: "ValidationError"
-        values:
-          type_id: "REC: fw1_type.id"
-          student_id: "REC: fw1_student.id"
-          enrollment_id: "REC: fw1_enrollment.id"
-          coverage: "single_term"
-          payment_term_id: "REC: fw1_term1.id"
-
-      - step: "Create without Student must be rejected"
-        action: "create"
-        model: "school_fee_waiver"
-        expect_error:
-          type: "ValidationError"
-        values:
-          type_id: "REC: fw1_type.id"
-          reason_id: "REC: fw1_reason.id"
-          enrollment_id: "REC: fw1_enrollment.id"
-          coverage: "single_term"
-          payment_term_id: "REC: fw1_term1.id"
+      # ── Negative: required header fields (type_id/reason_id/
+      # student_id) are covered in pure Python — see
+      # test_school_fee_waiver.py::TestSchoolFeeWaiver
+      # .test_create_without_required_header_field. They are
+      # ``required=True`` (DB NOT NULL), so a missing value raises
+      # ``psycopg2.IntegrityError`` at the database level, which
+      # ``expect_error`` cannot recognize (only 12 hard-coded Python
+      # exception types — see python-escape-hatch.md L-22).
 
       # ── Negative: billing source constraint ───────────────────────
       - step: "Enrollment source without Enrollment must be rejected"

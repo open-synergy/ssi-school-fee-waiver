@@ -281,6 +281,10 @@ scenarios:
         target: "fs1_multi"
         method: "action_confirm"
         as_user: "base.user_admin"
+        asserts:
+          state:
+            type: "value"
+            expected: "confirm"
 
       - step: "Approve the multi-term waiver"
         action: "call"
@@ -450,6 +454,10 @@ scenarios:
         target: "fs1_single_full"
         method: "action_confirm"
         as_user: "base.user_admin"
+        asserts:
+          state:
+            type: "value"
+            expected: "confirm"
 
       - step: "Approve the single-term Full Coverage waiver"
         action: "call"
@@ -513,6 +521,10 @@ scenarios:
         target: "fs1_fixed"
         method: "action_confirm"
         as_user: "base.user_admin"
+        asserts:
+          state:
+            type: "value"
+            expected: "confirm"
 
       - step: "Approve the Fixed Amount waiver"
         action: "call"
@@ -568,6 +580,10 @@ scenarios:
         target: "fs1_max"
         method: "action_confirm"
         as_user: "base.user_admin"
+        asserts:
+          state:
+            type: "value"
+            expected: "confirm"
 
       - step: "Approve the Max Amount waiver"
         action: "call"
@@ -689,6 +705,10 @@ scenarios:
         target: "fs1_realized_test"
         method: "action_confirm"
         as_user: "base.user_admin"
+        asserts:
+          state:
+            type: "value"
+            expected: "confirm"
 
       - step: "Approve the Realized-test waiver"
         action: "call"
