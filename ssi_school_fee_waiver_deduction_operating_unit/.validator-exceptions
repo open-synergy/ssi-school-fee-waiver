@@ -1,0 +1,7 @@
+# Copyright 2026 OpenSynergy Indonesia
+# Copyright 2026 PT. Simetri Sinergi Indonesia
+# License AGPL-3.0 or later (http://www.gnu.org/licenses/agpl).
+#
+# See odoo-development/references/validator-contract.md §13.
+
+ik modul-tak-punya-direktori-docs-belum-ada-ik-sama-sekali|docs/ -- This glue module adds exactly one already-editable field (operating_unit_id) to the existing school_fee_waiver_deduction form, filled automatically from the source Waiver. It introduces no new action, button, or user decision point beyond what ssi_school_fee_waiver_deduction's own IK (docs/school_fee_waiver_deduction/01-create.md and siblings) already documents; a dedicated IK page here would only restate "fill in this field" with no new click-flow. Issue open-synergy/ssi-school-fee-waiver#11's own "Skill yang Wajib Dimuat" list did not commission odoo-development-instruksi-kerja/odoo-development-ui-test work for this item.
