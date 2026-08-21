@@ -138,8 +138,19 @@ odoo.define(
                     run: "click",
                 },
                 {
+                    // `:eq(0)` alone matches the FIRST `.ui-menu-item a` in
+                    // DOCUMENT ORDER across every `.ui-autocomplete` still
+                    // in the DOM -- including earlier, already-closed
+                    // dropdowns (Waiver, Receivable Account) that are
+                    // `display: none` but not removed. The real, visible
+                    // Schedule dropdown is filtered out entirely, so the
+                    // stale Waiver dropdown item gets picked instead and
+                    // the next step times out waiting on Account -- CI
+                    // round 1, PR #16. Scope to the VISIBLE dropdown and
+                    // drop the "Start typing..." placeholder row instead.
                     content: "Pick the only Schedule line",
-                    trigger: ".ui-autocomplete .ui-menu-item:eq(0) a",
+                    trigger:
+                        ".ui-autocomplete:visible .ui-menu-item:not(.o_m2o_start_typing) a:eq(0)",
                     in_modal: false,
                 },
                 {
@@ -178,8 +189,14 @@ odoo.define(
                     run: "click",
                 },
                 {
+                    // Same fix as the Schedule dropdown above: scope to
+                    // the VISIBLE `.ui-autocomplete` and drop the
+                    // "Start typing..." placeholder row, instead of
+                    // `:eq(0)` matching document-order-first across every
+                    // (including stale, closed) autocomplete in the DOM.
                     content: "Pick the only Customer Invoice",
-                    trigger: ".ui-autocomplete .ui-menu-item:eq(0) a",
+                    trigger:
+                        ".ui-autocomplete:visible .ui-menu-item:not(.o_m2o_start_typing) a:eq(0)",
                     in_modal: false,
                 },
                 {

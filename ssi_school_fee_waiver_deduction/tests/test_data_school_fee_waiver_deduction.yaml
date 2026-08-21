@@ -318,6 +318,127 @@ scenarios:
             type: "value"
             expected: 0.0
 
+      # ── Terms 3/4 + an early regenerate, BEFORE any Deduction exists ─────
+      # Added here (rather than right before the negative-check block
+      # further down) so `action_generate_schedule` still SUCCEEDS: the
+      # guard added in `school_fee_waiver.py` (this module) rejects
+      # regeneration once a `school_fee_waiver_deduction_line` still
+      # references a stale (draft/scheduled) Schedule line, and once the
+      # Deduction workflow below runs, cancels, and leaves its own Lines
+      # dangling on Term 1/2's Schedule, that guard fires for good on this
+      # Waiver -- CI round 2, `ssi-school-fee-waiver` PR #16. Doing the
+      # regeneration up front, before those Lines exist, both keeps this
+      # step a genuine positive case and gives every later step (workflow
+      # AND negative checks) a single, un-stale set of Schedule refs.
+      - step: "Create Payment Term 3 (fresh Schedule for negative checks)"
+        action: "create"
+        model: "school_enrollment_payment_term"
+        save_as: "fwd1_term3"
+        values:
+          enrollment_id: "REC: fwd1_enrollment.id"
+          name: "FWD1 Term 3"
+          date_due: 2026-10-15
+          detail_ids:
+            - - 0
+              - 0
+              - product_id: "REC: fwd1_product.id"
+                name: "FWD1 Term 3 Fee"
+                account_id: "REC: fwd1_income_account.id"
+                uom_quantity: 1.0
+                uom_id: "REF: uom.product_uom_unit"
+                price_unit: 1000000.0
+
+      - step: "Create Payment Term 4 (fresh Schedule for negative checks)"
+        action: "create"
+        model: "school_enrollment_payment_term"
+        save_as: "fwd1_term4"
+        values:
+          enrollment_id: "REC: fwd1_enrollment.id"
+          name: "FWD1 Term 4"
+          date_due: 2026-11-15
+          detail_ids:
+            - - 0
+              - 0
+              - product_id: "REC: fwd1_product.id"
+                name: "FWD1 Term 4 Fee"
+                account_id: "REC: fwd1_income_account.id"
+                uom_quantity: 1.0
+                uom_id: "REF: uom.product_uom_unit"
+                price_unit: 1000000.0
+
+      - step: "Regenerate the waiver Schedule (T-07 -- old refs go stale)"
+        action: "call"
+        target: "fwd1_waiver"
+        method: "action_generate_schedule"
+        as_user: "base.user_admin"
+
+      - step: "Waiver Schedule now covers all four terms"
+        action: "assert"
+        target: "fwd1_waiver"
+        asserts:
+          schedule_ids:
+            type: "o2m"
+            check: "count"
+            expected_count: 4
+
+      - step: "Re-find the Term 1 Schedule line after regenerating (T-07)"
+        action: "search"
+        model: "school_fee_waiver_schedule"
+        domain:
+          [
+            ["waiver_id", "=", "REC: fwd1_waiver.id"],
+            ["payment_term_id", "=", "REC: fwd1_term1.id"],
+          ]
+        save_as: "fwd1_sched_t1_v2"
+        limit: 1
+
+      - step: "Re-find the Term 2 Schedule line after regenerating (T-07)"
+        action: "search"
+        model: "school_fee_waiver_schedule"
+        domain:
+          [
+            ["waiver_id", "=", "REC: fwd1_waiver.id"],
+            ["payment_term_id", "=", "REC: fwd1_term2.id"],
+          ]
+        save_as: "fwd1_sched_t2_v2"
+        limit: 1
+
+      - step: "Re-find the Term 3 Schedule line after regenerating (T-07)"
+        action: "search"
+        model: "school_fee_waiver_schedule"
+        domain:
+          [
+            ["waiver_id", "=", "REC: fwd1_waiver.id"],
+            ["payment_term_id", "=", "REC: fwd1_term3.id"],
+          ]
+        save_as: "fwd1_sched_t3_v2"
+        limit: 1
+
+      - step: "Re-find the Term 4 Schedule line after regenerating (T-07)"
+        action: "search"
+        model: "school_fee_waiver_schedule"
+        domain:
+          [
+            ["waiver_id", "=", "REC: fwd1_waiver.id"],
+            ["payment_term_id", "=", "REC: fwd1_term4.id"],
+          ]
+        save_as: "fwd1_sched_t4_v2"
+        limit: 1
+
+      - step: "The refreshed Term 1 Schedule line kept its own state/amount"
+        action: "assert"
+        target: "fwd1_sched_t1_v2"
+        asserts:
+          state:
+            type: "value"
+            expected: "scheduled"
+          amount_planned:
+            type: "value"
+            expected: 1000000.0
+          amount_realized:
+            type: "value"
+            expected: 0.0
+
       # ── Customer invoice type + four open invoices (allocation targets) ──
       - step: "Create the customer invoice type"
         action: "create"
@@ -551,7 +672,7 @@ scenarios:
         save: false
         values:
           deduction_id: "REC: fwd1_deduction"
-          schedule_id: "REC: fwd1_sched_t1"
+          schedule_id: "REC: fwd1_sched_t1_v2"
         asserts:
           account_id:
             type: "m2o"
@@ -564,7 +685,7 @@ scenarios:
         save_as: "fwd1_line1"
         values:
           deduction_id: "REC: fwd1_deduction.id"
-          schedule_id: "REC: fwd1_sched_t1.id"
+          schedule_id: "REC: fwd1_sched_t1_v2.id"
           account_id: "REC: fwd1_discount_account.id"
           amount: 1000000.0
 
@@ -574,7 +695,7 @@ scenarios:
         save_as: "fwd1_line2"
         values:
           deduction_id: "REC: fwd1_deduction.id"
-          schedule_id: "REC: fwd1_sched_t2.id"
+          schedule_id: "REC: fwd1_sched_t2_v2.id"
           account_id: "REC: fwd1_discount_account.id"
           amount: 1000000.0
 
@@ -733,7 +854,7 @@ scenarios:
 
       - step: "Term 1 Schedule line is Realized, pointing at this document"
         action: "assert"
-        target: "fwd1_sched_t1"
+        target: "fwd1_sched_t1_v2"
         asserts:
           state:
             type: "value"
@@ -747,7 +868,7 @@ scenarios:
 
       - step: "Term 2 Schedule line is Realized, pointing at this document"
         action: "assert"
-        target: "fwd1_sched_t2"
+        target: "fwd1_sched_t2_v2"
         asserts:
           state:
             type: "value"
@@ -808,7 +929,7 @@ scenarios:
 
       - step: "Term 1 Schedule line reverted to Scheduled"
         action: "assert"
-        target: "fwd1_sched_t1"
+        target: "fwd1_sched_t1_v2"
         asserts:
           state:
             type: "value"
@@ -822,7 +943,7 @@ scenarios:
 
       - step: "Term 2 Schedule line reverted to Scheduled"
         action: "assert"
-        target: "fwd1_sched_t2"
+        target: "fwd1_sched_t2_v2"
         asserts:
           state:
             type: "value"
@@ -835,89 +956,35 @@ scenarios:
             operator: "is_falsy"
 
       # ── Negative: constraints & the pre-open gate ─────────────────────
-      # Fresh Schedule lines for the constraint checks below. Terms 1/2's
-      # own Schedule lines were just unlinked-and-recreated once already
-      # (by Open) and are about to be again by action_generate_schedule
-      # right below -- T-07 (test-traps.md): a regenerating action always
-      # unlink+recreates, so any `REC:` alias captured before it is stale
-      # afterwards. Two new terms are added first so ONE regenerate call
-      # produces fresh Schedule lines for all four terms at once, then
-      # every Schedule line used below is re-`search`-ed, never reused
-      # from before this point.
-      - step: "Create Payment Term 3 (fresh Schedule for negative checks)"
-        action: "create"
-        model: "school_enrollment_payment_term"
-        save_as: "fwd1_term3"
-        values:
-          enrollment_id: "REC: fwd1_enrollment.id"
-          name: "FWD1 Term 3"
-          date_due: 2026-10-15
-          detail_ids:
-            - - 0
-              - 0
-              - product_id: "REC: fwd1_product.id"
-                name: "FWD1 Term 3 Fee"
-                account_id: "REC: fwd1_income_account.id"
-                uom_quantity: 1.0
-                uom_id: "REF: uom.product_uom_unit"
-                price_unit: 1000000.0
-
-      - step: "Create Payment Term 4 (fresh Schedule for negative checks)"
-        action: "create"
-        model: "school_enrollment_payment_term"
-        save_as: "fwd1_term4"
-        values:
-          enrollment_id: "REC: fwd1_enrollment.id"
-          name: "FWD1 Term 4"
-          date_due: 2026-11-15
-          detail_ids:
-            - - 0
-              - 0
-              - product_id: "REC: fwd1_product.id"
-                name: "FWD1 Term 4 Fee"
-                account_id: "REC: fwd1_income_account.id"
-                uom_quantity: 1.0
-                uom_id: "REF: uom.product_uom_unit"
-                price_unit: 1000000.0
-
-      - step: "Regenerate the waiver Schedule (T-07 -- old refs go stale)"
+      # Terms 3/4 and their fresh Schedule lines (fwd1_sched_t3_v2,
+      # fwd1_sched_t4_v2) were already created further up, right after the
+      # Waiver first opened -- see the "early regenerate" block above.
+      # fwd1_sched_t1_v2 is reused below too.
+      #
+      # A SECOND regenerate is attempted here on purpose, to prove the
+      # guard added in `school_fee_waiver.py` (this module): Term 1/2's
+      # Schedule lines are back in state `scheduled` after the cancel
+      # above, but fwd1_line1/fwd1_line2 -- belonging to the now-cancelled
+      # fwd1_deduction -- still point at them (cancelling a document
+      # reverses its accounting and Schedule effects, but does not unlink
+      # its own Lines). Without the guard, `_generate_schedule`'s
+      # unconditional `stale.unlink()` would hit the `ondelete="restrict"`
+      # FK on `school_fee_waiver_deduction_line.schedule_id` and raise a
+      # raw `IntegrityError` -- CI round 1, PR #16. With the guard it
+      # raises a readable `UserError` instead, and -- because the guard
+      # runs BEFORE any unlink is attempted -- the whole Waiver Schedule
+      # (including fwd1_sched_t1_v2/t3_v2/t4_v2 used below) is left
+      # completely untouched, so no further re-`search` is needed here.
+      - step:
+          "Regenerating again is rejected while a cancelled Deduction's Line still
+          references a stale Schedule line"
         action: "call"
         target: "fwd1_waiver"
         method: "action_generate_schedule"
         as_user: "base.user_admin"
-
-      - step: "Re-find the Term 1 Schedule line after regenerating (T-07)"
-        action: "search"
-        model: "school_fee_waiver_schedule"
-        domain:
-          [
-            ["waiver_id", "=", "REC: fwd1_waiver.id"],
-            ["payment_term_id", "=", "REC: fwd1_term1.id"],
-          ]
-        save_as: "fwd1_sched_t1_v2"
-        limit: 1
-
-      - step: "Re-find the Term 3 Schedule line after regenerating (T-07)"
-        action: "search"
-        model: "school_fee_waiver_schedule"
-        domain:
-          [
-            ["waiver_id", "=", "REC: fwd1_waiver.id"],
-            ["payment_term_id", "=", "REC: fwd1_term3.id"],
-          ]
-        save_as: "fwd1_sched_t3_v2"
-        limit: 1
-
-      - step: "Re-find the Term 4 Schedule line after regenerating (T-07)"
-        action: "search"
-        model: "school_fee_waiver_schedule"
-        domain:
-          [
-            ["waiver_id", "=", "REC: fwd1_waiver.id"],
-            ["payment_term_id", "=", "REC: fwd1_term4.id"],
-          ]
-        save_as: "fwd1_sched_t4_v2"
-        limit: 1
+        expect_error:
+          type: "UserError"
+          message_contains: "still referenced by a Deduction line"
 
       - step: "Create a fresh draft deduction document for negative checks"
         action: "create"
