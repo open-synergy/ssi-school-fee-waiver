@@ -1,0 +1,1012 @@
+options:
+  auto_refresh: true
+scenarios:
+  - name: "Fee Waiver Admission - create derives fields, 3-term schedule, percentage"
+    steps:
+      # ── Shared fixture chain (suffix ADM1) ───────────────────────
+      - step: "Create the grade type"
+        action: "create"
+        model: "school_grade_type"
+        save_as: "grade_type1"
+        values:
+          name: "ADM1 Grade Type"
+          code: "ADM1GT"
+
+      - step: "Create the school"
+        action: "create"
+        model: "school"
+        save_as: "school1"
+        values:
+          name: "ADM1 School"
+          code: "ADM1SC"
+          grade_type_id: "REC: grade_type1.id"
+
+      - step: "Create the academic year"
+        action: "create"
+        model: "school_academic_year"
+        save_as: "academic_year1"
+        values:
+          name: "ADM1 Academic Year"
+          code: "ADM1AY"
+          date_start: 2026-07-01
+          date_end: 2027-06-30
+
+      - step: "Create the academic term"
+        action: "create"
+        model: "school_academic_term"
+        save_as: "academic_term1"
+        values:
+          name: "ADM1 Term"
+          code: "ADM1TM"
+          date_start: 2026-07-01
+          date_end: 2026-12-31
+          year_id: "REC: academic_year1.id"
+
+      - step: "Create the grade"
+        action: "create"
+        model: "school_grade"
+        save_as: "grade1"
+        values:
+          name: "ADM1 Grade"
+          code: "ADM1GR"
+          type_id: "REC: grade_type1.id"
+
+      - step: "Create the admission student's contact"
+        action: "create"
+        model: "res.partner"
+        save_as: "admission_contact1"
+        values:
+          name: "ADM1 Admission Contact"
+
+      - step: "Create the admission"
+        action: "create"
+        model: "school_admission"
+        save_as: "admission1"
+        values:
+          academic_year_id: "REC: academic_year1.id"
+          academic_term_id: "REC: academic_term1.id"
+          school_id: "REC: school1.id"
+          grade_id: "REC: grade1.id"
+          student_id: "REC: admission_contact1.id"
+          user_id: "REF: base.user_admin"
+
+      - step: "Confirm the admission as admin"
+        action: "call"
+        target: "admission1"
+        method: "action_confirm"
+        as_user: "base.user_admin"
+        asserts:
+          state:
+            type: "value"
+            expected: "confirm"
+
+      # The Confirm step above carries `asserts`, forcing the
+      # library's _refresh() so `approve_ok` is not read from the
+      # cache filled while action_confirm read confirm_ok with state
+      # still Draft (odoo-development-unit-test, test-traps.md T-04).
+      - step: "Approve the admission as admin (auto-opens)"
+        action: "call"
+        target: "admission1"
+        method: "action_approve_approval"
+        as_user: "base.user_admin"
+        asserts:
+          state:
+            type: "value"
+            expected: "open"
+
+      - step: "Assert the admission created its School Student on Open"
+        action: "assert"
+        target: "admission1"
+        asserts:
+          school_student_id:
+            type: "value"
+            operator: "is_truthy"
+
+      - step: "Get the account.account.type Income reference"
+        action: "ref"
+        xml_id: "account.data_account_type_revenue"
+        save_as: "account_type_income"
+
+      - step: "Create the income account used by payment term details"
+        action: "create"
+        model: "account.account"
+        save_as: "income_account1"
+        values:
+          name: "ADM1 Income Account"
+          code: "ADM1IA"
+          user_type_id: "REC: account_type_income.id"
+          reconcile: false
+
+      - step: "Create the product covered by the waiver line"
+        action: "create"
+        model: "product.product"
+        save_as: "product1"
+        values:
+          name: "ADM1 Product"
+          type: "service"
+
+      - step: "Create Admission Payment Term A"
+        action: "create"
+        model: "school_admission_payment_term"
+        save_as: "term1a"
+        values:
+          admission_id: "REC: admission1.id"
+          name: "ADM1 Term A"
+          date_due: 2026-08-15
+          detail_ids:
+            - - 0
+              - 0
+              - product_id: "REC: product1.id"
+                name: "ADM1 Term A Fee"
+                account_id: "REC: income_account1.id"
+                uom_quantity: 1.0
+                uom_id: "REF: uom.product_uom_unit"
+                price_unit: 1000000.0
+
+      - step: "Create Admission Payment Term B"
+        action: "create"
+        model: "school_admission_payment_term"
+        save_as: "term1b"
+        values:
+          admission_id: "REC: admission1.id"
+          name: "ADM1 Term B"
+          date_due: 2026-09-15
+          detail_ids:
+            - - 0
+              - 0
+              - product_id: "REC: product1.id"
+                name: "ADM1 Term B Fee"
+                account_id: "REC: income_account1.id"
+                uom_quantity: 1.0
+                uom_id: "REF: uom.product_uom_unit"
+                price_unit: 1000000.0
+
+      - step: "Create Admission Payment Term C"
+        action: "create"
+        model: "school_admission_payment_term"
+        save_as: "term1c"
+        values:
+          admission_id: "REC: admission1.id"
+          name: "ADM1 Term C"
+          date_due: 2026-10-15
+          detail_ids:
+            - - 0
+              - 0
+              - product_id: "REC: product1.id"
+                name: "ADM1 Term C Fee"
+                account_id: "REC: income_account1.id"
+                uom_quantity: 1.0
+                uom_id: "REF: uom.product_uom_unit"
+                price_unit: 1000000.0
+
+      - step: "Create the fee waiver type"
+        action: "create"
+        model: "school_fee_waiver_type"
+        save_as: "fw1_type"
+        values:
+          name: "ADM1 Type"
+          code: "ADM1TY"
+
+      - step: "Create the fee waiver reason"
+        action: "create"
+        model: "school_fee_waiver_reason"
+        save_as: "fw1_reason"
+        values:
+          name: "ADM1 Reason"
+          code: "ADM1RS"
+
+      # ── Positive: create, derive Partner/School/Grade/Academic Year
+      - step: "Create the Admission-sourced waiver"
+        action: "create"
+        model: "school_fee_waiver"
+        save_as: "waiver1"
+        values:
+          type_id: "REC: fw1_type.id"
+          reason_id: "REC: fw1_reason.id"
+          student_id: "REC: admission1.school_student_id.id"
+          source_type: "admission"
+          admission_id: "REC: admission1.id"
+          coverage: "multi_term"
+          date_start: 2026-08-01
+          date_end: 2026-10-31
+          user_id: "REF: base.user_admin"
+          line_ids:
+            - - 0
+              - 0
+              - product_id: "REC: product1.id"
+                computation: "percentage"
+                percentage: 50.0
+
+      - step: "Assert derived fields came from the Admission"
+        action: "assert"
+        target: "waiver1"
+        asserts:
+          partner_id:
+            type: "m2o"
+            expected: "REC: admission_contact1"
+          school_id:
+            type: "m2o"
+            expected: "REC: school1"
+          grade_id:
+            type: "m2o"
+            expected: "REC: grade1"
+          academic_year_id:
+            type: "m2o"
+            expected: "REC: academic_year1"
+
+      - step: "Confirm the waiver as admin"
+        action: "call"
+        target: "waiver1"
+        method: "action_confirm"
+        as_user: "base.user_admin"
+        asserts:
+          state:
+            type: "value"
+            expected: "confirm"
+
+      # Refresh point required before Approve -- test-traps.md T-04.
+      - step: "Approve the waiver as admin (auto-opens, generates schedule)"
+        action: "call"
+        target: "waiver1"
+        method: "action_approve_approval"
+        as_user: "base.user_admin"
+        asserts:
+          state:
+            type: "value"
+            expected: "open"
+
+      - step: "Assert opening generated exactly 3 Schedule lines"
+        action: "assert"
+        target: "waiver1"
+        asserts:
+          schedule_ids:
+            type: "o2m"
+            check: "count"
+            expected_count: 3
+
+      - step: "Find the Schedule line realizing Term A"
+        action: "search"
+        model: "school_fee_waiver_schedule"
+        domain:
+          - ["waiver_id", "=", "REC: waiver1.id"]
+          - ["admission_payment_term_id", "=", "REC: term1a.id"]
+        save_as: "sched1a"
+        limit: 1
+
+      - step: "Assert the Schedule line used Admission Payment Term A"
+        action: "assert"
+        target: "sched1a"
+        asserts:
+          admission_payment_term_id:
+            type: "m2o"
+            expected: "REC: term1a"
+          payment_term_id:
+            type: "value"
+            operator: "is_falsy"
+          base_amount:
+            type: "value"
+            expected: 1000000.0
+          amount_planned:
+            type: "value"
+            expected: 500000.0
+
+  - name: "Fee Waiver Admission - Fixed and Full computation"
+    steps:
+      # ── Shared fixture chain (suffix ADM2) ───────────────────────
+      - step: "Create the grade type"
+        action: "create"
+        model: "school_grade_type"
+        save_as: "grade_type2"
+        values:
+          name: "ADM2 Grade Type"
+          code: "ADM2GT"
+
+      - step: "Create the school"
+        action: "create"
+        model: "school"
+        save_as: "school2"
+        values:
+          name: "ADM2 School"
+          code: "ADM2SC"
+          grade_type_id: "REC: grade_type2.id"
+
+      - step: "Create the academic year"
+        action: "create"
+        model: "school_academic_year"
+        save_as: "academic_year2"
+        values:
+          name: "ADM2 Academic Year"
+          code: "ADM2AY"
+          date_start: 2026-07-01
+          date_end: 2027-06-30
+
+      - step: "Create the academic term"
+        action: "create"
+        model: "school_academic_term"
+        save_as: "academic_term2"
+        values:
+          name: "ADM2 Term"
+          code: "ADM2TM"
+          date_start: 2026-07-01
+          date_end: 2026-12-31
+          year_id: "REC: academic_year2.id"
+
+      - step: "Create the grade"
+        action: "create"
+        model: "school_grade"
+        save_as: "grade2"
+        values:
+          name: "ADM2 Grade"
+          code: "ADM2GR"
+          type_id: "REC: grade_type2.id"
+
+      - step: "Create the admission student's contact"
+        action: "create"
+        model: "res.partner"
+        save_as: "admission_contact2"
+        values:
+          name: "ADM2 Admission Contact"
+
+      - step: "Create the admission"
+        action: "create"
+        model: "school_admission"
+        save_as: "admission2"
+        values:
+          academic_year_id: "REC: academic_year2.id"
+          academic_term_id: "REC: academic_term2.id"
+          school_id: "REC: school2.id"
+          grade_id: "REC: grade2.id"
+          student_id: "REC: admission_contact2.id"
+          user_id: "REF: base.user_admin"
+
+      - step: "Confirm the admission as admin"
+        action: "call"
+        target: "admission2"
+        method: "action_confirm"
+        as_user: "base.user_admin"
+        asserts:
+          state:
+            type: "value"
+            expected: "confirm"
+
+      - step: "Approve the admission as admin (auto-opens)"
+        action: "call"
+        target: "admission2"
+        method: "action_approve_approval"
+        as_user: "base.user_admin"
+        asserts:
+          state:
+            type: "value"
+            expected: "open"
+
+      - step: "Get the account.account.type Income reference"
+        action: "ref"
+        xml_id: "account.data_account_type_revenue"
+        save_as: "account_type_income"
+
+      - step: "Create the income account used by payment term details"
+        action: "create"
+        model: "account.account"
+        save_as: "income_account2"
+        values:
+          name: "ADM2 Income Account"
+          code: "ADM2IA"
+          user_type_id: "REC: account_type_income.id"
+          reconcile: false
+
+      - step: "Create the product for the Fixed Amount line"
+        action: "create"
+        model: "product.product"
+        save_as: "product2_fixed"
+        values:
+          name: "ADM2 Fixed Product"
+          type: "service"
+
+      - step: "Create the product for the Full Coverage line"
+        action: "create"
+        model: "product.product"
+        save_as: "product2_full"
+        values:
+          name: "ADM2 Full Product"
+          type: "service"
+
+      - step: "Create the Admission Payment Term for the Fixed line"
+        action: "create"
+        model: "school_admission_payment_term"
+        save_as: "term2_fixed"
+        values:
+          admission_id: "REC: admission2.id"
+          name: "ADM2 Fixed Term"
+          date_due: 2026-08-15
+          detail_ids:
+            - - 0
+              - 0
+              - product_id: "REC: product2_fixed.id"
+                name: "ADM2 Fixed Term Fee"
+                account_id: "REC: income_account2.id"
+                uom_quantity: 1.0
+                uom_id: "REF: uom.product_uom_unit"
+                price_unit: 1000000.0
+
+      - step: "Create the Admission Payment Term for the Full line"
+        action: "create"
+        model: "school_admission_payment_term"
+        save_as: "term2_full"
+        values:
+          admission_id: "REC: admission2.id"
+          name: "ADM2 Full Term"
+          date_due: 2026-09-15
+          detail_ids:
+            - - 0
+              - 0
+              - product_id: "REC: product2_full.id"
+                name: "ADM2 Full Term Fee"
+                account_id: "REC: income_account2.id"
+                uom_quantity: 1.0
+                uom_id: "REF: uom.product_uom_unit"
+                price_unit: 800000.0
+
+      - step: "Create the fee waiver type"
+        action: "create"
+        model: "school_fee_waiver_type"
+        save_as: "fw2_type"
+        values:
+          name: "ADM2 Type"
+          code: "ADM2TY"
+
+      - step: "Create the fee waiver reason"
+        action: "create"
+        model: "school_fee_waiver_reason"
+        save_as: "fw2_reason"
+        values:
+          name: "ADM2 Reason"
+          code: "ADM2RS"
+
+      - step: "Create the Admission-sourced waiver (no lines yet)"
+        action: "create"
+        model: "school_fee_waiver"
+        save_as: "waiver2"
+        values:
+          type_id: "REC: fw2_type.id"
+          reason_id: "REC: fw2_reason.id"
+          student_id: "REC: admission2.school_student_id.id"
+          source_type: "admission"
+          admission_id: "REC: admission2.id"
+          coverage: "multi_term"
+          date_start: 2026-08-01
+          date_end: 2026-09-30
+          user_id: "REF: base.user_admin"
+
+      - step: "Create the Fixed Amount line"
+        action: "create"
+        model: "school_fee_waiver_line"
+        save_as: "line2_fixed"
+        values:
+          waiver_id: "REC: waiver2.id"
+          product_id: "REC: product2_fixed.id"
+          computation: "fixed"
+          amount_fixed: 300000.0
+
+      - step: "Create the Full Coverage line"
+        action: "create"
+        model: "school_fee_waiver_line"
+        save_as: "line2_full"
+        values:
+          waiver_id: "REC: waiver2.id"
+          product_id: "REC: product2_full.id"
+          computation: "full"
+
+      - step: "Confirm the waiver as admin"
+        action: "call"
+        target: "waiver2"
+        method: "action_confirm"
+        as_user: "base.user_admin"
+        asserts:
+          state:
+            type: "value"
+            expected: "confirm"
+
+      - step: "Approve the waiver as admin (auto-opens, generates schedule)"
+        action: "call"
+        target: "waiver2"
+        method: "action_approve_approval"
+        as_user: "base.user_admin"
+        asserts:
+          state:
+            type: "value"
+            expected: "open"
+
+      - step: "Find the Fixed line's Schedule realizing its own Term"
+        action: "search"
+        model: "school_fee_waiver_schedule"
+        domain:
+          - ["line_id", "=", "REC: line2_fixed.id"]
+          - ["admission_payment_term_id", "=", "REC: term2_fixed.id"]
+        save_as: "sched2_fixed"
+        limit: 1
+
+      - step: "Assert the Fixed line's Amount Planned"
+        action: "assert"
+        target: "sched2_fixed"
+        asserts:
+          amount_planned:
+            type: "value"
+            expected: 300000.0
+
+      - step: "Find the Full line's Schedule realizing its own Term"
+        action: "search"
+        model: "school_fee_waiver_schedule"
+        domain:
+          - ["line_id", "=", "REC: line2_full.id"]
+          - ["admission_payment_term_id", "=", "REC: term2_full.id"]
+        save_as: "sched2_full"
+        limit: 1
+
+      - step: "Assert the Full line's Amount Planned"
+        action: "assert"
+        target: "sched2_full"
+        asserts:
+          amount_planned:
+            type: "value"
+            expected: 800000.0
+
+  - name: "Fee Waiver Enrollment - regression, still generates schedule from Enrollment"
+    steps:
+      # ── Shared fixture chain (suffix ADM3) ───────────────────────
+      - step: "Create the grade type"
+        action: "create"
+        model: "school_grade_type"
+        save_as: "grade_type3"
+        values:
+          name: "ADM3 Grade Type"
+          code: "ADM3GT"
+
+      - step: "Create the school"
+        action: "create"
+        model: "school"
+        save_as: "school3"
+        values:
+          name: "ADM3 School"
+          code: "ADM3SC"
+          grade_type_id: "REC: grade_type3.id"
+
+      - step: "Create the academic year"
+        action: "create"
+        model: "school_academic_year"
+        save_as: "academic_year3"
+        values:
+          name: "ADM3 Academic Year"
+          code: "ADM3AY"
+          date_start: 2026-07-01
+          date_end: 2027-06-30
+
+      - step: "Create the academic term"
+        action: "create"
+        model: "school_academic_term"
+        save_as: "academic_term3"
+        values:
+          name: "ADM3 Term"
+          code: "ADM3TM"
+          date_start: 2026-07-01
+          date_end: 2026-12-31
+          year_id: "REC: academic_year3.id"
+
+      - step: "Create the grade"
+        action: "create"
+        model: "school_grade"
+        save_as: "grade3"
+        values:
+          name: "ADM3 Grade"
+          code: "ADM3GR"
+          type_id: "REC: grade_type3.id"
+
+      - step: "Create the grade class"
+        action: "create"
+        model: "school_grade_class"
+        save_as: "grade_class3"
+        values:
+          name: "ADM3 Class"
+          code: "ADM3CL"
+          school_id: "REC: school3.id"
+          grade_id: "REC: grade3.id"
+
+      - step: "Create the student contact"
+        action: "create"
+        model: "res.partner"
+        save_as: "contact3"
+        values:
+          name: "ADM3 Contact"
+
+      - step: "Create the student"
+        action: "create"
+        model: "school_student"
+        save_as: "student3"
+        values:
+          name: "ADM3 Student"
+          code: "ADM3ST"
+          contact_id: "REC: contact3.id"
+          school_id: "REC: school3.id"
+
+      - step: "Create the enrollment"
+        action: "create"
+        model: "school_enrollment"
+        save_as: "enrollment3"
+        values:
+          academic_year_id: "REC: academic_year3.id"
+          academic_term_id: "REC: academic_term3.id"
+          school_id: "REC: school3.id"
+          grade_id: "REC: grade3.id"
+          grade_class_id: "REC: grade_class3.id"
+          student_id: "REC: student3.id"
+
+      - step: "Get the account.account.type Income reference"
+        action: "ref"
+        xml_id: "account.data_account_type_revenue"
+        save_as: "account_type_income"
+
+      - step: "Create the income account used by the payment term detail"
+        action: "create"
+        model: "account.account"
+        save_as: "income_account3"
+        values:
+          name: "ADM3 Income Account"
+          code: "ADM3IA"
+          user_type_id: "REC: account_type_income.id"
+          reconcile: false
+
+      - step: "Create the product covered by the waiver line"
+        action: "create"
+        model: "product.product"
+        save_as: "product3"
+        values:
+          name: "ADM3 Product"
+          type: "service"
+
+      - step: "Create the Enrollment Payment Term"
+        action: "create"
+        model: "school_enrollment_payment_term"
+        save_as: "term3"
+        values:
+          enrollment_id: "REC: enrollment3.id"
+          name: "ADM3 Term"
+          date_due: 2026-08-15
+          detail_ids:
+            - - 0
+              - 0
+              - product_id: "REC: product3.id"
+                name: "ADM3 Term Fee"
+                account_id: "REC: income_account3.id"
+                uom_quantity: 1.0
+                uom_id: "REF: uom.product_uom_unit"
+                price_unit: 1000000.0
+
+      - step: "Create the fee waiver type"
+        action: "create"
+        model: "school_fee_waiver_type"
+        save_as: "fw3_type"
+        values:
+          name: "ADM3 Type"
+          code: "ADM3TY"
+
+      - step: "Create the fee waiver reason"
+        action: "create"
+        model: "school_fee_waiver_reason"
+        save_as: "fw3_reason"
+        values:
+          name: "ADM3 Reason"
+          code: "ADM3RS"
+
+      - step: "Create the Enrollment-sourced waiver (Billing Source default)"
+        action: "create"
+        model: "school_fee_waiver"
+        save_as: "waiver3"
+        values:
+          type_id: "REC: fw3_type.id"
+          reason_id: "REC: fw3_reason.id"
+          student_id: "REC: student3.id"
+          enrollment_id: "REC: enrollment3.id"
+          coverage: "single_term"
+          payment_term_id: "REC: term3.id"
+          user_id: "REF: base.user_admin"
+          line_ids:
+            - - 0
+              - 0
+              - product_id: "REC: product3.id"
+                computation: "full"
+
+      - step: "Assert Billing Source stayed at the default Enrollment"
+        action: "assert"
+        target: "waiver3"
+        asserts:
+          source_type:
+            type: "value"
+            expected: "enrollment"
+          partner_id:
+            type: "m2o"
+            expected: "REC: contact3"
+          school_id:
+            type: "m2o"
+            expected: "REC: school3"
+
+      - step: "Confirm the waiver as admin"
+        action: "call"
+        target: "waiver3"
+        method: "action_confirm"
+        as_user: "base.user_admin"
+        asserts:
+          state:
+            type: "value"
+            expected: "confirm"
+
+      - step: "Approve the waiver as admin (auto-opens, generates schedule)"
+        action: "call"
+        target: "waiver3"
+        method: "action_approve_approval"
+        as_user: "base.user_admin"
+        asserts:
+          state:
+            type: "value"
+            expected: "open"
+
+      - step: "Assert opening generated exactly one Schedule line"
+        action: "search"
+        model: "school_fee_waiver_schedule"
+        domain: [["waiver_id", "=", "REC: waiver3.id"]]
+        save_as: "waiver3_schedule"
+        expect_count: 1
+
+      - step: "Assert the Schedule line was realized from the Enrollment Term"
+        action: "assert"
+        target: "waiver3_schedule"
+        asserts:
+          payment_term_id:
+            type: "m2o"
+            expected: "REC: term3"
+          admission_payment_term_id:
+            type: "value"
+            operator: "is_falsy"
+          amount_planned:
+            type: "value"
+            expected: 1000000.0
+
+  - name: "Fee Waiver Admission - Negative Paths"
+    steps:
+      # ── Shared fixture chain (suffix ADM4) ───────────────────────
+      - step: "Create the grade type"
+        action: "create"
+        model: "school_grade_type"
+        save_as: "grade_type4"
+        values:
+          name: "ADM4 Grade Type"
+          code: "ADM4GT"
+
+      - step: "Create the school"
+        action: "create"
+        model: "school"
+        save_as: "school4"
+        values:
+          name: "ADM4 School"
+          code: "ADM4SC"
+          grade_type_id: "REC: grade_type4.id"
+
+      - step: "Create the academic year"
+        action: "create"
+        model: "school_academic_year"
+        save_as: "academic_year4"
+        values:
+          name: "ADM4 Academic Year"
+          code: "ADM4AY"
+          date_start: 2026-07-01
+          date_end: 2027-06-30
+
+      - step: "Create the academic term"
+        action: "create"
+        model: "school_academic_term"
+        save_as: "academic_term4"
+        values:
+          name: "ADM4 Term"
+          code: "ADM4TM"
+          date_start: 2026-07-01
+          date_end: 2026-12-31
+          year_id: "REC: academic_year4.id"
+
+      - step: "Create the grade"
+        action: "create"
+        model: "school_grade"
+        save_as: "grade4"
+        values:
+          name: "ADM4 Grade"
+          code: "ADM4GR"
+          type_id: "REC: grade_type4.id"
+
+      - step: "Create the fee waiver type"
+        action: "create"
+        model: "school_fee_waiver_type"
+        save_as: "fw4_type"
+        values:
+          name: "ADM4 Type"
+          code: "ADM4TY"
+
+      - step: "Create the fee waiver reason"
+        action: "create"
+        model: "school_fee_waiver_reason"
+        save_as: "fw4_reason"
+        values:
+          name: "ADM4 Reason"
+          code: "ADM4RS"
+
+      - step: "Create a bare contact for the waiver's own Student"
+        action: "create"
+        model: "res.partner"
+        save_as: "bare_contact4"
+        values:
+          name: "ADM4 Bare Contact"
+
+      - step: "Create the waiver's own (unrelated) Student"
+        action: "create"
+        model: "school_student"
+        save_as: "bare_student4"
+        values:
+          name: "ADM4 Bare Student"
+          code: "ADM4BST"
+          contact_id: "REC: bare_contact4.id"
+          school_id: "REC: school4.id"
+
+      # ── Negative: Billing Source Admission with no Admission ─────
+      - step: "Reject an Admission-sourced waiver with no Admission"
+        action: "create"
+        model: "school_fee_waiver"
+        expect_error:
+          type: "ValidationError"
+          message_contains: "No billing source record set"
+        values:
+          type_id: "REC: fw4_type.id"
+          reason_id: "REC: fw4_reason.id"
+          student_id: "REC: bare_student4.id"
+          source_type: "admission"
+          coverage: "multi_term"
+
+      # ── Negative: Admission not yet linked to student data (Draft)
+      - step: "Create the admission student's contact (Admission C)"
+        action: "create"
+        model: "res.partner"
+        save_as: "admission_contact4c"
+        values:
+          name: "ADM4 Admission Contact C"
+
+      - step: "Create an admission left in Draft"
+        action: "create"
+        model: "school_admission"
+        save_as: "admission4c"
+        values:
+          academic_year_id: "REC: academic_year4.id"
+          academic_term_id: "REC: academic_term4.id"
+          school_id: "REC: school4.id"
+          grade_id: "REC: grade4.id"
+          student_id: "REC: admission_contact4c.id"
+
+      - step: "Reject a waiver billed against a still-Draft Admission"
+        action: "create"
+        model: "school_fee_waiver"
+        expect_error:
+          type: "ValidationError"
+          message_contains: "is not yet linked to student data"
+        values:
+          type_id: "REC: fw4_type.id"
+          reason_id: "REC: fw4_reason.id"
+          student_id: "REC: bare_student4.id"
+          source_type: "admission"
+          admission_id: "REC: admission4c.id"
+          coverage: "multi_term"
+
+      # ── Negative: Admission's School Student differs from Student ─
+      - step: "Create the admission student's contact (Admission B)"
+        action: "create"
+        model: "res.partner"
+        save_as: "admission_contact4b"
+        values:
+          name: "ADM4 Admission Contact B"
+
+      - step: "Create Admission B, opened"
+        action: "create"
+        model: "school_admission"
+        save_as: "admission4b"
+        values:
+          academic_year_id: "REC: academic_year4.id"
+          academic_term_id: "REC: academic_term4.id"
+          school_id: "REC: school4.id"
+          grade_id: "REC: grade4.id"
+          student_id: "REC: admission_contact4b.id"
+          user_id: "REF: base.user_admin"
+
+      - step: "Confirm Admission B as admin"
+        action: "call"
+        target: "admission4b"
+        method: "action_confirm"
+        as_user: "base.user_admin"
+        asserts:
+          state:
+            type: "value"
+            expected: "confirm"
+
+      - step: "Approve Admission B as admin (auto-opens)"
+        action: "call"
+        target: "admission4b"
+        method: "action_approve_approval"
+        as_user: "base.user_admin"
+        asserts:
+          state:
+            type: "value"
+            expected: "open"
+
+      - step: "Reject a waiver mixing an unrelated Student with Admission B"
+        action: "create"
+        model: "school_fee_waiver"
+        expect_error:
+          type: "ValidationError"
+          message_contains: "does not belong to Student"
+        values:
+          type_id: "REC: fw4_type.id"
+          reason_id: "REC: fw4_reason.id"
+          student_id: "REC: bare_student4.id"
+          source_type: "admission"
+          admission_id: "REC: admission4b.id"
+          coverage: "multi_term"
+
+      # ── Negative: schedule with both source terms set ─────────────
+      - step: "Create a product for the fixture line"
+        action: "create"
+        model: "product.product"
+        save_as: "product4"
+        values:
+          name: "ADM4 Product"
+          type: "service"
+
+      - step: "Create a valid Admission-sourced waiver as line_id fixture"
+        action: "create"
+        model: "school_fee_waiver"
+        save_as: "waiver4x"
+        values:
+          type_id: "REC: fw4_type.id"
+          reason_id: "REC: fw4_reason.id"
+          student_id: "REC: admission4b.school_student_id.id"
+          source_type: "admission"
+          admission_id: "REC: admission4b.id"
+          coverage: "multi_term"
+          user_id: "REF: base.user_admin"
+
+      - step: "Create the fixture Line"
+        action: "create"
+        model: "school_fee_waiver_line"
+        save_as: "line4x"
+        values:
+          waiver_id: "REC: waiver4x.id"
+          product_id: "REC: product4.id"
+          computation: "full"
+
+      - step: "Create a bare Enrollment Payment Term (no Enrollment)"
+        action: "create"
+        model: "school_enrollment_payment_term"
+        save_as: "payment_term4d"
+        values:
+          name: "ADM4 Bare Enrollment Term"
+
+      - step: "Create an Admission Payment Term on Admission B"
+        action: "create"
+        model: "school_admission_payment_term"
+        save_as: "admission_payment_term4b"
+        values:
+          admission_id: "REC: admission4b.id"
+          name: "ADM4 Admission Term B"
+
+      - step: "Reject a Schedule line setting both source term fields"
+        action: "create"
+        model: "school_fee_waiver_schedule"
+        expect_error:
+          type: "ValidationError"
+          message_contains: "Exactly one of Payment Term or Admission Payment Term"
+        values:
+          line_id: "REC: line4x.id"
+          date: 2026-08-01
+          payment_term_id: "REC: payment_term4d.id"
+          admission_payment_term_id: "REC: admission_payment_term4b.id"
