@@ -1,0 +1,1364 @@
+options:
+  auto_refresh: true
+scenarios:
+  - name:
+      "FW OU Derive - create derives operating unit from enrollment's school, overriding
+      the creating user's own default operating unit"
+    steps:
+      # ── Shared fixture chain (suffix FWOU1) ──────────────────────
+      - step: "Create partner for Operating Unit A"
+        action: "create"
+        model: "res.partner"
+        save_as: "fwou1_a_partner"
+        values:
+          name: "FW Derive OU1 A Partner"
+
+      - step: "Create Operating Unit A (the creating user's own default)"
+        action: "create"
+        model: "operating.unit"
+        save_as: "fwou1_a"
+        values:
+          name: "FW Derive OU1 A"
+          code: "FWOU1A"
+          company_id: "REF: base.main_company"
+          partner_id: "REC: fwou1_a_partner.id"
+
+      - step: "Create partner for Operating Unit B"
+        action: "create"
+        model: "res.partner"
+        save_as: "fwou1_b_partner"
+        values:
+          name: "FW Derive OU1 B Partner"
+
+      - step: "Create Operating Unit B (the enrollment school's own)"
+        action: "create"
+        model: "operating.unit"
+        save_as: "fwou1_b"
+        values:
+          name: "FW Derive OU1 B"
+          code: "FWOU1B"
+          company_id: "REF: base.main_company"
+          partner_id: "REC: fwou1_b_partner.id"
+
+      - step: "Create grade type"
+        action: "create"
+        model: "school_grade_type"
+        save_as: "fwou1_grade_type"
+        values:
+          name: "FWOU1 Grade Type"
+          code: "FWOU1GT"
+
+      - step: "Create School A with Operating Unit A"
+        action: "create"
+        model: "school"
+        save_as: "fwou1_school_a"
+        values:
+          name: "FWOU1 School A"
+          code: "FWOU1SCA"
+          grade_type_id: "REC: fwou1_grade_type.id"
+          operating_unit_ids: [[6, 0, ["REC: fwou1_a.id"]]]
+
+      - step: "Create School B with Operating Unit B"
+        action: "create"
+        model: "school"
+        save_as: "fwou1_school_b"
+        values:
+          name: "FWOU1 School B"
+          code: "FWOU1SCB"
+          grade_type_id: "REC: fwou1_grade_type.id"
+          operating_unit_ids: [[6, 0, ["REC: fwou1_b.id"]]]
+
+      - step: "Create grade"
+        action: "create"
+        model: "school_grade"
+        save_as: "fwou1_grade"
+        values:
+          name: "FWOU1 Grade"
+          code: "FWOU1GR"
+          type_id: "REC: fwou1_grade_type.id"
+
+      - step: "Create grade class at School B"
+        action: "create"
+        model: "school_grade_class"
+        save_as: "fwou1_grade_class_b"
+        values:
+          name: "FWOU1 Class B"
+          code: "FWOU1CLB"
+          school_id: "REC: fwou1_school_b.id"
+          grade_id: "REC: fwou1_grade.id"
+
+      - step: "Create academic year"
+        action: "create"
+        model: "school_academic_year"
+        save_as: "fwou1_academic_year"
+        values:
+          name: "FWOU1 Academic Year"
+          code: "FWOU1AY"
+          date_start: 2026-07-01
+          date_end: 2027-06-30
+
+      - step: "Create academic term"
+        action: "create"
+        model: "school_academic_term"
+        save_as: "fwou1_academic_term"
+        values:
+          name: "FWOU1 Term"
+          code: "FWOU1TM"
+          date_start: 2026-07-01
+          date_end: 2026-12-31
+          year_id: "REC: fwou1_academic_year.id"
+
+      - step: "Create student contact"
+        action: "create"
+        model: "res.partner"
+        save_as: "fwou1_contact"
+        values:
+          name: "FWOU1 Contact"
+
+      - step: "Create student at School B"
+        action: "create"
+        model: "school_student"
+        save_as: "fwou1_student"
+        values:
+          name: "FWOU1 Student"
+          code: "FWOU1ST"
+          contact_id: "REC: fwou1_contact.id"
+          school_id: "REC: fwou1_school_b.id"
+
+      - step: "Create enrollment at School B"
+        action: "create"
+        model: "school_enrollment"
+        save_as: "fwou1_enrollment"
+        values:
+          academic_year_id: "REC: fwou1_academic_year.id"
+          academic_term_id: "REC: fwou1_academic_term.id"
+          school_id: "REC: fwou1_school_b.id"
+          grade_id: "REC: fwou1_grade.id"
+          grade_class_id: "REC: fwou1_grade_class_b.id"
+          student_id: "REC: fwou1_student.id"
+
+      - step: "Create the fee waiver type"
+        action: "create"
+        model: "school_fee_waiver_type"
+        save_as: "fwou1_type"
+        values:
+          name: "FWOU1 Type"
+          code: "FWOU1TY"
+
+      - step: "Create the fee waiver reason"
+        action: "create"
+        model: "school_fee_waiver_reason"
+        save_as: "fwou1_reason"
+        values:
+          name: "FWOU1 Reason"
+          code: "FWOU1RS"
+
+      # The acting user's own default Operating Unit is set to A --
+      # proving the assertion below is about derivation from the
+      # enrollment's school (B), not a coincidence of the acting
+      # user's default. ``user`` is the built-in registry alias for
+      # the acting env (root/OdooBot, uid=1 by default), so this
+      # simulates "the creating user's own default OU is A" without
+      # needing a dedicated, OU-restricted res.users record -- which
+      # would itself be denied read access to School B by the global
+      # ``school - operating unit`` record rule
+      # (ssi_school_operating_unit) before derivation ever runs.
+      - step: "Set the acting user's own default operating unit to A"
+        action: "write"
+        target: "user"
+        values:
+          default_operating_unit_id: "REC: fwou1_a.id"
+          assigned_operating_unit_ids: [[6, 0, ["REC: fwou1_a.id"]]]
+
+      - step: "Create the fee waiver at School B's enrollment"
+        action: "create"
+        model: "school_fee_waiver"
+        save_as: "fwou1_waiver"
+        values:
+          type_id: "REC: fwou1_type.id"
+          reason_id: "REC: fwou1_reason.id"
+          student_id: "REC: fwou1_student.id"
+          enrollment_id: "REC: fwou1_enrollment.id"
+          coverage: "multi_term"
+
+      - step: "Assert operating unit followed School B, not the user's default (A)"
+        action: "assert"
+        target: "fwou1_waiver"
+        asserts:
+          operating_unit_id:
+            type: "m2o"
+            expected: "REC: fwou1_b"
+
+  - name: "FW OU Derive - write enrollment_id moves the operating unit"
+    steps:
+      # ── Shared fixture chain (suffix FWOU2) ──────────────────────
+      - step: "Create partner for Operating Unit A"
+        action: "create"
+        model: "res.partner"
+        save_as: "fwou2_a_partner"
+        values:
+          name: "FW Write Change OU A Partner"
+
+      - step: "Create Operating Unit A"
+        action: "create"
+        model: "operating.unit"
+        save_as: "fwou2_a"
+        values:
+          name: "FW Write Change OU A"
+          code: "FWOU2A"
+          company_id: "REF: base.main_company"
+          partner_id: "REC: fwou2_a_partner.id"
+
+      - step: "Create partner for Operating Unit B"
+        action: "create"
+        model: "res.partner"
+        save_as: "fwou2_b_partner"
+        values:
+          name: "FW Write Change OU B Partner"
+
+      - step: "Create Operating Unit B"
+        action: "create"
+        model: "operating.unit"
+        save_as: "fwou2_b"
+        values:
+          name: "FW Write Change OU B"
+          code: "FWOU2B"
+          company_id: "REF: base.main_company"
+          partner_id: "REC: fwou2_b_partner.id"
+
+      - step: "Create grade type"
+        action: "create"
+        model: "school_grade_type"
+        save_as: "fwou2_grade_type"
+        values:
+          name: "FWOU2 Grade Type"
+          code: "FWOU2GT"
+
+      - step: "Create School A with Operating Unit A"
+        action: "create"
+        model: "school"
+        save_as: "fwou2_school_a"
+        values:
+          name: "FWOU2 School A"
+          code: "FWOU2SCA"
+          grade_type_id: "REC: fwou2_grade_type.id"
+          operating_unit_ids: [[6, 0, ["REC: fwou2_a.id"]]]
+
+      - step: "Create School B with Operating Unit B"
+        action: "create"
+        model: "school"
+        save_as: "fwou2_school_b"
+        values:
+          name: "FWOU2 School B"
+          code: "FWOU2SCB"
+          grade_type_id: "REC: fwou2_grade_type.id"
+          operating_unit_ids: [[6, 0, ["REC: fwou2_b.id"]]]
+
+      - step: "Create grade"
+        action: "create"
+        model: "school_grade"
+        save_as: "fwou2_grade"
+        values:
+          name: "FWOU2 Grade"
+          code: "FWOU2GR"
+          type_id: "REC: fwou2_grade_type.id"
+
+      - step: "Create grade class for School A"
+        action: "create"
+        model: "school_grade_class"
+        save_as: "fwou2_grade_class_a"
+        values:
+          name: "FWOU2 Class A"
+          code: "FWOU2CLA"
+          school_id: "REC: fwou2_school_a.id"
+          grade_id: "REC: fwou2_grade.id"
+
+      - step: "Create grade class for School B"
+        action: "create"
+        model: "school_grade_class"
+        save_as: "fwou2_grade_class_b"
+        values:
+          name: "FWOU2 Class B"
+          code: "FWOU2CLB"
+          school_id: "REC: fwou2_school_b.id"
+          grade_id: "REC: fwou2_grade.id"
+
+      - step: "Create academic year"
+        action: "create"
+        model: "school_academic_year"
+        save_as: "fwou2_academic_year"
+        values:
+          name: "FWOU2 Academic Year"
+          code: "FWOU2AY"
+          date_start: 2026-07-01
+          date_end: 2027-06-30
+
+      - step: "Create academic term"
+        action: "create"
+        model: "school_academic_term"
+        save_as: "fwou2_academic_term"
+        values:
+          name: "FWOU2 Term"
+          code: "FWOU2TM"
+          date_start: 2026-07-01
+          date_end: 2026-12-31
+          year_id: "REC: fwou2_academic_year.id"
+
+      - step: "Create student contact"
+        action: "create"
+        model: "res.partner"
+        save_as: "fwou2_contact"
+        values:
+          name: "FWOU2 Contact"
+
+      - step: "Create student in School A"
+        action: "create"
+        model: "school_student"
+        save_as: "fwou2_student"
+        values:
+          name: "FWOU2 Student"
+          code: "FWOU2ST"
+          contact_id: "REC: fwou2_contact.id"
+          school_id: "REC: fwou2_school_a.id"
+
+      - step: "Create enrollment A (School A)"
+        action: "create"
+        model: "school_enrollment"
+        save_as: "fwou2_enrollment_a"
+        values:
+          academic_year_id: "REC: fwou2_academic_year.id"
+          academic_term_id: "REC: fwou2_academic_term.id"
+          school_id: "REC: fwou2_school_a.id"
+          grade_id: "REC: fwou2_grade.id"
+          grade_class_id: "REC: fwou2_grade_class_a.id"
+          student_id: "REC: fwou2_student.id"
+
+      - step: "Create enrollment B (School B), same Student"
+        action: "create"
+        model: "school_enrollment"
+        save_as: "fwou2_enrollment_b"
+        values:
+          academic_year_id: "REC: fwou2_academic_year.id"
+          academic_term_id: "REC: fwou2_academic_term.id"
+          school_id: "REC: fwou2_school_b.id"
+          grade_id: "REC: fwou2_grade.id"
+          grade_class_id: "REC: fwou2_grade_class_b.id"
+          student_id: "REC: fwou2_student.id"
+
+      - step: "Create the fee waiver type"
+        action: "create"
+        model: "school_fee_waiver_type"
+        save_as: "fwou2_type"
+        values:
+          name: "FWOU2 Type"
+          code: "FWOU2TY"
+
+      - step: "Create the fee waiver reason"
+        action: "create"
+        model: "school_fee_waiver_reason"
+        save_as: "fwou2_reason"
+        values:
+          name: "FWOU2 Reason"
+          code: "FWOU2RS"
+
+      - step: "Create the fee waiver for Enrollment A (School A)"
+        action: "create"
+        model: "school_fee_waiver"
+        save_as: "fwou2_waiver"
+        values:
+          type_id: "REC: fwou2_type.id"
+          reason_id: "REC: fwou2_reason.id"
+          student_id: "REC: fwou2_student.id"
+          enrollment_id: "REC: fwou2_enrollment_a.id"
+          coverage: "multi_term"
+
+      - step: "Assert operating unit was derived from School A"
+        action: "assert"
+        target: "fwou2_waiver"
+        asserts:
+          operating_unit_id:
+            type: "m2o"
+            expected: "REC: fwou2_a"
+
+      - step: "Write enrollment_id to Enrollment B (School B)"
+        action: "write"
+        target: "fwou2_waiver"
+        values:
+          enrollment_id: "REC: fwou2_enrollment_b.id"
+
+      - step: "Assert operating unit moved to School B"
+        action: "assert"
+        target: "fwou2_waiver"
+        asserts:
+          operating_unit_id:
+            type: "m2o"
+            expected: "REC: fwou2_b"
+
+  - name: "FW OU Derive - explicit operating_unit_id in create wins over the derivation"
+    steps:
+      # ── Shared fixture chain (suffix FWOU3) ──────────────────────
+      - step: "Create partner for the enrollment school's own operating unit"
+        action: "create"
+        model: "res.partner"
+        save_as: "fwou3_school_partner"
+        values:
+          name: "FW Explicit OU3 School Partner"
+
+      - step: "Create the enrollment school's own operating unit"
+        action: "create"
+        model: "operating.unit"
+        save_as: "fwou3_school_ou"
+        values:
+          name: "FW Explicit OU3 School OU"
+          code: "FWOU3SC"
+          company_id: "REF: base.main_company"
+          partner_id: "REC: fwou3_school_partner.id"
+
+      - step: "Create partner for the explicit operating unit"
+        action: "create"
+        model: "res.partner"
+        save_as: "fwou3_explicit_partner"
+        values:
+          name: "FW Explicit OU3 Explicit Partner"
+
+      - step: "Create the explicit operating unit (unrelated to the school)"
+        action: "create"
+        model: "operating.unit"
+        save_as: "fwou3_explicit_ou"
+        values:
+          name: "FW Explicit OU3 Explicit OU"
+          code: "FWOU3EX"
+          company_id: "REF: base.main_company"
+          partner_id: "REC: fwou3_explicit_partner.id"
+
+      - step: "Create grade type"
+        action: "create"
+        model: "school_grade_type"
+        save_as: "fwou3_grade_type"
+        values:
+          name: "FWOU3 Grade Type"
+          code: "FWOU3GT"
+
+      - step: "Create school with exactly one operating unit"
+        action: "create"
+        model: "school"
+        save_as: "fwou3_school"
+        values:
+          name: "FWOU3 School"
+          code: "FWOU3SCH"
+          grade_type_id: "REC: fwou3_grade_type.id"
+          operating_unit_ids: [[6, 0, ["REC: fwou3_school_ou.id"]]]
+
+      - step: "Create grade"
+        action: "create"
+        model: "school_grade"
+        save_as: "fwou3_grade"
+        values:
+          name: "FWOU3 Grade"
+          code: "FWOU3GR"
+          type_id: "REC: fwou3_grade_type.id"
+
+      - step: "Create grade class"
+        action: "create"
+        model: "school_grade_class"
+        save_as: "fwou3_grade_class"
+        values:
+          name: "FWOU3 Class"
+          code: "FWOU3CL"
+          school_id: "REC: fwou3_school.id"
+          grade_id: "REC: fwou3_grade.id"
+
+      - step: "Create academic year"
+        action: "create"
+        model: "school_academic_year"
+        save_as: "fwou3_academic_year"
+        values:
+          name: "FWOU3 Academic Year"
+          code: "FWOU3AY"
+          date_start: 2026-07-01
+          date_end: 2027-06-30
+
+      - step: "Create academic term"
+        action: "create"
+        model: "school_academic_term"
+        save_as: "fwou3_academic_term"
+        values:
+          name: "FWOU3 Term"
+          code: "FWOU3TM"
+          date_start: 2026-07-01
+          date_end: 2026-12-31
+          year_id: "REC: fwou3_academic_year.id"
+
+      - step: "Create student contact"
+        action: "create"
+        model: "res.partner"
+        save_as: "fwou3_contact"
+        values:
+          name: "FWOU3 Contact"
+
+      - step: "Create student"
+        action: "create"
+        model: "school_student"
+        save_as: "fwou3_student"
+        values:
+          name: "FWOU3 Student"
+          code: "FWOU3ST"
+          contact_id: "REC: fwou3_contact.id"
+          school_id: "REC: fwou3_school.id"
+
+      - step: "Create enrollment"
+        action: "create"
+        model: "school_enrollment"
+        save_as: "fwou3_enrollment"
+        values:
+          academic_year_id: "REC: fwou3_academic_year.id"
+          academic_term_id: "REC: fwou3_academic_term.id"
+          school_id: "REC: fwou3_school.id"
+          grade_id: "REC: fwou3_grade.id"
+          grade_class_id: "REC: fwou3_grade_class.id"
+          student_id: "REC: fwou3_student.id"
+
+      - step: "Create the fee waiver type"
+        action: "create"
+        model: "school_fee_waiver_type"
+        save_as: "fwou3_type"
+        values:
+          name: "FWOU3 Type"
+          code: "FWOU3TY"
+
+      - step: "Create the fee waiver reason"
+        action: "create"
+        model: "school_fee_waiver_reason"
+        save_as: "fwou3_reason"
+        values:
+          name: "FWOU3 Reason"
+          code: "FWOU3RS"
+
+      - step:
+          "Create the fee waiver with BOTH enrollment_id and an explicit
+          operating_unit_id in the same vals"
+        action: "create"
+        model: "school_fee_waiver"
+        save_as: "fwou3_waiver"
+        values:
+          type_id: "REC: fwou3_type.id"
+          reason_id: "REC: fwou3_reason.id"
+          student_id: "REC: fwou3_student.id"
+          enrollment_id: "REC: fwou3_enrollment.id"
+          coverage: "multi_term"
+          operating_unit_id: "REC: fwou3_explicit_ou.id"
+
+      - step: "Assert the explicit operating unit was kept, not the school's own"
+        action: "assert"
+        target: "fwou3_waiver"
+        asserts:
+          operating_unit_id:
+            type: "m2o"
+            expected: "REC: fwou3_explicit_ou"
+
+  - name:
+      "FW OU Derive - write that only sets operating_unit_id (no enrollment_id) passes
+      through unchanged"
+    steps:
+      # ── Shared fixture chain (suffix FWOU4) ──────────────────────
+      - step: "Create partner for the enrollment school's own operating unit"
+        action: "create"
+        model: "res.partner"
+        save_as: "fwou4_school_partner"
+        values:
+          name: "FW Write-Only OU4 School Partner"
+
+      - step: "Create the enrollment school's own operating unit"
+        action: "create"
+        model: "operating.unit"
+        save_as: "fwou4_school_ou"
+        values:
+          name: "FW Write-Only OU4 School OU"
+          code: "FWOU4SC"
+          company_id: "REF: base.main_company"
+          partner_id: "REC: fwou4_school_partner.id"
+
+      - step: "Create partner for the manually-written operating unit"
+        action: "create"
+        model: "res.partner"
+        save_as: "fwou4_manual_partner"
+        values:
+          name: "FW Write-Only OU4 Manual Partner"
+
+      - step: "Create the manually-written operating unit (unrelated to the school)"
+        action: "create"
+        model: "operating.unit"
+        save_as: "fwou4_manual_ou"
+        values:
+          name: "FW Write-Only OU4 Manual OU"
+          code: "FWOU4MN"
+          company_id: "REF: base.main_company"
+          partner_id: "REC: fwou4_manual_partner.id"
+
+      - step: "Create grade type"
+        action: "create"
+        model: "school_grade_type"
+        save_as: "fwou4_grade_type"
+        values:
+          name: "FWOU4 Grade Type"
+          code: "FWOU4GT"
+
+      - step: "Create school with exactly one operating unit"
+        action: "create"
+        model: "school"
+        save_as: "fwou4_school"
+        values:
+          name: "FWOU4 School"
+          code: "FWOU4SCH"
+          grade_type_id: "REC: fwou4_grade_type.id"
+          operating_unit_ids: [[6, 0, ["REC: fwou4_school_ou.id"]]]
+
+      - step: "Create grade"
+        action: "create"
+        model: "school_grade"
+        save_as: "fwou4_grade"
+        values:
+          name: "FWOU4 Grade"
+          code: "FWOU4GR"
+          type_id: "REC: fwou4_grade_type.id"
+
+      - step: "Create grade class"
+        action: "create"
+        model: "school_grade_class"
+        save_as: "fwou4_grade_class"
+        values:
+          name: "FWOU4 Class"
+          code: "FWOU4CL"
+          school_id: "REC: fwou4_school.id"
+          grade_id: "REC: fwou4_grade.id"
+
+      - step: "Create academic year"
+        action: "create"
+        model: "school_academic_year"
+        save_as: "fwou4_academic_year"
+        values:
+          name: "FWOU4 Academic Year"
+          code: "FWOU4AY"
+          date_start: 2026-07-01
+          date_end: 2027-06-30
+
+      - step: "Create academic term"
+        action: "create"
+        model: "school_academic_term"
+        save_as: "fwou4_academic_term"
+        values:
+          name: "FWOU4 Term"
+          code: "FWOU4TM"
+          date_start: 2026-07-01
+          date_end: 2026-12-31
+          year_id: "REC: fwou4_academic_year.id"
+
+      - step: "Create student contact"
+        action: "create"
+        model: "res.partner"
+        save_as: "fwou4_contact"
+        values:
+          name: "FWOU4 Contact"
+
+      - step: "Create student"
+        action: "create"
+        model: "school_student"
+        save_as: "fwou4_student"
+        values:
+          name: "FWOU4 Student"
+          code: "FWOU4ST"
+          contact_id: "REC: fwou4_contact.id"
+          school_id: "REC: fwou4_school.id"
+
+      - step: "Create enrollment"
+        action: "create"
+        model: "school_enrollment"
+        save_as: "fwou4_enrollment"
+        values:
+          academic_year_id: "REC: fwou4_academic_year.id"
+          academic_term_id: "REC: fwou4_academic_term.id"
+          school_id: "REC: fwou4_school.id"
+          grade_id: "REC: fwou4_grade.id"
+          grade_class_id: "REC: fwou4_grade_class.id"
+          student_id: "REC: fwou4_student.id"
+
+      - step: "Create the fee waiver type"
+        action: "create"
+        model: "school_fee_waiver_type"
+        save_as: "fwou4_type"
+        values:
+          name: "FWOU4 Type"
+          code: "FWOU4TY"
+
+      - step: "Create the fee waiver reason"
+        action: "create"
+        model: "school_fee_waiver_reason"
+        save_as: "fwou4_reason"
+        values:
+          name: "FWOU4 Reason"
+          code: "FWOU4RS"
+
+      - step: "Create the fee waiver at the school's enrollment"
+        action: "create"
+        model: "school_fee_waiver"
+        save_as: "fwou4_waiver"
+        values:
+          type_id: "REC: fwou4_type.id"
+          reason_id: "REC: fwou4_reason.id"
+          student_id: "REC: fwou4_student.id"
+          enrollment_id: "REC: fwou4_enrollment.id"
+          coverage: "multi_term"
+
+      - step: "Assert operating unit was derived from the school"
+        action: "assert"
+        target: "fwou4_waiver"
+        asserts:
+          operating_unit_id:
+            type: "m2o"
+            expected: "REC: fwou4_school_ou"
+
+      - step: "Write ONLY operating_unit_id, without touching enrollment_id"
+        action: "write"
+        target: "fwou4_waiver"
+        values:
+          operating_unit_id: "REC: fwou4_manual_ou.id"
+
+      - step: "Assert the manually-written operating unit passed through unchanged"
+        action: "assert"
+        target: "fwou4_waiver"
+        asserts:
+          operating_unit_id:
+            type: "m2o"
+            expected: "REC: fwou4_manual_ou"
+          enrollment_id:
+            type: "m2o"
+            expected: "REC: fwou4_enrollment"
+
+  - name:
+      "FW OU Rule - a user restricted to Operating Unit A does not see a document
+      belonging to Operating Unit B in a list search"
+    steps:
+      # ── Shared fixture chain (suffix FWOU5) ──────────────────────
+      - step: "Create partner for Operating Unit A"
+        action: "create"
+        model: "res.partner"
+        save_as: "fwou5_a_partner"
+        values:
+          name: "FW Rule OU5 A Partner"
+
+      - step: "Create Operating Unit A"
+        action: "create"
+        model: "operating.unit"
+        save_as: "fwou5_a"
+        values:
+          name: "FW Rule OU5 A"
+          code: "FWOU5A"
+          company_id: "REF: base.main_company"
+          partner_id: "REC: fwou5_a_partner.id"
+
+      - step: "Create partner for Operating Unit B"
+        action: "create"
+        model: "res.partner"
+        save_as: "fwou5_b_partner"
+        values:
+          name: "FW Rule OU5 B Partner"
+
+      - step: "Create Operating Unit B"
+        action: "create"
+        model: "operating.unit"
+        save_as: "fwou5_b"
+        values:
+          name: "FW Rule OU5 B"
+          code: "FWOU5B"
+          company_id: "REF: base.main_company"
+          partner_id: "REC: fwou5_b_partner.id"
+
+      - step: "Create grade type"
+        action: "create"
+        model: "school_grade_type"
+        save_as: "fwou5_grade_type"
+        values:
+          name: "FWOU5 Grade Type"
+          code: "FWOU5GT"
+
+      - step: "Create School A with Operating Unit A"
+        action: "create"
+        model: "school"
+        save_as: "fwou5_school_a"
+        values:
+          name: "FWOU5 School A"
+          code: "FWOU5SCA"
+          grade_type_id: "REC: fwou5_grade_type.id"
+          operating_unit_ids: [[6, 0, ["REC: fwou5_a.id"]]]
+
+      - step: "Create School B with Operating Unit B"
+        action: "create"
+        model: "school"
+        save_as: "fwou5_school_b"
+        values:
+          name: "FWOU5 School B"
+          code: "FWOU5SCB"
+          grade_type_id: "REC: fwou5_grade_type.id"
+          operating_unit_ids: [[6, 0, ["REC: fwou5_b.id"]]]
+
+      - step: "Create grade"
+        action: "create"
+        model: "school_grade"
+        save_as: "fwou5_grade"
+        values:
+          name: "FWOU5 Grade"
+          code: "FWOU5GR"
+          type_id: "REC: fwou5_grade_type.id"
+
+      - step: "Create grade class for School A"
+        action: "create"
+        model: "school_grade_class"
+        save_as: "fwou5_grade_class_a"
+        values:
+          name: "FWOU5 Class A"
+          code: "FWOU5CLA"
+          school_id: "REC: fwou5_school_a.id"
+          grade_id: "REC: fwou5_grade.id"
+
+      - step: "Create grade class for School B"
+        action: "create"
+        model: "school_grade_class"
+        save_as: "fwou5_grade_class_b"
+        values:
+          name: "FWOU5 Class B"
+          code: "FWOU5CLB"
+          school_id: "REC: fwou5_school_b.id"
+          grade_id: "REC: fwou5_grade.id"
+
+      - step: "Create academic year"
+        action: "create"
+        model: "school_academic_year"
+        save_as: "fwou5_academic_year"
+        values:
+          name: "FWOU5 Academic Year"
+          code: "FWOU5AY"
+          date_start: 2026-07-01
+          date_end: 2027-06-30
+
+      - step: "Create academic term"
+        action: "create"
+        model: "school_academic_term"
+        save_as: "fwou5_academic_term"
+        values:
+          name: "FWOU5 Term"
+          code: "FWOU5TM"
+          date_start: 2026-07-01
+          date_end: 2026-12-31
+          year_id: "REC: fwou5_academic_year.id"
+
+      - step: "Create student contact A"
+        action: "create"
+        model: "res.partner"
+        save_as: "fwou5_contact_a"
+        values:
+          name: "FWOU5 Contact A"
+
+      - step: "Create student A (School A)"
+        action: "create"
+        model: "school_student"
+        save_as: "fwou5_student_a"
+        values:
+          name: "FWOU5 Student A"
+          code: "FWOU5STA"
+          contact_id: "REC: fwou5_contact_a.id"
+          school_id: "REC: fwou5_school_a.id"
+
+      - step: "Create student contact B"
+        action: "create"
+        model: "res.partner"
+        save_as: "fwou5_contact_b"
+        values:
+          name: "FWOU5 Contact B"
+
+      - step: "Create student B (School B)"
+        action: "create"
+        model: "school_student"
+        save_as: "fwou5_student_b"
+        values:
+          name: "FWOU5 Student B"
+          code: "FWOU5STB"
+          contact_id: "REC: fwou5_contact_b.id"
+          school_id: "REC: fwou5_school_b.id"
+
+      - step: "Create enrollment A (School A)"
+        action: "create"
+        model: "school_enrollment"
+        save_as: "fwou5_enrollment_a"
+        values:
+          academic_year_id: "REC: fwou5_academic_year.id"
+          academic_term_id: "REC: fwou5_academic_term.id"
+          school_id: "REC: fwou5_school_a.id"
+          grade_id: "REC: fwou5_grade.id"
+          grade_class_id: "REC: fwou5_grade_class_a.id"
+          student_id: "REC: fwou5_student_a.id"
+
+      - step: "Create enrollment B (School B)"
+        action: "create"
+        model: "school_enrollment"
+        save_as: "fwou5_enrollment_b"
+        values:
+          academic_year_id: "REC: fwou5_academic_year.id"
+          academic_term_id: "REC: fwou5_academic_term.id"
+          school_id: "REC: fwou5_school_b.id"
+          grade_id: "REC: fwou5_grade.id"
+          grade_class_id: "REC: fwou5_grade_class_b.id"
+          student_id: "REC: fwou5_student_b.id"
+
+      - step: "Create the fee waiver type"
+        action: "create"
+        model: "school_fee_waiver_type"
+        save_as: "fwou5_type"
+        values:
+          name: "FWOU5 Type"
+          code: "FWOU5TY"
+
+      - step: "Create the fee waiver reason"
+        action: "create"
+        model: "school_fee_waiver_reason"
+        save_as: "fwou5_reason"
+        values:
+          name: "FWOU5 Reason"
+          code: "FWOU5RS"
+
+      # ``user_id`` is set explicitly to admin (not the restricted user
+      # created below) so the exclusion asserted further down is
+      # unambiguously caused by the Operating Unit record rule, not by
+      # the built-in ownership record rule
+      # (``school_fee_waiver_internal_user_rule``, which OR's its own
+      # ``user_id = user.id`` domain into the same access check).
+      - step: "Create the waiver at School A, owned by admin"
+        action: "create"
+        model: "school_fee_waiver"
+        save_as: "fwou5_waiver_a"
+        values:
+          type_id: "REC: fwou5_type.id"
+          reason_id: "REC: fwou5_reason.id"
+          student_id: "REC: fwou5_student_a.id"
+          enrollment_id: "REC: fwou5_enrollment_a.id"
+          coverage: "multi_term"
+          user_id: "REF: base.user_admin"
+
+      - step: "Create the waiver at School B, owned by admin"
+        action: "create"
+        model: "school_fee_waiver"
+        save_as: "fwou5_waiver_b"
+        values:
+          type_id: "REC: fwou5_type.id"
+          reason_id: "REC: fwou5_reason.id"
+          student_id: "REC: fwou5_student_b.id"
+          enrollment_id: "REC: fwou5_enrollment_b.id"
+          coverage: "multi_term"
+          user_id: "REF: base.user_admin"
+
+      - step: "Assert the two waivers landed in Operating Units A and B respectively"
+        action: "assert"
+        target: "fwou5_waiver_a"
+        asserts:
+          operating_unit_id:
+            type: "m2o"
+            expected: "REC: fwou5_a"
+
+      - step: "Create a user restricted to Operating Unit A only"
+        action: "create"
+        model: "res.users"
+        save_as: "fwou5_restricted_user"
+        values:
+          name: "FWOU5 Restricted User"
+          login: "fwou5_restricted_user@example.com"
+          groups_id:
+            - - 6
+              - 0
+              - - "REF: base.group_user"
+                - "REF: ssi_school_fee_waiver.school_fee_waiver_viewer_group"
+                - "REF:
+                  ssi_school_fee_waiver_operating_unit.school_fee_waiver_operating_unit_group"
+          assigned_operating_unit_ids: [[6, 0, ["REC: fwou5_a.id"]]]
+
+      - step:
+          "Restricted user searches for the Operating Unit B waiver -- it is excluded"
+        action: "search"
+        model: "school_fee_waiver"
+        domain: [["id", "=", "REC: fwou5_waiver_b.id"]]
+        save_as: "fwou5_search_b"
+        as_user: "fwou5_restricted_user"
+        expect_count: 0
+
+      - step:
+          "Restricted user searches for the Operating Unit A waiver -- it is visible"
+        action: "search"
+        model: "school_fee_waiver"
+        domain: [["id", "=", "REC: fwou5_waiver_a.id"]]
+        save_as: "fwou5_search_a"
+        as_user: "fwou5_restricted_user"
+        expect_count: 1
+
+  - name:
+      "FW OU Derive - a school with no operating unit or more than one leaves
+      operating_unit_id empty, without raising an error"
+    steps:
+      # ── Shared fixture chain (suffix FWOU6) ──────────────────────
+      - step: "Create partner for Operating Unit A"
+        action: "create"
+        model: "res.partner"
+        save_as: "fwou6_a_partner"
+        values:
+          name: "FW Ambiguous OU6 A Partner"
+
+      - step: "Create Operating Unit A"
+        action: "create"
+        model: "operating.unit"
+        save_as: "fwou6_a"
+        values:
+          name: "FW Ambiguous OU6 A"
+          code: "FWOU6A"
+          company_id: "REF: base.main_company"
+          partner_id: "REC: fwou6_a_partner.id"
+
+      - step: "Create partner for Operating Unit B"
+        action: "create"
+        model: "res.partner"
+        save_as: "fwou6_b_partner"
+        values:
+          name: "FW Ambiguous OU6 B Partner"
+
+      - step: "Create Operating Unit B"
+        action: "create"
+        model: "operating.unit"
+        save_as: "fwou6_b"
+        values:
+          name: "FW Ambiguous OU6 B"
+          code: "FWOU6B"
+          company_id: "REF: base.main_company"
+          partner_id: "REC: fwou6_b_partner.id"
+
+      - step: "Create grade type"
+        action: "create"
+        model: "school_grade_type"
+        save_as: "fwou6_grade_type"
+        values:
+          name: "FWOU6 Grade Type"
+          code: "FWOU6GT"
+
+      - step: "Create the school with NO operating unit"
+        action: "create"
+        model: "school"
+        save_as: "fwou6_school_none"
+        values:
+          name: "FWOU6 School None"
+          code: "FWOU6SCN"
+          grade_type_id: "REC: fwou6_grade_type.id"
+
+      - step: "Create the school with TWO operating units"
+        action: "create"
+        model: "school"
+        save_as: "fwou6_school_multi"
+        values:
+          name: "FWOU6 School Multi"
+          code: "FWOU6SCM"
+          grade_type_id: "REC: fwou6_grade_type.id"
+          operating_unit_ids: [[6, 0, ["REC: fwou6_a.id", "REC: fwou6_b.id"]]]
+
+      - step: "Create grade"
+        action: "create"
+        model: "school_grade"
+        save_as: "fwou6_grade"
+        values:
+          name: "FWOU6 Grade"
+          code: "FWOU6GR"
+          type_id: "REC: fwou6_grade_type.id"
+
+      - step: "Create grade class for the OU-less school"
+        action: "create"
+        model: "school_grade_class"
+        save_as: "fwou6_grade_class_none"
+        values:
+          name: "FWOU6 Class None"
+          code: "FWOU6CLN"
+          school_id: "REC: fwou6_school_none.id"
+          grade_id: "REC: fwou6_grade.id"
+
+      - step: "Create grade class for the multi-OU school"
+        action: "create"
+        model: "school_grade_class"
+        save_as: "fwou6_grade_class_multi"
+        values:
+          name: "FWOU6 Class Multi"
+          code: "FWOU6CLM"
+          school_id: "REC: fwou6_school_multi.id"
+          grade_id: "REC: fwou6_grade.id"
+
+      - step: "Create academic year"
+        action: "create"
+        model: "school_academic_year"
+        save_as: "fwou6_academic_year"
+        values:
+          name: "FWOU6 Academic Year"
+          code: "FWOU6AY"
+          date_start: 2026-07-01
+          date_end: 2027-06-30
+
+      - step: "Create academic term"
+        action: "create"
+        model: "school_academic_term"
+        save_as: "fwou6_academic_term"
+        values:
+          name: "FWOU6 Term"
+          code: "FWOU6TM"
+          date_start: 2026-07-01
+          date_end: 2026-12-31
+          year_id: "REC: fwou6_academic_year.id"
+
+      - step: "Create student contact None"
+        action: "create"
+        model: "res.partner"
+        save_as: "fwou6_contact_none"
+        values:
+          name: "FWOU6 Contact None"
+
+      - step: "Create student at the OU-less school"
+        action: "create"
+        model: "school_student"
+        save_as: "fwou6_student_none"
+        values:
+          name: "FWOU6 Student None"
+          code: "FWOU6STN"
+          contact_id: "REC: fwou6_contact_none.id"
+          school_id: "REC: fwou6_school_none.id"
+
+      - step: "Create student contact Multi"
+        action: "create"
+        model: "res.partner"
+        save_as: "fwou6_contact_multi"
+        values:
+          name: "FWOU6 Contact Multi"
+
+      - step: "Create student at the multi-OU school"
+        action: "create"
+        model: "school_student"
+        save_as: "fwou6_student_multi"
+        values:
+          name: "FWOU6 Student Multi"
+          code: "FWOU6STM"
+          contact_id: "REC: fwou6_contact_multi.id"
+          school_id: "REC: fwou6_school_multi.id"
+
+      - step: "Create enrollment at the OU-less school"
+        action: "create"
+        model: "school_enrollment"
+        save_as: "fwou6_enrollment_none"
+        values:
+          academic_year_id: "REC: fwou6_academic_year.id"
+          academic_term_id: "REC: fwou6_academic_term.id"
+          school_id: "REC: fwou6_school_none.id"
+          grade_id: "REC: fwou6_grade.id"
+          grade_class_id: "REC: fwou6_grade_class_none.id"
+          student_id: "REC: fwou6_student_none.id"
+
+      - step: "Create enrollment at the multi-OU school"
+        action: "create"
+        model: "school_enrollment"
+        save_as: "fwou6_enrollment_multi"
+        values:
+          academic_year_id: "REC: fwou6_academic_year.id"
+          academic_term_id: "REC: fwou6_academic_term.id"
+          school_id: "REC: fwou6_school_multi.id"
+          grade_id: "REC: fwou6_grade.id"
+          grade_class_id: "REC: fwou6_grade_class_multi.id"
+          student_id: "REC: fwou6_student_multi.id"
+
+      - step: "Create the fee waiver type"
+        action: "create"
+        model: "school_fee_waiver_type"
+        save_as: "fwou6_type"
+        values:
+          name: "FWOU6 Type"
+          code: "FWOU6TY"
+
+      - step: "Create the fee waiver reason"
+        action: "create"
+        model: "school_fee_waiver_reason"
+        save_as: "fwou6_reason"
+        values:
+          name: "FWOU6 Reason"
+          code: "FWOU6RS"
+
+      # The acting user (``user`` -- root/OdooBot, uid=1 by default)
+      # is left with NO operating unit of its own, so the mixin's
+      # default (``operating_unit_default_get``) also resolves to
+      # empty -- the assertions below prove the field stays empty
+      # because of the ambiguous school, not because of an unrelated
+      # ambient default. Explicit even though a fresh test DB already
+      # starts this way, since scenarios in this file share one
+      # transaction and an earlier scenario (FWOU1) deliberately sets
+      # a default on this same ``user``.
+      - step: "Clear the acting user's own operating unit"
+        action: "write"
+        target: "user"
+        values:
+          default_operating_unit_id: false
+          assigned_operating_unit_ids: [[6, 0, []]]
+
+      - step: "Create the fee waiver at the OU-less school's enrollment"
+        action: "create"
+        model: "school_fee_waiver"
+        save_as: "fwou6_waiver_none"
+        values:
+          type_id: "REC: fwou6_type.id"
+          reason_id: "REC: fwou6_reason.id"
+          student_id: "REC: fwou6_student_none.id"
+          enrollment_id: "REC: fwou6_enrollment_none.id"
+          coverage: "multi_term"
+
+      - step: "Assert operating_unit_id was left empty -- no error, no derivation"
+        action: "assert"
+        target: "fwou6_waiver_none"
+        asserts:
+          operating_unit_id:
+            type: "value"
+            operator: "is_falsy"
+
+      - step: "Create the fee waiver at the multi-OU school's enrollment"
+        action: "create"
+        model: "school_fee_waiver"
+        save_as: "fwou6_waiver_multi"
+        values:
+          type_id: "REC: fwou6_type.id"
+          reason_id: "REC: fwou6_reason.id"
+          student_id: "REC: fwou6_student_multi.id"
+          enrollment_id: "REC: fwou6_enrollment_multi.id"
+          coverage: "multi_term"
+
+      - step: "Assert operating_unit_id was left empty -- no error, no derivation"
+        action: "assert"
+        target: "fwou6_waiver_multi"
+        asserts:
+          operating_unit_id:
+            type: "value"
+            operator: "is_falsy"
+
+  - name: "FW OU Derive - onchange enrollment_id fills operating_unit_id on the form"
+    steps:
+      # ── Shared fixture chain (suffix FWOU7) ──────────────────────
+      - step: "Create partner for the school's own operating unit"
+        action: "create"
+        model: "res.partner"
+        save_as: "fwou7_partner"
+        values:
+          name: "FW Onchange OU7 Partner"
+
+      - step: "Create the school's own operating unit"
+        action: "create"
+        model: "operating.unit"
+        save_as: "fwou7_ou"
+        values:
+          name: "FW Onchange OU7"
+          code: "FWOU7"
+          company_id: "REF: base.main_company"
+          partner_id: "REC: fwou7_partner.id"
+
+      - step: "Create grade type"
+        action: "create"
+        model: "school_grade_type"
+        save_as: "fwou7_grade_type"
+        values:
+          name: "FWOU7 Grade Type"
+          code: "FWOU7GT"
+
+      - step: "Create school with exactly one operating unit"
+        action: "create"
+        model: "school"
+        save_as: "fwou7_school"
+        values:
+          name: "FWOU7 School"
+          code: "FWOU7SC"
+          grade_type_id: "REC: fwou7_grade_type.id"
+          operating_unit_ids: [[6, 0, ["REC: fwou7_ou.id"]]]
+
+      - step: "Create grade"
+        action: "create"
+        model: "school_grade"
+        save_as: "fwou7_grade"
+        values:
+          name: "FWOU7 Grade"
+          code: "FWOU7GR"
+          type_id: "REC: fwou7_grade_type.id"
+
+      - step: "Create grade class"
+        action: "create"
+        model: "school_grade_class"
+        save_as: "fwou7_grade_class"
+        values:
+          name: "FWOU7 Class"
+          code: "FWOU7CL"
+          school_id: "REC: fwou7_school.id"
+          grade_id: "REC: fwou7_grade.id"
+
+      - step: "Create academic year"
+        action: "create"
+        model: "school_academic_year"
+        save_as: "fwou7_academic_year"
+        values:
+          name: "FWOU7 Academic Year"
+          code: "FWOU7AY"
+          date_start: 2026-07-01
+          date_end: 2027-06-30
+
+      - step: "Create academic term"
+        action: "create"
+        model: "school_academic_term"
+        save_as: "fwou7_academic_term"
+        values:
+          name: "FWOU7 Term"
+          code: "FWOU7TM"
+          date_start: 2026-07-01
+          date_end: 2026-12-31
+          year_id: "REC: fwou7_academic_year.id"
+
+      - step: "Create student contact"
+        action: "create"
+        model: "res.partner"
+        save_as: "fwou7_contact"
+        values:
+          name: "FWOU7 Contact"
+
+      - step: "Create student"
+        action: "create"
+        model: "school_student"
+        save_as: "fwou7_student"
+        values:
+          name: "FWOU7 Student"
+          code: "FWOU7ST"
+          contact_id: "REC: fwou7_contact.id"
+          school_id: "REC: fwou7_school.id"
+
+      - step: "Create enrollment"
+        action: "create"
+        model: "school_enrollment"
+        save_as: "fwou7_enrollment"
+        values:
+          academic_year_id: "REC: fwou7_academic_year.id"
+          academic_term_id: "REC: fwou7_academic_term.id"
+          school_id: "REC: fwou7_school.id"
+          grade_id: "REC: fwou7_grade.id"
+          grade_class_id: "REC: fwou7_grade_class.id"
+          student_id: "REC: fwou7_student.id"
+
+      # Onchange (form): selecting the Enrollment ripples into the
+      # related, read-only school_id, which this module's onchange
+      # watches -- operating_unit_id follows without ever being set
+      # directly (it is never editable on the form).
+      - step: "Open a new fee waiver form and select the Enrollment"
+        action: "form"
+        model: "school_fee_waiver"
+        save: false
+        values:
+          enrollment_id: "REC: fwou7_enrollment"
+        asserts:
+          operating_unit_id:
+            type: "m2o"
+            expected: "REC: fwou7_ou"
