@@ -1,0 +1,1117 @@
+# Copyright 2026 OpenSynergy Indonesia
+# Copyright 2026 PT. Simetri Sinergi Indonesia
+# License AGPL-3.0 or later (http://www.gnu.org/licenses/agpl).
+#
+# T-01 (odoo-development-unit-test/test-traps.md): scenarios in one YAML file
+# share a single, un-rolled-back DB transaction, and a top-level `setup:`
+# block is replayed before EVERY scenario in the file. This file therefore
+# uses exactly ONE scenario with no `setup:` block at all, so T-01's
+# fixture-replay/unique-constraint trap and the "order between scenarios is
+# significant" trap simply do not apply here.
+options:
+  auto_refresh: true
+scenarios:
+  - name: "Deduction - Create, Compute, Workflow, Reconcile, Cancel, Constraints"
+    steps:
+      # ── Shared fixture chain (suffix FWD1) — mirrors ssi_school_fee_waiver's
+      # own test_data_school_fee_waiver.yaml fixture chain, so the waiver
+      # this deduction realizes can reach Open with a real Schedule. ──────
+      - step: "Create the grade type"
+        action: "create"
+        model: "school_grade_type"
+        save_as: "fwd1_grade_type"
+        values:
+          name: "FWD1 Grade Type"
+          code: "FWD1GT"
+
+      - step: "Create the school"
+        action: "create"
+        model: "school"
+        save_as: "fwd1_school"
+        values:
+          name: "FWD1 School"
+          code: "FWD1SC"
+          grade_type_id: "REC: fwd1_grade_type.id"
+
+      - step: "Create the academic year"
+        action: "create"
+        model: "school_academic_year"
+        save_as: "fwd1_academic_year"
+        values:
+          name: "FWD1 Academic Year"
+          code: "FWD1AY"
+          date_start: 2026-07-01
+          date_end: 2027-06-30
+
+      - step: "Create the academic term"
+        action: "create"
+        model: "school_academic_term"
+        save_as: "fwd1_academic_term"
+        values:
+          name: "FWD1 Term"
+          code: "FWD1TM"
+          date_start: 2026-07-01
+          date_end: 2026-12-31
+          year_id: "REC: fwd1_academic_year.id"
+
+      - step: "Create the grade"
+        action: "create"
+        model: "school_grade"
+        save_as: "fwd1_grade"
+        values:
+          name: "FWD1 Grade"
+          code: "FWD1GR"
+          type_id: "REC: fwd1_grade_type.id"
+
+      - step: "Create the grade class"
+        action: "create"
+        model: "school_grade_class"
+        save_as: "fwd1_grade_class"
+        values:
+          name: "FWD1 Class"
+          code: "FWD1CL"
+          school_id: "REC: fwd1_school.id"
+          grade_id: "REC: fwd1_grade.id"
+
+      - step: "Create the student contact"
+        action: "create"
+        model: "res.partner"
+        save_as: "fwd1_contact"
+        values:
+          name: "FWD1 Contact"
+
+      - step: "Create a different contact (for the partner-mismatch check)"
+        action: "create"
+        model: "res.partner"
+        save_as: "fwd1_other_contact"
+        values:
+          name: "FWD1 Other Contact"
+
+      - step: "Create the student"
+        action: "create"
+        model: "school_student"
+        save_as: "fwd1_student"
+        values:
+          name: "FWD1 Student"
+          code: "FWD1ST"
+          contact_id: "REC: fwd1_contact.id"
+          school_id: "REC: fwd1_school.id"
+
+      - step: "Create the enrollment"
+        action: "create"
+        model: "school_enrollment"
+        save_as: "fwd1_enrollment"
+        values:
+          academic_year_id: "REC: fwd1_academic_year.id"
+          academic_term_id: "REC: fwd1_academic_term.id"
+          school_id: "REC: fwd1_school.id"
+          grade_id: "REC: fwd1_grade.id"
+          grade_class_id: "REC: fwd1_grade_class.id"
+          student_id: "REC: fwd1_student.id"
+
+      - step: "Get the account.account.type Receivable reference"
+        action: "ref"
+        xml_id: "account.data_account_type_receivable"
+        save_as: "receivable_acc_type"
+
+      - step: "Get the account.account.type Income reference"
+        action: "ref"
+        xml_id: "account.data_account_type_revenue"
+        save_as: "income_acc_type"
+
+      - step: "Get the account.account.type Expense reference"
+        action: "ref"
+        xml_id: "account.data_account_type_expenses"
+        save_as: "expense_acc_type"
+
+      - step: "Create the shared Receivable Account"
+        action: "create"
+        model: "account.account"
+        save_as: "fwd1_receivable_account"
+        values:
+          name: "FWD1 Receivable Account"
+          code: "FWD1RA"
+          user_type_id: "REC: receivable_acc_type.id"
+          reconcile: true
+
+      - step: "Create the income account used by invoices and payment terms"
+        action: "create"
+        model: "account.account"
+        save_as: "fwd1_income_account"
+        values:
+          name: "FWD1 Income Account"
+          code: "FWD1IA"
+          user_type_id: "REC: income_acc_type.id"
+          reconcile: false
+
+      - step: "Create the discount (contra-revenue) account"
+        action: "create"
+        model: "account.account"
+        save_as: "fwd1_discount_account"
+        values:
+          name: "FWD1 Discount Account"
+          code: "FWD1DA"
+          user_type_id: "REC: expense_acc_type.id"
+          reconcile: false
+
+      - step: "Create the deduction journal"
+        action: "create"
+        model: "account.journal"
+        save_as: "fwd1_deduction_journal"
+        values:
+          name: "FWD1 Deduction Journal"
+          code: "FWD1DJ"
+          type: "general"
+
+      - step: "Create the sale journal (customer invoices)"
+        action: "create"
+        model: "account.journal"
+        save_as: "fwd1_sale_journal"
+        values:
+          name: "FWD1 Sale Journal"
+          code: "FWD1SJ"
+          type: "sale"
+
+      - step: "Create the product covered by the waiver line"
+        action: "create"
+        model: "product.product"
+        save_as: "fwd1_product"
+        values:
+          name: "FWD1 Product"
+          type: "service"
+
+      - step: "Create Payment Term 1"
+        action: "create"
+        model: "school_enrollment_payment_term"
+        save_as: "fwd1_term1"
+        values:
+          enrollment_id: "REC: fwd1_enrollment.id"
+          name: "FWD1 Term 1"
+          date_due: 2026-08-15
+          detail_ids:
+            - - 0
+              - 0
+              - product_id: "REC: fwd1_product.id"
+                name: "FWD1 Term 1 Fee"
+                account_id: "REC: fwd1_income_account.id"
+                uom_quantity: 1.0
+                uom_id: "REF: uom.product_uom_unit"
+                price_unit: 1000000.0
+
+      - step: "Create Payment Term 2"
+        action: "create"
+        model: "school_enrollment_payment_term"
+        save_as: "fwd1_term2"
+        values:
+          enrollment_id: "REC: fwd1_enrollment.id"
+          name: "FWD1 Term 2"
+          date_due: 2026-09-15
+          detail_ids:
+            - - 0
+              - 0
+              - product_id: "REC: fwd1_product.id"
+                name: "FWD1 Term 2 Fee"
+                account_id: "REC: fwd1_income_account.id"
+                uom_quantity: 1.0
+                uom_id: "REF: uom.product_uom_unit"
+                price_unit: 1000000.0
+
+      - step: "Create the fee waiver type, with deduction accounting defaults"
+        action: "create"
+        model: "school_fee_waiver_type"
+        save_as: "fwd1_type"
+        values:
+          name: "FWD1 Type"
+          code: "FWD1TY"
+          deduction_journal_id: "REC: fwd1_deduction_journal.id"
+          discount_account_id: "REC: fwd1_discount_account.id"
+
+      - step: "Create the fee waiver reason"
+        action: "create"
+        model: "school_fee_waiver_reason"
+        save_as: "fwd1_reason"
+        values:
+          name: "FWD1 Reason"
+          code: "FWD1RS"
+
+      - step: "Create the fee waiver document (Multiple Payment Terms)"
+        action: "create"
+        model: "school_fee_waiver"
+        save_as: "fwd1_waiver"
+        values:
+          type_id: "REC: fwd1_type.id"
+          reason_id: "REC: fwd1_reason.id"
+          student_id: "REC: fwd1_student.id"
+          enrollment_id: "REC: fwd1_enrollment.id"
+          coverage: "multi_term"
+          date_start: 2026-07-01
+          date_end: 2026-12-31
+          user_id: "REF: base.user_admin"
+          line_ids:
+            - - 0
+              - 0
+              - product_id: "REC: fwd1_product.id"
+                computation: "full"
+
+      - step: "Confirm the fee waiver"
+        action: "call"
+        target: "fwd1_waiver"
+        method: "action_confirm"
+        as_user: "base.user_admin"
+        asserts:
+          state:
+            type: "value"
+            expected: "confirm"
+
+      - step: "Approve the fee waiver"
+        action: "call"
+        target: "fwd1_waiver"
+        method: "action_approve_approval"
+        as_user: "base.user_admin"
+        asserts:
+          state:
+            type: "value"
+            expected: "open"
+
+      - step: "Waiver Schedule was auto-generated for both terms"
+        action: "assert"
+        target: "fwd1_waiver"
+        asserts:
+          schedule_ids:
+            type: "o2m"
+            check: "count"
+            expected_count: 2
+
+      - step: "Find the Term 1 Schedule line"
+        action: "search"
+        model: "school_fee_waiver_schedule"
+        domain:
+          [
+            ["waiver_id", "=", "REC: fwd1_waiver.id"],
+            ["payment_term_id", "=", "REC: fwd1_term1.id"],
+          ]
+        save_as: "fwd1_sched_t1"
+        limit: 1
+
+      - step: "Find the Term 2 Schedule line"
+        action: "search"
+        model: "school_fee_waiver_schedule"
+        domain:
+          [
+            ["waiver_id", "=", "REC: fwd1_waiver.id"],
+            ["payment_term_id", "=", "REC: fwd1_term2.id"],
+          ]
+        save_as: "fwd1_sched_t2"
+        limit: 1
+
+      - step: "Both Schedule lines are Scheduled with Amount Planned 1,000,000"
+        action: "assert"
+        target: "fwd1_sched_t1"
+        asserts:
+          state:
+            type: "value"
+            expected: "scheduled"
+          amount_planned:
+            type: "value"
+            expected: 1000000.0
+          amount_realized:
+            type: "value"
+            expected: 0.0
+
+      # ── Customer invoice type + four open invoices (allocation targets) ──
+      - step: "Create the customer invoice type"
+        action: "create"
+        model: "customer_invoice_type"
+        save_as: "fwd1_invoice_type"
+        values:
+          name: "FWD1 Invoice Type"
+          code: "/"
+          journal_id: "REC: fwd1_sale_journal.id"
+          receivable_account_id: "REC: fwd1_receivable_account.id"
+
+      - step: "Create Invoice 1 (full allocation target)"
+        action: "create"
+        model: "customer_invoice"
+        save_as: "fwd1_invoice1"
+        values:
+          type_id: "REC: fwd1_invoice_type.id"
+          partner_id: "REC: fwd1_contact.id"
+          date: 2026-08-20
+          date_due: 2026-09-20
+          currency_id: "REC: company.currency_id.id"
+          journal_id: "REC: fwd1_sale_journal.id"
+          receivable_account_id: "REC: fwd1_receivable_account.id"
+
+      - step: "Add a detail line to Invoice 1"
+        action: "create"
+        model: "customer_invoice.line"
+        save_as: "fwd1_invoice1_line"
+        values:
+          customer_invoice_id: "REC: fwd1_invoice1.id"
+          name: "Line"
+          account_id: "REC: fwd1_income_account.id"
+          uom_quantity: 1
+          price_unit: 1000000.0
+
+      - step: "Confirm Invoice 1"
+        action: "call"
+        target: "fwd1_invoice1"
+        method: "action_confirm"
+        as_user: "base.user_admin"
+        asserts:
+          state:
+            type: "value"
+            expected: "confirm"
+
+      - step: "Approve Invoice 1"
+        action: "call"
+        target: "fwd1_invoice1"
+        method: "action_approve_approval"
+        as_user: "base.user_admin"
+        asserts:
+          state:
+            type: "value"
+            expected: "open"
+          amount_residual:
+            type: "value"
+            expected: 1000000.0
+
+      - step: "Create Invoice 2 (full allocation target)"
+        action: "create"
+        model: "customer_invoice"
+        save_as: "fwd1_invoice2"
+        values:
+          type_id: "REC: fwd1_invoice_type.id"
+          partner_id: "REC: fwd1_contact.id"
+          date: 2026-08-20
+          date_due: 2026-09-20
+          currency_id: "REC: company.currency_id.id"
+          journal_id: "REC: fwd1_sale_journal.id"
+          receivable_account_id: "REC: fwd1_receivable_account.id"
+
+      - step: "Add a detail line to Invoice 2"
+        action: "create"
+        model: "customer_invoice.line"
+        save_as: "fwd1_invoice2_line"
+        values:
+          customer_invoice_id: "REC: fwd1_invoice2.id"
+          name: "Line"
+          account_id: "REC: fwd1_income_account.id"
+          uom_quantity: 1
+          price_unit: 1000000.0
+
+      - step: "Confirm Invoice 2"
+        action: "call"
+        target: "fwd1_invoice2"
+        method: "action_confirm"
+        as_user: "base.user_admin"
+        asserts:
+          state:
+            type: "value"
+            expected: "confirm"
+
+      - step: "Approve Invoice 2"
+        action: "call"
+        target: "fwd1_invoice2"
+        method: "action_approve_approval"
+        as_user: "base.user_admin"
+        asserts:
+          state:
+            type: "value"
+            expected: "open"
+
+      - step: "Create the small Invoice (partial-allocation target)"
+        action: "create"
+        model: "customer_invoice"
+        save_as: "fwd1_invoice_small"
+        values:
+          type_id: "REC: fwd1_invoice_type.id"
+          partner_id: "REC: fwd1_contact.id"
+          date: 2026-08-20
+          date_due: 2026-09-20
+          currency_id: "REC: company.currency_id.id"
+          journal_id: "REC: fwd1_sale_journal.id"
+          receivable_account_id: "REC: fwd1_receivable_account.id"
+
+      - step: "Add a detail line to the small Invoice"
+        action: "create"
+        model: "customer_invoice.line"
+        save_as: "fwd1_invoice_small_line"
+        values:
+          customer_invoice_id: "REC: fwd1_invoice_small.id"
+          name: "Line"
+          account_id: "REC: fwd1_income_account.id"
+          uom_quantity: 1
+          price_unit: 300000.0
+
+      - step: "Confirm the small Invoice"
+        action: "call"
+        target: "fwd1_invoice_small"
+        method: "action_confirm"
+        as_user: "base.user_admin"
+        # T-04 (test-traps.md): inline asserts force the refresh
+        # confirm→approve needs before approve_ok is read.
+        asserts:
+          state:
+            type: "value"
+            expected: "confirm"
+
+      - step: "Approve the small Invoice"
+        action: "call"
+        target: "fwd1_invoice_small"
+        method: "action_approve_approval"
+        as_user: "base.user_admin"
+        asserts:
+          amount_residual:
+            type: "value"
+            expected: 300000.0
+
+      - step: "Create the other-partner Invoice (partner-mismatch check)"
+        action: "create"
+        model: "customer_invoice"
+        save_as: "fwd1_invoice_other"
+        values:
+          type_id: "REC: fwd1_invoice_type.id"
+          partner_id: "REC: fwd1_other_contact.id"
+          date: 2026-08-20
+          date_due: 2026-09-20
+          currency_id: "REC: company.currency_id.id"
+          journal_id: "REC: fwd1_sale_journal.id"
+          receivable_account_id: "REC: fwd1_receivable_account.id"
+
+      - step: "Add a detail line to the other-partner Invoice"
+        action: "create"
+        model: "customer_invoice.line"
+        save_as: "fwd1_invoice_other_line"
+        values:
+          customer_invoice_id: "REC: fwd1_invoice_other.id"
+          name: "Line"
+          account_id: "REC: fwd1_income_account.id"
+          uom_quantity: 1
+          price_unit: 500000.0
+
+      - step: "Confirm the other-partner Invoice"
+        action: "call"
+        target: "fwd1_invoice_other"
+        method: "action_confirm"
+        as_user: "base.user_admin"
+        # T-04 (test-traps.md): inline asserts force the refresh
+        # confirm→approve needs before approve_ok is read.
+        asserts:
+          state:
+            type: "value"
+            expected: "confirm"
+
+      - step: "Approve the other-partner Invoice"
+        action: "call"
+        target: "fwd1_invoice_other"
+        method: "action_approve_approval"
+        as_user: "base.user_admin"
+
+      # ── Positive: create the deduction document, compute derived fields ──
+      - step: "Create the fee waiver deduction document"
+        action: "create"
+        model: "school_fee_waiver_deduction"
+        save_as: "fwd1_deduction"
+        values:
+          waiver_id: "REC: fwd1_waiver.id"
+          journal_id: "REC: fwd1_deduction_journal.id"
+          receivable_account_id: "REC: fwd1_receivable_account.id"
+          date: 2026-08-20
+
+      - step: "Assert derived fields and initial state"
+        action: "assert"
+        target: "fwd1_deduction"
+        asserts:
+          student_id:
+            type: "m2o"
+            expected: "REC: fwd1_student"
+          partner_id:
+            type: "m2o"
+            expected: "REC: fwd1_contact"
+          state:
+            type: "value"
+            expected: "draft"
+
+      # ── Positive: onchange defaults (header Journal, line Account) ───────
+      - step: "Onchange: selecting Waiver defaults Journal from its Type"
+        action: "form"
+        model: "school_fee_waiver_deduction"
+        save: false
+        values:
+          waiver_id: "REC: fwd1_waiver"
+        asserts:
+          journal_id:
+            type: "m2o"
+            expected: "REC: fwd1_deduction_journal"
+
+      - step: "Onchange: selecting Schedule defaults line Account from its Type"
+        action: "form"
+        model: "school_fee_waiver_deduction_line"
+        save: false
+        values:
+          deduction_id: "REC: fwd1_deduction"
+          schedule_id: "REC: fwd1_sched_t1"
+        asserts:
+          account_id:
+            type: "m2o"
+            expected: "REC: fwd1_discount_account"
+
+      # ── Positive: two Lines against two different Schedule lines ─────────
+      - step: "Add Line 1 (Term 1 Schedule, full amount)"
+        action: "create"
+        model: "school_fee_waiver_deduction_line"
+        save_as: "fwd1_line1"
+        values:
+          deduction_id: "REC: fwd1_deduction.id"
+          schedule_id: "REC: fwd1_sched_t1.id"
+          account_id: "REC: fwd1_discount_account.id"
+          amount: 1000000.0
+
+      - step: "Add Line 2 (Term 2 Schedule, full amount)"
+        action: "create"
+        model: "school_fee_waiver_deduction_line"
+        save_as: "fwd1_line2"
+        values:
+          deduction_id: "REC: fwd1_deduction.id"
+          schedule_id: "REC: fwd1_sched_t2.id"
+          account_id: "REC: fwd1_discount_account.id"
+          amount: 1000000.0
+
+      - step: "Amount Total is the sum of both Lines"
+        action: "assert"
+        target: "fwd1_deduction"
+        asserts:
+          amount_total:
+            type: "value"
+            expected: 2000000.0
+
+      # ── Positive: one Allocation per invoice, closing both in full ───────
+      - step: "Add Allocation 1 (Invoice 1, full)"
+        action: "create"
+        model: "school_fee_waiver_deduction_allocation"
+        save_as: "fwd1_alloc1"
+        values:
+          deduction_id: "REC: fwd1_deduction.id"
+          customer_invoice_id: "REC: fwd1_invoice1.id"
+          amount: 1000000.0
+
+      - step: "Add Allocation 2 (Invoice 2, full)"
+        action: "create"
+        model: "school_fee_waiver_deduction_allocation"
+        save_as: "fwd1_alloc2"
+        values:
+          deduction_id: "REC: fwd1_deduction.id"
+          customer_invoice_id: "REC: fwd1_invoice2.id"
+          amount: 1000000.0
+
+      - step: "Amount Allocated matches Amount Total, Unallocated is zero"
+        action: "assert"
+        target: "fwd1_deduction"
+        asserts:
+          amount_allocated:
+            type: "value"
+            expected: 2000000.0
+          amount_unallocated:
+            type: "value"
+            expected: 0.0
+
+      # ── Positive: Amount Total/Allocated/Unallocated stay consistent
+      # after a line is added, then removed. ────────────────────────────
+      - step: "Add a temporary third Allocation (small Invoice, partial)"
+        action: "create"
+        model: "school_fee_waiver_deduction_allocation"
+        save_as: "fwd1_alloc3_temp"
+        values:
+          deduction_id: "REC: fwd1_deduction.id"
+          customer_invoice_id: "REC: fwd1_invoice_small.id"
+          amount: 100000.0
+
+      - step: "Amount Allocated/Unallocated reflect the added Allocation"
+        action: "assert"
+        target: "fwd1_deduction"
+        asserts:
+          amount_allocated:
+            type: "value"
+            expected: 2100000.0
+          amount_unallocated:
+            type: "value"
+            expected: -100000.0
+
+      - step: "Remove the temporary third Allocation"
+        action: "unlink"
+        target: "fwd1_alloc3_temp"
+
+      - step: "Amount Allocated/Unallocated revert after removal"
+        action: "assert"
+        target: "fwd1_deduction"
+        asserts:
+          amount_allocated:
+            type: "value"
+            expected: 2000000.0
+          amount_unallocated:
+            type: "value"
+            expected: 0.0
+
+      # ── Positive: full workflow to Open (auto), journal + reconcile ──────
+      - step: "Confirm the deduction document"
+        action: "call"
+        target: "fwd1_deduction"
+        method: "action_confirm"
+        as_user: "base.user_admin"
+        asserts:
+          state:
+            type: "value"
+            expected: "confirm"
+
+      # T-04 (test-traps.md): a bare `assert` step between action_confirm and
+      # action_approve_approval is REQUIRED to force a cache refresh before
+      # approve_ok is read -- without it, approve_ok can read the value
+      # cached (False) by action_confirm's own policy read, before the
+      # approval.approval record even existed, and approve then fails
+      # nondeterministically.
+      - step: "Force a refresh before reading approve_ok (T-04)"
+        action: "assert"
+        target: "fwd1_deduction"
+        asserts:
+          state:
+            type: "value"
+            expected: "confirm"
+
+      - step: "Approve the deduction document -- auto-opens (single level)"
+        action: "call"
+        target: "fwd1_deduction"
+        method: "action_approve_approval"
+        as_user: "base.user_admin"
+        asserts:
+          state:
+            type: "value"
+            expected: "open"
+          name:
+            type: "value"
+            operator: "not_equals"
+            expected: "/"
+
+      - step: "A posted journal entry was created and the receivable line set"
+        action: "assert"
+        target: "fwd1_deduction"
+        asserts:
+          move_id:
+            type: "value"
+            operator: "is_truthy"
+          move_id.state:
+            type: "value"
+            expected: "posted"
+          receivable_move_line_id:
+            type: "value"
+            operator: "is_truthy"
+          reconciled:
+            type: "value"
+            expected: true
+
+      - step: "Invoice 1's residual dropped to zero and it moved to Paid"
+        action: "assert"
+        target: "fwd1_invoice1"
+        asserts:
+          amount_residual:
+            type: "value"
+            expected: 0.0
+          state:
+            type: "value"
+            expected: "done"
+
+      - step: "Invoice 2's residual dropped to zero and it moved to Paid"
+        action: "assert"
+        target: "fwd1_invoice2"
+        asserts:
+          amount_residual:
+            type: "value"
+            expected: 0.0
+          state:
+            type: "value"
+            expected: "done"
+
+      - step: "Term 1 Schedule line is Realized, pointing at this document"
+        action: "assert"
+        target: "fwd1_sched_t1"
+        asserts:
+          state:
+            type: "value"
+            expected: "realized"
+          amount_realized:
+            type: "value"
+            expected: 1000000.0
+          deduction_id:
+            type: "m2o"
+            expected: "REC: fwd1_deduction"
+
+      - step: "Term 2 Schedule line is Realized, pointing at this document"
+        action: "assert"
+        target: "fwd1_sched_t2"
+        asserts:
+          state:
+            type: "value"
+            expected: "realized"
+          amount_realized:
+            type: "value"
+            expected: 1000000.0
+          deduction_id:
+            type: "m2o"
+            expected: "REC: fwd1_deduction"
+
+      # ── Positive: cancelling reverses reconciliation, journal, schedule ──
+      - step: "Create the cancellation reason"
+        action: "create"
+        model: "base.cancel_reason"
+        save_as: "fwd1_cancel_reason"
+        values:
+          name: "FWD1 Cancel Reason"
+          code: "FWD1CR"
+          global_use: true
+
+      - step: "Cancel the deduction document via the wizard"
+        action: "wizard"
+        model: "base.select_cancel_reason"
+        target: "fwd1_deduction"
+        as_user: "base.user_admin"
+        values:
+          cancel_reason_id: "REC: fwd1_cancel_reason"
+        method: "action_confirm"
+        asserts:
+          state:
+            type: "value"
+            expected: "cancel"
+
+      - step: "The journal entry link was cleared"
+        action: "assert"
+        target: "fwd1_deduction"
+        asserts:
+          move_id:
+            type: "value"
+            operator: "is_falsy"
+
+      - step: "Invoice 1's residual is restored"
+        action: "assert"
+        target: "fwd1_invoice1"
+        asserts:
+          amount_residual:
+            type: "value"
+            expected: 1000000.0
+
+      - step: "Invoice 2's residual is restored"
+        action: "assert"
+        target: "fwd1_invoice2"
+        asserts:
+          amount_residual:
+            type: "value"
+            expected: 1000000.0
+
+      - step: "Term 1 Schedule line reverted to Scheduled"
+        action: "assert"
+        target: "fwd1_sched_t1"
+        asserts:
+          state:
+            type: "value"
+            expected: "scheduled"
+          amount_realized:
+            type: "value"
+            expected: 0.0
+          deduction_id:
+            type: "value"
+            operator: "is_falsy"
+
+      - step: "Term 2 Schedule line reverted to Scheduled"
+        action: "assert"
+        target: "fwd1_sched_t2"
+        asserts:
+          state:
+            type: "value"
+            expected: "scheduled"
+          amount_realized:
+            type: "value"
+            expected: 0.0
+          deduction_id:
+            type: "value"
+            operator: "is_falsy"
+
+      # ── Negative: constraints & the pre-open gate ─────────────────────
+      # Fresh Schedule lines for the constraint checks below. Terms 1/2's
+      # own Schedule lines were just unlinked-and-recreated once already
+      # (by Open) and are about to be again by action_generate_schedule
+      # right below -- T-07 (test-traps.md): a regenerating action always
+      # unlink+recreates, so any `REC:` alias captured before it is stale
+      # afterwards. Two new terms are added first so ONE regenerate call
+      # produces fresh Schedule lines for all four terms at once, then
+      # every Schedule line used below is re-`search`-ed, never reused
+      # from before this point.
+      - step: "Create Payment Term 3 (fresh Schedule for negative checks)"
+        action: "create"
+        model: "school_enrollment_payment_term"
+        save_as: "fwd1_term3"
+        values:
+          enrollment_id: "REC: fwd1_enrollment.id"
+          name: "FWD1 Term 3"
+          date_due: 2026-10-15
+          detail_ids:
+            - - 0
+              - 0
+              - product_id: "REC: fwd1_product.id"
+                name: "FWD1 Term 3 Fee"
+                account_id: "REC: fwd1_income_account.id"
+                uom_quantity: 1.0
+                uom_id: "REF: uom.product_uom_unit"
+                price_unit: 1000000.0
+
+      - step: "Create Payment Term 4 (fresh Schedule for negative checks)"
+        action: "create"
+        model: "school_enrollment_payment_term"
+        save_as: "fwd1_term4"
+        values:
+          enrollment_id: "REC: fwd1_enrollment.id"
+          name: "FWD1 Term 4"
+          date_due: 2026-11-15
+          detail_ids:
+            - - 0
+              - 0
+              - product_id: "REC: fwd1_product.id"
+                name: "FWD1 Term 4 Fee"
+                account_id: "REC: fwd1_income_account.id"
+                uom_quantity: 1.0
+                uom_id: "REF: uom.product_uom_unit"
+                price_unit: 1000000.0
+
+      - step: "Regenerate the waiver Schedule (T-07 -- old refs go stale)"
+        action: "call"
+        target: "fwd1_waiver"
+        method: "action_generate_schedule"
+        as_user: "base.user_admin"
+
+      - step: "Re-find the Term 1 Schedule line after regenerating (T-07)"
+        action: "search"
+        model: "school_fee_waiver_schedule"
+        domain:
+          [
+            ["waiver_id", "=", "REC: fwd1_waiver.id"],
+            ["payment_term_id", "=", "REC: fwd1_term1.id"],
+          ]
+        save_as: "fwd1_sched_t1_v2"
+        limit: 1
+
+      - step: "Re-find the Term 3 Schedule line after regenerating (T-07)"
+        action: "search"
+        model: "school_fee_waiver_schedule"
+        domain:
+          [
+            ["waiver_id", "=", "REC: fwd1_waiver.id"],
+            ["payment_term_id", "=", "REC: fwd1_term3.id"],
+          ]
+        save_as: "fwd1_sched_t3_v2"
+        limit: 1
+
+      - step: "Re-find the Term 4 Schedule line after regenerating (T-07)"
+        action: "search"
+        model: "school_fee_waiver_schedule"
+        domain:
+          [
+            ["waiver_id", "=", "REC: fwd1_waiver.id"],
+            ["payment_term_id", "=", "REC: fwd1_term4.id"],
+          ]
+        save_as: "fwd1_sched_t4_v2"
+        limit: 1
+
+      - step: "Create a fresh draft deduction document for negative checks"
+        action: "create"
+        model: "school_fee_waiver_deduction"
+        save_as: "fwd1_deduction_neg1"
+        values:
+          waiver_id: "REC: fwd1_waiver.id"
+          journal_id: "REC: fwd1_deduction_journal.id"
+          receivable_account_id: "REC: fwd1_receivable_account.id"
+
+      - step: "Line amount exceeding the Schedule's remaining plan is rejected"
+        action: "create"
+        model: "school_fee_waiver_deduction_line"
+        expect_error:
+          type: "ValidationError"
+          message_contains: "exceeds Schedule line's remaining planned amount"
+        values:
+          deduction_id: "REC: fwd1_deduction_neg1.id"
+          schedule_id: "REC: fwd1_sched_t1_v2.id"
+          account_id: "REC: fwd1_discount_account.id"
+          amount: 1500000.0
+
+      - step: "Cancel the Term 4 Schedule line (for the cancelled-state check)"
+        action: "call"
+        target: "fwd1_sched_t4_v2"
+        method: "action_cancel_schedule"
+        as_user: "base.user_admin"
+        asserts:
+          state:
+            type: "value"
+            expected: "cancelled"
+
+      - step: "Line pointing at a Cancelled Schedule line is rejected"
+        action: "create"
+        model: "school_fee_waiver_deduction_line"
+        expect_error:
+          type: "ValidationError"
+          message_contains: "Schedule line is in state 'cancelled'"
+        values:
+          deduction_id: "REC: fwd1_deduction_neg1.id"
+          schedule_id: "REC: fwd1_sched_t4_v2.id"
+          account_id: "REC: fwd1_discount_account.id"
+          amount: 100000.0
+
+      # T-06 (test-traps.md): both `schedule_id` and `amount` are written
+      # explicitly above so `_check_amount_not_exceed_remaining_planned`
+      # and `_check_schedule_state` -- both gated on ``schedule_id`` being
+      # in vals -- actually run; leaving either field out of `values:`
+      # would silently skip the constrain instead of testing it.
+
+      - step: "Create a second fresh deduction for the Allocation checks"
+        action: "create"
+        model: "school_fee_waiver_deduction"
+        save_as: "fwd1_deduction_neg2"
+        values:
+          waiver_id: "REC: fwd1_waiver.id"
+          journal_id: "REC: fwd1_deduction_journal.id"
+          receivable_account_id: "REC: fwd1_receivable_account.id"
+
+      - step: "Allocation to an invoice of a different Partner is rejected"
+        action: "create"
+        model: "school_fee_waiver_deduction_allocation"
+        expect_error:
+          type: "ValidationError"
+          message_contains: "Partner does not match"
+        values:
+          deduction_id: "REC: fwd1_deduction_neg2.id"
+          customer_invoice_id: "REC: fwd1_invoice_other.id"
+          amount: 100000.0
+
+      - step: "Allocation exceeding the invoice's own residual is rejected"
+        action: "create"
+        model: "school_fee_waiver_deduction_allocation"
+        expect_error:
+          type: "ValidationError"
+          message_contains: "exceeds invoice"
+        values:
+          deduction_id: "REC: fwd1_deduction_neg2.id"
+          customer_invoice_id: "REC: fwd1_invoice_small.id"
+          amount: 999999999.0
+
+      - step: "Opening with a non-zero Amount Unallocated is rejected"
+        action: "create"
+        model: "school_fee_waiver_deduction_line"
+        save_as: "fwd1_line_neg2"
+        values:
+          deduction_id: "REC: fwd1_deduction_neg2.id"
+          schedule_id: "REC: fwd1_sched_t3_v2.id"
+          account_id: "REC: fwd1_discount_account.id"
+          amount: 500000.0
+
+      - step: "Allocate less than the Line amount, leaving a remainder"
+        action: "create"
+        model: "school_fee_waiver_deduction_allocation"
+        save_as: "fwd1_alloc_neg2"
+        values:
+          deduction_id: "REC: fwd1_deduction_neg2.id"
+          customer_invoice_id: "REC: fwd1_invoice_small.id"
+          amount: 200000.0
+
+      - step: "Confirm the under-allocated deduction"
+        action: "call"
+        target: "fwd1_deduction_neg2"
+        method: "action_confirm"
+        as_user: "base.user_admin"
+
+      - step: "Force a refresh before reading approve_ok (T-04)"
+        action: "assert"
+        target: "fwd1_deduction_neg2"
+        asserts:
+          state:
+            type: "value"
+            expected: "confirm"
+
+      - step: "Approving it fails the Amount Unallocated gate on auto-open"
+        action: "call"
+        target: "fwd1_deduction_neg2"
+        method: "action_approve_approval"
+        as_user: "base.user_admin"
+        expect_error:
+          type: "UserError"
+          message_contains: "Amount Unallocated is"
+
+      # ── Negative: required header fields, via `action: form` (L-22) ──────
+      # L-22 (python-escape-hatch.md): `action: create` on a required=True
+      # field raises a database `IntegrityError` (NOT NULL), a type
+      # `expect_error` cannot recognize -- the legitimate YAML path is
+      # `action: form`, whose own `save()` raises `AssertionError: "<field>
+      # is a required field"` without ever touching the database.
+      - step: "Create form without Waiver is rejected on save"
+        action: "form"
+        model: "school_fee_waiver_deduction"
+        expect_error:
+          type: "AssertionError"
+          message_contains: "is a required field"
+        values:
+          journal_id: "REC: fwd1_deduction_journal"
+          receivable_account_id: "REC: fwd1_receivable_account"
+
+      - step: "Create form without Journal is rejected on save"
+        action: "form"
+        model: "school_fee_waiver_deduction"
+        expect_error:
+          type: "AssertionError"
+          message_contains: "is a required field"
+        values:
+          waiver_id: "REC: fwd1_waiver"
+          receivable_account_id: "REC: fwd1_receivable_account"
+
+      - step: "Create form without Receivable Account is rejected on save"
+        action: "form"
+        model: "school_fee_waiver_deduction"
+        expect_error:
+          type: "AssertionError"
+          message_contains: "is a required field"
+        values:
+          waiver_id: "REC: fwd1_waiver"
+          journal_id: "REC: fwd1_deduction_journal"
+
+      # Line form without Schedule is rejected the same way. Account is not
+      # tested independently: whenever Schedule is set, onchange_account_id
+      # fires inside the very same Form and fills Account automatically, so
+      # "Schedule set but Account empty" cannot be reproduced through the
+      # Form API -- the coupling itself is what this single step proves.
+      - step: "Line form without Schedule (and so without Account) is rejected"
+        action: "form"
+        model: "school_fee_waiver_deduction_line"
+        expect_error:
+          type: "AssertionError"
+          message_contains: "is a required field"
+        values:
+          deduction_id: "REC: fwd1_deduction_neg1"
+          amount: 100000.0
+
+      # ── Negative: the Waiver itself must be Open or Done ──────────────────
+      - step: "Create a draft waiver (never confirmed) for the state check"
+        action: "create"
+        model: "school_fee_waiver"
+        save_as: "fwd1_waiver_draft"
+        values:
+          type_id: "REC: fwd1_type.id"
+          reason_id: "REC: fwd1_reason.id"
+          student_id: "REC: fwd1_student.id"
+          enrollment_id: "REC: fwd1_enrollment.id"
+          coverage: "single_term"
+          payment_term_id: "REC: fwd1_term1.id"
+
+      - step: "Deduction against a Draft waiver is rejected"
+        action: "create"
+        model: "school_fee_waiver_deduction"
+        expect_error:
+          type: "ValidationError"
+          message_contains: "not in Open or Done status"
+        values:
+          waiver_id: "REC: fwd1_waiver_draft.id"
+          journal_id: "REC: fwd1_deduction_journal.id"
+          receivable_account_id: "REC: fwd1_receivable_account.id"
