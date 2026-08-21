@@ -9,6 +9,7 @@ setuptools.setup(
     version=version,
     install_requires=[
         'odoo14-addon-ssi_school_fee_waiver',
+        'odoo14-addon-ssi_school_fee_waiver_operating_unit',
     ],
     classifiers=[
         'Programming Language :: Python',
