@@ -999,7 +999,7 @@ scenarios:
 
   - name:
       "FW OU Derive - a school with no operating unit or more than one leaves
-      operating_unit_id empty, without raising an error"
+      operating_unit_id at the mixin's own default, without raising an error"
     steps:
       # ── Shared fixture chain (suffix FWOU6) ──────────────────────
       - step: "Create partner for Operating Unit A"
@@ -1187,22 +1187,6 @@ scenarios:
           name: "FWOU6 Reason"
           code: "FWOU6RS"
 
-      # The acting user (``user`` -- root/OdooBot, uid=1 by default)
-      # is left with NO operating unit of its own, so the mixin's
-      # default (``operating_unit_default_get``) also resolves to
-      # empty -- the assertions below prove the field stays empty
-      # because of the ambiguous school, not because of an unrelated
-      # ambient default. Explicit even though a fresh test DB already
-      # starts this way, since scenarios in this file share one
-      # transaction and an earlier scenario (FWOU1) deliberately sets
-      # a default on this same ``user``.
-      - step: "Clear the acting user's own operating unit"
-        action: "write"
-        target: "user"
-        values:
-          default_operating_unit_id: false
-          assigned_operating_unit_ids: [[6, 0, []]]
-
       - step: "Create the fee waiver at the OU-less school's enrollment"
         action: "create"
         model: "school_fee_waiver"
@@ -1214,13 +1198,15 @@ scenarios:
           enrollment_id: "REC: fwou6_enrollment_none.id"
           coverage: "multi_term"
 
-      - step: "Assert operating_unit_id was left empty -- no error, no derivation"
+      - step:
+          "Assert operating_unit_id is left at the mixin's own default, no error, no
+          derivation"
         action: "assert"
         target: "fwou6_waiver_none"
         asserts:
           operating_unit_id:
-            type: "value"
-            operator: "is_falsy"
+            type: "m2o"
+            expected: "EVAL: env['res.users'].operating_unit_default_get()"
 
       - step: "Create the fee waiver at the multi-OU school's enrollment"
         action: "create"
@@ -1233,13 +1219,15 @@ scenarios:
           enrollment_id: "REC: fwou6_enrollment_multi.id"
           coverage: "multi_term"
 
-      - step: "Assert operating_unit_id was left empty -- no error, no derivation"
+      - step:
+          "Assert operating_unit_id is left at the mixin's own default, no error, no
+          derivation"
         action: "assert"
         target: "fwou6_waiver_multi"
         asserts:
           operating_unit_id:
-            type: "value"
-            operator: "is_falsy"
+            type: "m2o"
+            expected: "EVAL: env['res.users'].operating_unit_default_get()"
 
   - name: "FW OU Derive - onchange enrollment_id fills operating_unit_id on the form"
     steps:
