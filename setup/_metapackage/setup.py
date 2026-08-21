@@ -11,6 +11,7 @@ setuptools.setup(
         'odoo14-addon-ssi_school_fee_waiver',
         'odoo14-addon-ssi_school_fee_waiver_admission',
         'odoo14-addon-ssi_school_fee_waiver_deduction',
+        'odoo14-addon-ssi_school_fee_waiver_deduction_operating_unit',
         'odoo14-addon-ssi_school_fee_waiver_operating_unit',
     ],
     classifiers=[
