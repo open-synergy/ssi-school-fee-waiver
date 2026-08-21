@@ -380,6 +380,11 @@ scenarios:
           type: "ValidationError"
         values:
           waiver_id: "REC: fw1_waiver_line_check.id"
+          # Both fields explicitly set to false so they are present in
+          # vals; Odoo 14 only calls @api.constrains callbacks whose
+          # watched fields are in vals (RC-3, PR #13 round 3 triage).
+          product_id: false
+          product_category_id: false
           computation: "full"
 
       - step: "Percentage line with Percentage over 100 must be rejected"

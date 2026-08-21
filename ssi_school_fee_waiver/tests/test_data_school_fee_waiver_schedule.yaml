@@ -368,6 +368,25 @@ scenarios:
             check: "count"
             expected_count: 2
 
+      # ── Re-fetch: the regenerate above unlinks every draft/scheduled
+      # line and recreates them, so the "fs1_sched_aug"/"fs1_sched_sep"
+      # refs saved before it now point at deleted records (RC-4, PR #13
+      # round 3 triage). Both are re-searched here, before either is
+      # used again.
+      - step: "Re-find the August Schedule line after regenerating"
+        action: "search"
+        model: "school_fee_waiver_schedule"
+        domain: [["payment_term_id", "=", "REC: fs1_term2.id"]]
+        save_as: "fs1_sched_aug"
+        limit: 1
+
+      - step: "Re-find the September Schedule line after regenerating"
+        action: "search"
+        model: "school_fee_waiver_schedule"
+        domain: [["payment_term_id", "=", "REC: fs1_term3.id"]]
+        save_as: "fs1_sched_sep"
+        limit: 1
+
       # ── Skip one line: Amount Waived must drop accordingly ─────────
       - step: "Skip the August Schedule line"
         action: "call"
