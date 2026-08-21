@@ -21,7 +21,7 @@ Available addons
 ----------------
 addon | version | maintainers | summary
 --- | --- | --- | ---
-[ssi_school_fee_waiver](ssi_school_fee_waiver/) | 14.0.1.0.0 |  | School Fee Waiver
+[ssi_school_fee_waiver](ssi_school_fee_waiver/) | 14.0.1.1.0 |  | School Fee Waiver
 
 [//]: # (end addons)
 
