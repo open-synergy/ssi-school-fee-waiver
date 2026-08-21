@@ -1124,6 +1124,37 @@ scenarios:
           journal_id: "REC: fwd1_deduction_journal"
           receivable_account_id: "REC: fwd1_receivable_account"
 
+      # `fwd1_waiver`'s own Type (`fwd1_type`) sets `deduction_journal_id`,
+      # and `onchange_journal_id` (school_fee_waiver_deduction.py:322-330)
+      # fires on `waiver_id` and unconditionally re-derives `journal_id`
+      # from it -- so selecting `fwd1_waiver` here would auto-fill
+      # `journal_id` and the required-field save() would never raise.
+      # This step needs a Waiver whose Type has NO `deduction_journal_id`,
+      # so the onchange sets `journal_id = False` and leaves it empty --
+      # CI round 3, `ssi-school-fee-waiver` PR #16.
+      - step: "Create the fee waiver type with no Deduction Journal default"
+        action: "create"
+        model: "school_fee_waiver_type"
+        save_as: "fwd1_type_no_journal"
+        values:
+          name: "FWD1 Type No Journal"
+          code: "FWD1TYNJ"
+          discount_account_id: "REC: fwd1_discount_account.id"
+
+      - step:
+          "Create a waiver on the no-Journal-default Type (never confirmed -- only its
+          Type is needed by the onchange below)"
+        action: "create"
+        model: "school_fee_waiver"
+        save_as: "fwd1_waiver_no_journal"
+        values:
+          type_id: "REC: fwd1_type_no_journal.id"
+          reason_id: "REC: fwd1_reason.id"
+          student_id: "REC: fwd1_student.id"
+          enrollment_id: "REC: fwd1_enrollment.id"
+          coverage: "single_term"
+          payment_term_id: "REC: fwd1_term1.id"
+
       - step: "Create form without Journal is rejected on save"
         action: "form"
         model: "school_fee_waiver_deduction"
@@ -1131,7 +1162,7 @@ scenarios:
           type: "AssertionError"
           message_contains: "is a required field"
         values:
-          waiver_id: "REC: fwd1_waiver"
+          waiver_id: "REC: fwd1_waiver_no_journal"
           receivable_account_id: "REC: fwd1_receivable_account"
 
       - step: "Create form without Receivable Account is rejected on save"

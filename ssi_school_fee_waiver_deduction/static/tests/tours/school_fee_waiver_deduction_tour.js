@@ -161,8 +161,17 @@ odoo.define(
                     },
                 },
                 {
+                    // Monetary widgets render `<div class="o_input">` as
+                    // their edit-mode root and append the real `<input>`
+                    // inside it (FieldMonetary.init/_renderEdit) -- the
+                    // `name` attribute lives on that wrapper div, not the
+                    // input itself, so `input[name='amount']` never
+                    // matches. `.o_field_widget[name='amount'] input` is
+                    // the documented form for Monetary in 14.0
+                    // (odoo-development-ui-test, patterns-fields.md, row
+                    // "Monetary"). CI round 3.
                     content: "Fill in the Amount",
-                    trigger: ".o_selected_row input[name='amount']",
+                    trigger: ".o_selected_row .o_field_widget[name='amount'] input",
                     run: "text 1000000",
                 },
                 {
@@ -200,8 +209,11 @@ odoo.define(
                     in_modal: false,
                 },
                 {
+                    // Same fix as the Line Amount step above: Monetary's
+                    // edit-mode root is the wrapper div, not the input, so
+                    // the trigger must descend into it explicitly.
                     content: "Fill in the Allocation Amount",
-                    trigger: ".o_selected_row input[name='amount']",
+                    trigger: ".o_selected_row .o_field_widget[name='amount'] input",
                     run: "text 1000000",
                 },
                 {
