@@ -6,11 +6,15 @@
 School Fee Waiver
 =================
 
-Manages fee waiver master data for the School application: the classification a
-school uses for a waiver (Fee Waiver Type) and the applicant-facing basis for
-requesting one (Fee Waiver Reason). This is master data only — the fee waiver
-document itself, its accounting configuration, and Operating Unit support are
-added by later modules.
+Manages fee waivers for the School application: the classification a school
+uses for a waiver (Fee Waiver Type), the applicant-facing basis for requesting
+one (Fee Waiver Reason), and the Fee Waiver document itself. A waiver can
+close out a single payment term, or repeat over every payment term of its
+billing source within a date range; once open, its Schedule is generated
+automatically with the waived amount computed against each term's actual
+billed amount. The billing source is extensible — this module only registers
+Enrollment. Filling in the realized amount, posting the deduction, and
+Operating Unit support are added by later modules.
 
 
 Work Instruction
@@ -29,6 +33,20 @@ Fee Waiver Reason
 * `Create Fee Waiver Reason <docs/school_fee_waiver_reason/01-create.html>`_
 * `Edit Fee Waiver Reason <docs/school_fee_waiver_reason/02-edit.html>`_
 * `Delete Fee Waiver Reason <docs/school_fee_waiver_reason/03-delete.html>`_
+
+Fee Waiver
+----------
+
+* `Create Fee Waiver <docs/school_fee_waiver/01-create.html>`_
+* `Confirm Fee Waiver <docs/school_fee_waiver/04-confirm.html>`_
+* `Approve Fee Waiver <docs/school_fee_waiver/05-approve.html>`_
+* `Reject Fee Waiver <docs/school_fee_waiver/06-reject.html>`_
+* `Generate Fee Waiver Schedule <docs/school_fee_waiver/07-generate-schedule.html>`_
+* `Auto-Open Fee Waiver <docs/school_fee_waiver/08-auto-open.html>`_
+* `Finish Fee Waiver <docs/school_fee_waiver/09-finish.html>`_
+* `Cancel Fee Waiver <docs/school_fee_waiver/10-cancel.html>`_
+* `Restart Fee Waiver <docs/school_fee_waiver/12-restart.html>`_
+* `Restart Fee Waiver Approval Process <docs/school_fee_waiver/14-restart-approval.html>`_
 
 
 Installation

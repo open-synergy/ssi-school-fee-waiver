@@ -1,0 +1,770 @@
+options:
+  auto_refresh: true
+scenarios:
+  - name: "Fee Waiver Schedule - Generate, Compute, Actions, And Constraints"
+    steps:
+      # ── Shared fixture chain (suffix FS1) ────────────────────────
+      - step: "Create the grade type"
+        action: "create"
+        model: "school_grade_type"
+        save_as: "fs1_grade_type"
+        values:
+          name: "FS1 Grade Type"
+          code: "FS1GT"
+
+      - step: "Create the school"
+        action: "create"
+        model: "school"
+        save_as: "fs1_school"
+        values:
+          name: "FS1 School"
+          code: "FS1SC"
+          grade_type_id: "REC: fs1_grade_type.id"
+
+      - step: "Create the academic year"
+        action: "create"
+        model: "school_academic_year"
+        save_as: "fs1_academic_year"
+        values:
+          name: "FS1 Academic Year"
+          code: "FS1AY"
+          date_start: 2026-07-01
+          date_end: 2027-06-30
+
+      - step: "Create the academic term"
+        action: "create"
+        model: "school_academic_term"
+        save_as: "fs1_academic_term"
+        values:
+          name: "FS1 Term"
+          code: "FS1TM"
+          date_start: 2026-07-01
+          date_end: 2026-12-31
+          year_id: "REC: fs1_academic_year.id"
+
+      - step: "Create the grade"
+        action: "create"
+        model: "school_grade"
+        save_as: "fs1_grade"
+        values:
+          name: "FS1 Grade"
+          code: "FS1GR"
+          type_id: "REC: fs1_grade_type.id"
+
+      - step: "Create the grade class"
+        action: "create"
+        model: "school_grade_class"
+        save_as: "fs1_grade_class"
+        values:
+          name: "FS1 Class"
+          code: "FS1CL"
+          school_id: "REC: fs1_school.id"
+          grade_id: "REC: fs1_grade.id"
+
+      - step: "Create the student contact"
+        action: "create"
+        model: "res.partner"
+        save_as: "fs1_contact"
+        values:
+          name: "FS1 Contact"
+
+      - step: "Create the student"
+        action: "create"
+        model: "school_student"
+        save_as: "fs1_student"
+        values:
+          name: "FS1 Student"
+          code: "FS1ST"
+          contact_id: "REC: fs1_contact.id"
+          school_id: "REC: fs1_school.id"
+
+      - step: "Create the enrollment"
+        action: "create"
+        model: "school_enrollment"
+        save_as: "fs1_enrollment"
+        values:
+          academic_year_id: "REC: fs1_academic_year.id"
+          academic_term_id: "REC: fs1_academic_term.id"
+          school_id: "REC: fs1_school.id"
+          grade_id: "REC: fs1_grade.id"
+          grade_class_id: "REC: fs1_grade_class.id"
+          student_id: "REC: fs1_student.id"
+
+      - step: "Get the account.account.type Income reference"
+        action: "ref"
+        xml_id: "account.data_account_type_revenue"
+        save_as: "account_type_income"
+
+      - step: "Create the income account used by payment term details"
+        action: "create"
+        model: "account.account"
+        save_as: "fs1_income_account"
+        values:
+          name: "FS1 Income Account"
+          code: "FS1IA"
+          user_type_id: "REC: account_type_income.id"
+          reconcile: false
+
+      - step: "Create Product A (matched by Product)"
+        action: "create"
+        model: "product.product"
+        save_as: "fs1_product_a"
+        values:
+          name: "FS1 Product A"
+          type: "service"
+
+      - step: "Create Product Category B (matched by Category)"
+        action: "create"
+        model: "product.category"
+        save_as: "fs1_category_b"
+        values:
+          name: "FS1 Category B"
+
+      - step: "Create Product B, under Category B"
+        action: "create"
+        model: "product.product"
+        save_as: "fs1_product_b"
+        values:
+          name: "FS1 Product B"
+          type: "service"
+          categ_id: "REC: fs1_category_b.id"
+
+      - step: "Create the fee waiver type"
+        action: "create"
+        model: "school_fee_waiver_type"
+        save_as: "fs1_type"
+        values:
+          name: "FS1 Type"
+          code: "FS1TY"
+
+      - step: "Create the fee waiver reason"
+        action: "create"
+        model: "school_fee_waiver_reason"
+        save_as: "fs1_reason"
+        values:
+          name: "FS1 Reason"
+          code: "FS1RS"
+
+      # Six Payment Terms of Product A, one per month (July..December),
+      # plus a seventh of Product B (for Product Category matching).
+      - step: "Create Payment Term 1 (July, Product A)"
+        action: "create"
+        model: "school_enrollment_payment_term"
+        save_as: "fs1_term1"
+        values:
+          enrollment_id: "REC: fs1_enrollment.id"
+          name: "FS1 Term July"
+          date_due: 2026-07-15
+          detail_ids:
+            - - 0
+              - 0
+              - product_id: "REC: fs1_product_a.id"
+                name: "FS1 Term July Fee"
+                account_id: "REC: fs1_income_account.id"
+                uom_quantity: 1.0
+                uom_id: "REF: uom.product_uom_unit"
+                price_unit: 1000000.0
+
+      - step: "Create Payment Term 2 (August, Product A)"
+        action: "create"
+        model: "school_enrollment_payment_term"
+        save_as: "fs1_term2"
+        values:
+          enrollment_id: "REC: fs1_enrollment.id"
+          name: "FS1 Term August"
+          date_due: 2026-08-15
+          detail_ids:
+            - - 0
+              - 0
+              - product_id: "REC: fs1_product_a.id"
+                name: "FS1 Term August Fee"
+                account_id: "REC: fs1_income_account.id"
+                uom_quantity: 1.0
+                uom_id: "REF: uom.product_uom_unit"
+                price_unit: 1000000.0
+
+      - step: "Create Payment Term 3 (September, Product A)"
+        action: "create"
+        model: "school_enrollment_payment_term"
+        save_as: "fs1_term3"
+        values:
+          enrollment_id: "REC: fs1_enrollment.id"
+          name: "FS1 Term September"
+          date_due: 2026-09-15
+          detail_ids:
+            - - 0
+              - 0
+              - product_id: "REC: fs1_product_a.id"
+                name: "FS1 Term September Fee"
+                account_id: "REC: fs1_income_account.id"
+                uom_quantity: 1.0
+                uom_id: "REF: uom.product_uom_unit"
+                price_unit: 1000000.0
+
+      - step: "Create Payment Term 4 (October, Product A)"
+        action: "create"
+        model: "school_enrollment_payment_term"
+        save_as: "fs1_term4"
+        values:
+          enrollment_id: "REC: fs1_enrollment.id"
+          name: "FS1 Term October"
+          date_due: 2026-10-15
+          detail_ids:
+            - - 0
+              - 0
+              - product_id: "REC: fs1_product_a.id"
+                name: "FS1 Term October Fee"
+                account_id: "REC: fs1_income_account.id"
+                uom_quantity: 1.0
+                uom_id: "REF: uom.product_uom_unit"
+                price_unit: 1000000.0
+
+      - step: "Create Payment Term 5 (November, Product B / Category B)"
+        action: "create"
+        model: "school_enrollment_payment_term"
+        save_as: "fs1_term5"
+        values:
+          enrollment_id: "REC: fs1_enrollment.id"
+          name: "FS1 Term November"
+          date_due: 2026-11-15
+          detail_ids:
+            - - 0
+              - 0
+              - product_id: "REC: fs1_product_b.id"
+                name: "FS1 Term November Fee"
+                account_id: "REC: fs1_income_account.id"
+                uom_quantity: 1.0
+                uom_id: "REF: uom.product_uom_unit"
+                price_unit: 800000.0
+
+      - step: "Create Payment Term 6 (December, Product A, for realized test)"
+        action: "create"
+        model: "school_enrollment_payment_term"
+        save_as: "fs1_term6"
+        values:
+          enrollment_id: "REC: fs1_enrollment.id"
+          name: "FS1 Term December"
+          date_due: 2026-12-15
+          detail_ids:
+            - - 0
+              - 0
+              - product_id: "REC: fs1_product_a.id"
+                name: "FS1 Term December Fee"
+                account_id: "REC: fs1_income_account.id"
+                uom_quantity: 1.0
+                uom_id: "REF: uom.product_uom_unit"
+                price_unit: 1000000.0
+
+      # ── Multi Term: covers August + September only (2 of 6 terms) ──
+      - step: "Create the multi-term waiver (50% of Product A)"
+        action: "create"
+        model: "school_fee_waiver"
+        save_as: "fs1_multi"
+        values:
+          type_id: "REC: fs1_type.id"
+          reason_id: "REC: fs1_reason.id"
+          student_id: "REC: fs1_student.id"
+          enrollment_id: "REC: fs1_enrollment.id"
+          coverage: "multi_term"
+          date_start: 2026-08-01
+          date_end: 2026-09-30
+          user_id: "REF: base.user_admin"
+          line_ids:
+            - - 0
+              - 0
+              - product_id: "REC: fs1_product_a.id"
+                computation: "percentage"
+                percentage: 50.0
+
+      - step: "Confirm the multi-term waiver"
+        action: "call"
+        target: "fs1_multi"
+        method: "action_confirm"
+        as_user: "base.user_admin"
+        asserts:
+          state:
+            type: "value"
+            expected: "confirm"
+
+      - step: "Approve the multi-term waiver"
+        action: "call"
+        target: "fs1_multi"
+        method: "action_approve_approval"
+        as_user: "base.user_admin"
+        asserts:
+          state:
+            type: "value"
+            expected: "open"
+
+      - step: "Only August and September got a Schedule line"
+        action: "assert"
+        target: "fs1_multi"
+        asserts:
+          schedule_ids:
+            type: "o2m"
+            check: "count"
+            expected_count: 2
+
+      - step: "Find the August Schedule line"
+        action: "search"
+        model: "school_fee_waiver_schedule"
+        domain: [["payment_term_id", "=", "REC: fs1_term2.id"]]
+        save_as: "fs1_sched_aug"
+        limit: 1
+
+      - step: "August Schedule is 50% of its Base Amount"
+        action: "assert"
+        target: "fs1_sched_aug"
+        asserts:
+          base_amount:
+            type: "value"
+            expected: 1000000.0
+          amount_planned:
+            type: "value"
+            expected: 500000.0
+          state:
+            type: "value"
+            expected: "scheduled"
+
+      - step: "Find the September Schedule line"
+        action: "search"
+        model: "school_fee_waiver_schedule"
+        domain: [["payment_term_id", "=", "REC: fs1_term3.id"]]
+        save_as: "fs1_sched_sep"
+        limit: 1
+
+      - step: "September Schedule is 50% of its Base Amount"
+        action: "assert"
+        target: "fs1_sched_sep"
+        asserts:
+          base_amount:
+            type: "value"
+            expected: 1000000.0
+          amount_planned:
+            type: "value"
+            expected: 500000.0
+
+      - step: "Amount Waived sums both active Schedule lines"
+        action: "assert"
+        target: "fs1_multi"
+        asserts:
+          amount_waived:
+            type: "value"
+            expected: 1000000.0
+
+      # ── Idempotent regenerate: count must stay the same ────────────
+      - step: "Generate Schedule again must not duplicate lines"
+        action: "call"
+        target: "fs1_multi"
+        method: "action_generate_schedule"
+        as_user: "base.user_admin"
+
+      - step: "Schedule count is still 2 after regenerating"
+        action: "assert"
+        target: "fs1_multi"
+        asserts:
+          schedule_ids:
+            type: "o2m"
+            check: "count"
+            expected_count: 2
+
+      # ── Re-fetch: the regenerate above unlinks every draft/scheduled
+      # line and recreates them, so the "fs1_sched_aug"/"fs1_sched_sep"
+      # refs saved before it now point at deleted records (RC-4, PR #13
+      # round 3 triage). Both are re-searched here, before either is
+      # used again.
+      - step: "Re-find the August Schedule line after regenerating"
+        action: "search"
+        model: "school_fee_waiver_schedule"
+        domain: [["payment_term_id", "=", "REC: fs1_term2.id"]]
+        save_as: "fs1_sched_aug"
+        limit: 1
+
+      - step: "Re-find the September Schedule line after regenerating"
+        action: "search"
+        model: "school_fee_waiver_schedule"
+        domain: [["payment_term_id", "=", "REC: fs1_term3.id"]]
+        save_as: "fs1_sched_sep"
+        limit: 1
+
+      # ── Skip one line: Amount Waived must drop accordingly ─────────
+      - step: "Skip the August Schedule line"
+        action: "call"
+        target: "fs1_sched_aug"
+        method: "action_skip"
+        as_user: "base.user_admin"
+        asserts:
+          state:
+            type: "value"
+            expected: "skipped"
+
+      - step: "Amount Waived excludes the Skipped line"
+        action: "assert"
+        target: "fs1_multi"
+        asserts:
+          amount_waived:
+            type: "value"
+            expected: 500000.0
+
+      # ── Cancel the other line, then regenerate again: neither is
+      # duplicated or reverted, since both are outside draft/scheduled.
+      - step: "Cancel the September Schedule line"
+        action: "call"
+        target: "fs1_sched_sep"
+        method: "action_cancel_schedule"
+        as_user: "base.user_admin"
+        asserts:
+          state:
+            type: "value"
+            expected: "cancelled"
+
+      - step: "Amount Waived is zero once both lines are inactive"
+        action: "assert"
+        target: "fs1_multi"
+        asserts:
+          amount_waived:
+            type: "value"
+            expected: 0.0
+
+      - step: "Generate Schedule once more after Skip/Cancel"
+        action: "call"
+        target: "fs1_multi"
+        method: "action_generate_schedule"
+        as_user: "base.user_admin"
+
+      - step: "Skipped/Cancelled lines survive regeneration untouched"
+        action: "assert"
+        target: "fs1_multi"
+        asserts:
+          schedule_ids:
+            type: "o2m"
+            check: "count"
+            expected_count: 2
+
+      - step: "The August line is still Skipped, not recreated"
+        action: "assert"
+        target: "fs1_sched_aug"
+        asserts:
+          state:
+            type: "value"
+            expected: "skipped"
+
+      # ── Single Term, Full Coverage, matched by Product Category ────
+      - step: "Create the single-term waiver (Full Coverage, by Category)"
+        action: "create"
+        model: "school_fee_waiver"
+        save_as: "fs1_single_full"
+        values:
+          type_id: "REC: fs1_type.id"
+          reason_id: "REC: fs1_reason.id"
+          student_id: "REC: fs1_student.id"
+          enrollment_id: "REC: fs1_enrollment.id"
+          coverage: "single_term"
+          payment_term_id: "REC: fs1_term5.id"
+          user_id: "REF: base.user_admin"
+          line_ids:
+            - - 0
+              - 0
+              - product_category_id: "REC: fs1_category_b.id"
+                computation: "full"
+
+      - step: "Confirm the single-term Full Coverage waiver"
+        action: "call"
+        target: "fs1_single_full"
+        method: "action_confirm"
+        as_user: "base.user_admin"
+        asserts:
+          state:
+            type: "value"
+            expected: "confirm"
+
+      - step: "Approve the single-term Full Coverage waiver"
+        action: "call"
+        target: "fs1_single_full"
+        method: "action_approve_approval"
+        as_user: "base.user_admin"
+        asserts:
+          state:
+            type: "value"
+            expected: "open"
+
+      - step: "Exactly one Schedule line for Single Payment Term"
+        action: "assert"
+        target: "fs1_single_full"
+        asserts:
+          schedule_ids:
+            type: "o2m"
+            check: "count"
+            expected_count: 1
+
+      - step: "Find the Category B Schedule line"
+        action: "search"
+        model: "school_fee_waiver_schedule"
+        domain: [["payment_term_id", "=", "REC: fs1_term5.id"]]
+        save_as: "fs1_sched_categ"
+        limit: 1
+
+      - step: "Full Coverage matched by Category equals its Base Amount"
+        action: "assert"
+        target: "fs1_sched_categ"
+        asserts:
+          base_amount:
+            type: "value"
+            expected: 800000.0
+          amount_planned:
+            type: "value"
+            expected: 800000.0
+
+      # ── Fixed Amount exceeding Base Amount is capped at Base Amount ─
+      - step: "Create the single-term waiver (Fixed Amount over Base)"
+        action: "create"
+        model: "school_fee_waiver"
+        save_as: "fs1_fixed"
+        values:
+          type_id: "REC: fs1_type.id"
+          reason_id: "REC: fs1_reason.id"
+          student_id: "REC: fs1_student.id"
+          enrollment_id: "REC: fs1_enrollment.id"
+          coverage: "single_term"
+          payment_term_id: "REC: fs1_term4.id"
+          user_id: "REF: base.user_admin"
+          line_ids:
+            - - 0
+              - 0
+              - product_id: "REC: fs1_product_a.id"
+                computation: "fixed"
+                amount_fixed: 5000000.0
+
+      - step: "Confirm the Fixed Amount waiver"
+        action: "call"
+        target: "fs1_fixed"
+        method: "action_confirm"
+        as_user: "base.user_admin"
+        asserts:
+          state:
+            type: "value"
+            expected: "confirm"
+
+      - step: "Approve the Fixed Amount waiver"
+        action: "call"
+        target: "fs1_fixed"
+        method: "action_approve_approval"
+        as_user: "base.user_admin"
+        asserts:
+          state:
+            type: "value"
+            expected: "open"
+
+      - step: "Find the Fixed Amount Schedule line"
+        action: "search"
+        model: "school_fee_waiver_schedule"
+        domain: [["payment_term_id", "=", "REC: fs1_term4.id"]]
+        save_as: "fs1_sched_fixed"
+        limit: 1
+
+      - step: "Fixed Amount is capped at Base Amount"
+        action: "assert"
+        target: "fs1_sched_fixed"
+        asserts:
+          base_amount:
+            type: "value"
+            expected: 1000000.0
+          amount_planned:
+            type: "value"
+            expected: 1000000.0
+
+      # ── Max Amount below the computed Percentage is applied ────────
+      - step: "Create the single-term waiver (Max Amount ceiling)"
+        action: "create"
+        model: "school_fee_waiver"
+        save_as: "fs1_max"
+        values:
+          type_id: "REC: fs1_type.id"
+          reason_id: "REC: fs1_reason.id"
+          student_id: "REC: fs1_student.id"
+          enrollment_id: "REC: fs1_enrollment.id"
+          coverage: "single_term"
+          payment_term_id: "REC: fs1_term1.id"
+          user_id: "REF: base.user_admin"
+          line_ids:
+            - - 0
+              - 0
+              - product_id: "REC: fs1_product_a.id"
+                computation: "percentage"
+                percentage: 80.0
+                max_amount: 300000.0
+
+      - step: "Confirm the Max Amount waiver"
+        action: "call"
+        target: "fs1_max"
+        method: "action_confirm"
+        as_user: "base.user_admin"
+        asserts:
+          state:
+            type: "value"
+            expected: "confirm"
+
+      - step: "Approve the Max Amount waiver"
+        action: "call"
+        target: "fs1_max"
+        method: "action_approve_approval"
+        as_user: "base.user_admin"
+        asserts:
+          state:
+            type: "value"
+            expected: "open"
+
+      - step: "Find the Max Amount Schedule line"
+        action: "search"
+        model: "school_fee_waiver_schedule"
+        domain: [["payment_term_id", "=", "REC: fs1_term1.id"]]
+        save_as: "fs1_sched_max"
+        limit: 1
+
+      - step: "Amount Planned is capped at Max Amount"
+        action: "assert"
+        target: "fs1_sched_max"
+        asserts:
+          base_amount:
+            type: "value"
+            expected: 1000000.0
+          amount_planned:
+            type: "value"
+            expected: 300000.0
+
+      # ── Negative: duplicate (Line, Payment Term) pairing ────────────
+      - step: "Find the Max Amount waiver's own Line"
+        action: "search"
+        model: "school_fee_waiver_line"
+        domain: [["waiver_id", "=", "REC: fs1_max.id"]]
+        save_as: "fs1_max_line"
+        limit: 1
+
+      - step: "A second Schedule for the same Line/Payment Term is rejected"
+        action: "create"
+        model: "school_fee_waiver_schedule"
+        expect_error:
+          type: "ValidationError"
+        values:
+          line_id: "REC: fs1_max_line.id"
+          payment_term_id: "REC: fs1_term1.id"
+          date: 2026-07-15
+
+      # ── Negative: Payment Term must belong to the waiver's own
+      # billing source ────────────────────────────────────────────────
+      - step: "Create a second student"
+        action: "create"
+        model: "res.partner"
+        save_as: "fs1_contact_other"
+        values:
+          name: "FS1 Other Contact"
+
+      - step: "Create the second student record"
+        action: "create"
+        model: "school_student"
+        save_as: "fs1_student_other"
+        values:
+          name: "FS1 Other Student"
+          code: "FS1ST2"
+          contact_id: "REC: fs1_contact_other.id"
+          school_id: "REC: fs1_school.id"
+
+      - step: "Create a second, unrelated enrollment"
+        action: "create"
+        model: "school_enrollment"
+        save_as: "fs1_enrollment_other"
+        values:
+          academic_year_id: "REC: fs1_academic_year.id"
+          academic_term_id: "REC: fs1_academic_term.id"
+          school_id: "REC: fs1_school.id"
+          grade_id: "REC: fs1_grade.id"
+          grade_class_id: "REC: fs1_grade_class.id"
+          student_id: "REC: fs1_student_other.id"
+
+      - step: "Create a Payment Term on the unrelated enrollment"
+        action: "create"
+        model: "school_enrollment_payment_term"
+        save_as: "fs1_term_other"
+        values:
+          enrollment_id: "REC: fs1_enrollment_other.id"
+          name: "FS1 Other Term"
+          date_due: 2026-07-20
+
+      - step: "A Schedule on a foreign Payment Term is rejected"
+        action: "create"
+        model: "school_fee_waiver_schedule"
+        expect_error:
+          type: "ValidationError"
+        values:
+          line_id: "REC: fs1_max_line.id"
+          payment_term_id: "REC: fs1_term_other.id"
+          date: 2026-07-20
+
+      # ── Negative: Skip/Cancel a Realized Schedule line ──────────────
+      - step: "Create the single-term waiver for the Realized test"
+        action: "create"
+        model: "school_fee_waiver"
+        save_as: "fs1_realized_test"
+        values:
+          type_id: "REC: fs1_type.id"
+          reason_id: "REC: fs1_reason.id"
+          student_id: "REC: fs1_student.id"
+          enrollment_id: "REC: fs1_enrollment.id"
+          coverage: "single_term"
+          payment_term_id: "REC: fs1_term6.id"
+          user_id: "REF: base.user_admin"
+          line_ids:
+            - - 0
+              - 0
+              - product_id: "REC: fs1_product_a.id"
+                computation: "full"
+
+      - step: "Confirm the Realized-test waiver"
+        action: "call"
+        target: "fs1_realized_test"
+        method: "action_confirm"
+        as_user: "base.user_admin"
+        asserts:
+          state:
+            type: "value"
+            expected: "confirm"
+
+      - step: "Approve the Realized-test waiver"
+        action: "call"
+        target: "fs1_realized_test"
+        method: "action_approve_approval"
+        as_user: "base.user_admin"
+        asserts:
+          state:
+            type: "value"
+            expected: "open"
+
+      - step: "Find the Realized-test Schedule line"
+        action: "search"
+        model: "school_fee_waiver_schedule"
+        domain: [["payment_term_id", "=", "REC: fs1_term6.id"]]
+        save_as: "fs1_sched_realize"
+        limit: 1
+
+      - step: "Force the Schedule line to Realized"
+        action: "write"
+        target: "fs1_sched_realize"
+        as_user: "base.user_admin"
+        values:
+          state: "realized"
+
+      - step: "Skip a Realized Schedule line is rejected"
+        action: "call"
+        target: "fs1_sched_realize"
+        method: "action_skip"
+        as_user: "base.user_admin"
+        expect_error:
+          type: "UserError"
+
+      - step: "Cancel a Realized Schedule line is rejected"
+        action: "call"
+        target: "fs1_sched_realize"
+        method: "action_cancel_schedule"
+        as_user: "base.user_admin"
+        expect_error:
+          type: "UserError"

@@ -4,3 +4,6 @@
 
 from . import school_fee_waiver_type  # noqa: F401
 from . import school_fee_waiver_reason  # noqa: F401
+from . import school_fee_waiver_line  # noqa: F401
+from . import school_fee_waiver_schedule  # noqa: F401
+from . import school_fee_waiver  # noqa: F401
