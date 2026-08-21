@@ -1,0 +1,84 @@
+# Translation of Odoo Server.
+# This file contains the translation of the following modules:
+# 	* ssi_school_fee_waiver_admission
+#
+msgid ""
+msgstr ""
+"Project-Id-Version: Odoo Server 14.0\n"
+"Report-Msgid-Bugs-To: \n"
+"Last-Translator: \n"
+"Language-Team: \n"
+"MIME-Version: 1.0\n"
+"Content-Type: text/plain; charset=UTF-8\n"
+"Content-Transfer-Encoding: \n"
+"Plural-Forms: \n"
+
+#. module: ssi_school_fee_waiver_admission
+#: model:ir.model.fields,field_description:ssi_school_fee_waiver_admission.field_school_fee_waiver__admission_id
+#: model:ir.model.fields.selection,name:ssi_school_fee_waiver_admission.selection__school_fee_waiver__source_type__admission
+msgid "Admission"
+msgstr ""
+
+#. module: ssi_school_fee_waiver_admission
+#: model:ir.model.fields,field_description:ssi_school_fee_waiver_admission.field_school_fee_waiver_schedule__admission_payment_term_id
+msgid "Admission Payment Term"
+msgstr ""
+
+#. module: ssi_school_fee_waiver_admission
+#: model:ir.model.fields,help:ssi_school_fee_waiver_admission.field_school_fee_waiver_schedule__admission_payment_term_id
+msgid ""
+"Admission payment term this Schedule line realizes. Set instead of Payment "
+"Term when this line was generated from an Admission-sourced waiver."
+msgstr ""
+
+#. module: ssi_school_fee_waiver_admission
+#: model:ir.model.fields,help:ssi_school_fee_waiver_admission.field_school_fee_waiver__admission_id
+msgid ""
+"Admission this waiver is billed against. Must already be linked to the "
+"selected Student's School Student record -- an admission earlier than Open "
+"has not yet created one, so it cannot be billed against. Required when "
+"Billing Source is Admission -- enforced by ``_check_billing_source``, not by"
+" this field itself, so the base module's own billing source is not forced to"
+" also be a required field."
+msgstr ""
+
+#. module: ssi_school_fee_waiver_admission
+#: model:ir.model.fields,field_description:ssi_school_fee_waiver_admission.field_school_fee_waiver__source_type
+msgid "Billing Source"
+msgstr ""
+
+#. module: ssi_school_fee_waiver_admission
+#: model:ir.model.fields,help:ssi_school_fee_waiver_admission.field_school_fee_waiver__source_type
+msgid ""
+"Billing source this waiver is billed against. This module only registers "
+"Enrollment -- extension modules add further values with ``selection_add`` "
+"and override the ``_get_source_*`` hooks to match."
+msgstr ""
+
+#. module: ssi_school_fee_waiver_admission
+#: model:ir.model.fields,field_description:ssi_school_fee_waiver_admission.field_school_fee_waiver__display_name
+#: model:ir.model.fields,field_description:ssi_school_fee_waiver_admission.field_school_fee_waiver_schedule__display_name
+msgid "Display Name"
+msgstr ""
+
+#. module: ssi_school_fee_waiver_admission
+#: model:ir.model.fields,field_description:ssi_school_fee_waiver_admission.field_school_fee_waiver__id
+#: model:ir.model.fields,field_description:ssi_school_fee_waiver_admission.field_school_fee_waiver_schedule__id
+msgid "ID"
+msgstr ""
+
+#. module: ssi_school_fee_waiver_admission
+#: model:ir.model.fields,field_description:ssi_school_fee_waiver_admission.field_school_fee_waiver____last_update
+#: model:ir.model.fields,field_description:ssi_school_fee_waiver_admission.field_school_fee_waiver_schedule____last_update
+msgid "Last Modified on"
+msgstr ""
+
+#. module: ssi_school_fee_waiver_admission
+#: model:ir.model,name:ssi_school_fee_waiver_admission.model_school_fee_waiver
+msgid "School Fee Waiver"
+msgstr ""
+
+#. module: ssi_school_fee_waiver_admission
+#: model:ir.model,name:ssi_school_fee_waiver_admission.model_school_fee_waiver_schedule
+msgid "School Fee Waiver Schedule"
+msgstr ""
