@@ -1,0 +1,962 @@
+options:
+  auto_refresh: true
+scenarios:
+  - name:
+      "FW Admission OU - create derives operating_unit_id from the Admission's School,
+      overriding the creating user's own default operating unit"
+    steps:
+      # ── Shared fixture chain (suffix ADMOU1) ─────────────────────
+      - step: "Create partner for the creating user's own default operating unit"
+        action: "create"
+        model: "res.partner"
+        save_as: "admou1_a_partner"
+        values:
+          name: "FW AdmOU1 A Partner"
+
+      - step: "Create Operating Unit A (the creating user's own default)"
+        action: "create"
+        model: "operating.unit"
+        save_as: "admou1_a"
+        values:
+          name: "FW AdmOU1 A"
+          code: "ADMOU1A"
+          company_id: "REF: base.main_company"
+          partner_id: "REC: admou1_a_partner.id"
+
+      - step: "Create partner for the Admission school's own operating unit"
+        action: "create"
+        model: "res.partner"
+        save_as: "admou1_b_partner"
+        values:
+          name: "FW AdmOU1 B Partner"
+
+      - step: "Create Operating Unit B (the Admission school's own)"
+        action: "create"
+        model: "operating.unit"
+        save_as: "admou1_b"
+        values:
+          name: "FW AdmOU1 B"
+          code: "ADMOU1B"
+          company_id: "REF: base.main_company"
+          partner_id: "REC: admou1_b_partner.id"
+
+      - step: "Create the grade type"
+        action: "create"
+        model: "school_grade_type"
+        save_as: "admou1_grade_type"
+        values:
+          name: "ADMOU1 Grade Type"
+          code: "ADMOU1GT"
+
+      - step: "Create the Admission's School with Operating Unit B"
+        action: "create"
+        model: "school"
+        save_as: "admou1_school"
+        values:
+          name: "ADMOU1 School"
+          code: "ADMOU1SCH"
+          grade_type_id: "REC: admou1_grade_type.id"
+          operating_unit_ids: [[6, 0, ["REC: admou1_b.id"]]]
+
+      - step: "Create the grade"
+        action: "create"
+        model: "school_grade"
+        save_as: "admou1_grade"
+        values:
+          name: "ADMOU1 Grade"
+          code: "ADMOU1GR"
+          type_id: "REC: admou1_grade_type.id"
+
+      - step: "Create the academic year"
+        action: "create"
+        model: "school_academic_year"
+        save_as: "admou1_academic_year"
+        values:
+          name: "ADMOU1 Academic Year"
+          code: "ADMOU1AY"
+          date_start: 2026-07-01
+          date_end: 2027-06-30
+
+      - step: "Create the academic term"
+        action: "create"
+        model: "school_academic_term"
+        save_as: "admou1_academic_term"
+        values:
+          name: "ADMOU1 Term"
+          code: "ADMOU1TM"
+          date_start: 2026-07-01
+          date_end: 2026-12-31
+          year_id: "REC: admou1_academic_year.id"
+
+      - step: "Create the admission student's contact"
+        action: "create"
+        model: "res.partner"
+        save_as: "admou1_admission_contact"
+        values:
+          name: "ADMOU1 Admission Contact"
+
+      - step: "Create the admission at the school"
+        action: "create"
+        model: "school_admission"
+        save_as: "admou1_admission"
+        values:
+          academic_year_id: "REC: admou1_academic_year.id"
+          academic_term_id: "REC: admou1_academic_term.id"
+          school_id: "REC: admou1_school.id"
+          grade_id: "REC: admou1_grade.id"
+          student_id: "REC: admou1_admission_contact.id"
+          user_id: "REF: base.user_admin"
+
+      - step: "Confirm the admission as admin"
+        action: "call"
+        target: "admou1_admission"
+        method: "action_confirm"
+        as_user: "base.user_admin"
+        # asserts + refresh: true force a fresh policy read before
+        # Approve, so `approve_ok` is not read from the cache filled
+        # while Confirm read `confirm_ok` with state still Draft
+        # (odoo-development-unit-test, test-traps.md T-04).
+        refresh: true
+        asserts:
+          state:
+            type: "value"
+            expected: "confirm"
+
+      - step: "Approve the admission as admin (auto-opens)"
+        action: "call"
+        target: "admou1_admission"
+        method: "action_approve_approval"
+        as_user: "base.user_admin"
+        asserts:
+          state:
+            type: "value"
+            expected: "open"
+
+      - step: "Create the fee waiver type"
+        action: "create"
+        model: "school_fee_waiver_type"
+        save_as: "admou1_type"
+        values:
+          name: "ADMOU1 Type"
+          code: "ADMOU1TY"
+
+      - step: "Create the fee waiver reason"
+        action: "create"
+        model: "school_fee_waiver_reason"
+        save_as: "admou1_reason"
+        values:
+          name: "ADMOU1 Reason"
+          code: "ADMOU1RS"
+
+      # The acting user's own default Operating Unit is set to A --
+      # proving the assertion below is about derivation from the
+      # Admission's school (B), not a coincidence of the acting
+      # user's default. ``user`` is the built-in registry alias for
+      # the acting env (root/OdooBot, uid=1 by default).
+      - step: "Set the acting user's own default operating unit to A"
+        action: "write"
+        target: "user"
+        values:
+          default_operating_unit_id: "REC: admou1_a.id"
+          assigned_operating_unit_ids: [[6, 0, ["REC: admou1_a.id"]]]
+
+      - step: "Create the Admission-sourced fee waiver"
+        action: "create"
+        model: "school_fee_waiver"
+        save_as: "admou1_waiver"
+        values:
+          type_id: "REC: admou1_type.id"
+          reason_id: "REC: admou1_reason.id"
+          student_id: "REC: admou1_admission.school_student_id.id"
+          source_type: "admission"
+          admission_id: "REC: admou1_admission.id"
+          coverage: "multi_term"
+
+      - step:
+          "Assert operating unit was derived from the Admission's School (B), not the
+          user's default (A)"
+        action: "assert"
+        target: "admou1_waiver"
+        asserts:
+          operating_unit_id:
+            type: "m2o"
+            expected: "REC: admou1_b"
+
+  - name: "FW Admission OU - write changing admission_id moves operating_unit_id"
+    steps:
+      # ── Shared fixture chain (suffix ADMOU2) ─────────────────────
+      - step: "Create partner for Operating Unit A"
+        action: "create"
+        model: "res.partner"
+        save_as: "admou2_a_partner"
+        values:
+          name: "FW AdmOU2 A Partner"
+
+      - step: "Create Operating Unit A"
+        action: "create"
+        model: "operating.unit"
+        save_as: "admou2_a"
+        values:
+          name: "FW AdmOU2 A"
+          code: "ADMOU2A"
+          company_id: "REF: base.main_company"
+          partner_id: "REC: admou2_a_partner.id"
+
+      - step: "Create partner for Operating Unit B"
+        action: "create"
+        model: "res.partner"
+        save_as: "admou2_b_partner"
+        values:
+          name: "FW AdmOU2 B Partner"
+
+      - step: "Create Operating Unit B"
+        action: "create"
+        model: "operating.unit"
+        save_as: "admou2_b"
+        values:
+          name: "FW AdmOU2 B"
+          code: "ADMOU2B"
+          company_id: "REF: base.main_company"
+          partner_id: "REC: admou2_b_partner.id"
+
+      - step: "Create the grade type"
+        action: "create"
+        model: "school_grade_type"
+        save_as: "admou2_grade_type"
+        values:
+          name: "ADMOU2 Grade Type"
+          code: "ADMOU2GT"
+
+      - step: "Create School A with Operating Unit A"
+        action: "create"
+        model: "school"
+        save_as: "admou2_school_a"
+        values:
+          name: "ADMOU2 School A"
+          code: "ADMOU2SCA"
+          grade_type_id: "REC: admou2_grade_type.id"
+          operating_unit_ids: [[6, 0, ["REC: admou2_a.id"]]]
+
+      - step: "Create School B with Operating Unit B"
+        action: "create"
+        model: "school"
+        save_as: "admou2_school_b"
+        values:
+          name: "ADMOU2 School B"
+          code: "ADMOU2SCB"
+          grade_type_id: "REC: admou2_grade_type.id"
+          operating_unit_ids: [[6, 0, ["REC: admou2_b.id"]]]
+
+      - step: "Create the grade"
+        action: "create"
+        model: "school_grade"
+        save_as: "admou2_grade"
+        values:
+          name: "ADMOU2 Grade"
+          code: "ADMOU2GR"
+          type_id: "REC: admou2_grade_type.id"
+
+      - step: "Create the academic year"
+        action: "create"
+        model: "school_academic_year"
+        save_as: "admou2_academic_year"
+        values:
+          name: "ADMOU2 Academic Year"
+          code: "ADMOU2AY"
+          date_start: 2026-07-01
+          date_end: 2027-06-30
+
+      - step: "Create the academic term"
+        action: "create"
+        model: "school_academic_term"
+        save_as: "admou2_academic_term"
+        values:
+          name: "ADMOU2 Term"
+          code: "ADMOU2TM"
+          date_start: 2026-07-01
+          date_end: 2026-12-31
+          year_id: "REC: admou2_academic_year.id"
+
+      - step: "Create Admission A's contact"
+        action: "create"
+        model: "res.partner"
+        save_as: "admou2_contact_a"
+        values:
+          name: "ADMOU2 Admission Contact A"
+
+      - step: "Create Admission A (School A)"
+        action: "create"
+        model: "school_admission"
+        save_as: "admou2_admission_a"
+        values:
+          academic_year_id: "REC: admou2_academic_year.id"
+          academic_term_id: "REC: admou2_academic_term.id"
+          school_id: "REC: admou2_school_a.id"
+          grade_id: "REC: admou2_grade.id"
+          student_id: "REC: admou2_contact_a.id"
+          user_id: "REF: base.user_admin"
+
+      - step: "Confirm Admission A as admin"
+        action: "call"
+        target: "admou2_admission_a"
+        method: "action_confirm"
+        as_user: "base.user_admin"
+        refresh: true
+        asserts:
+          state:
+            type: "value"
+            expected: "confirm"
+
+      - step: "Approve Admission A as admin (auto-opens)"
+        action: "call"
+        target: "admou2_admission_a"
+        method: "action_approve_approval"
+        as_user: "base.user_admin"
+        asserts:
+          state:
+            type: "value"
+            expected: "open"
+
+      - step: "Create Admission B's contact"
+        action: "create"
+        model: "res.partner"
+        save_as: "admou2_contact_b"
+        values:
+          name: "ADMOU2 Admission Contact B"
+
+      - step: "Create Admission B (School B)"
+        action: "create"
+        model: "school_admission"
+        save_as: "admou2_admission_b"
+        values:
+          academic_year_id: "REC: admou2_academic_year.id"
+          academic_term_id: "REC: admou2_academic_term.id"
+          school_id: "REC: admou2_school_b.id"
+          grade_id: "REC: admou2_grade.id"
+          student_id: "REC: admou2_contact_b.id"
+          user_id: "REF: base.user_admin"
+
+      - step: "Confirm Admission B as admin"
+        action: "call"
+        target: "admou2_admission_b"
+        method: "action_confirm"
+        as_user: "base.user_admin"
+        refresh: true
+        asserts:
+          state:
+            type: "value"
+            expected: "confirm"
+
+      - step: "Approve Admission B as admin (auto-opens)"
+        action: "call"
+        target: "admou2_admission_b"
+        method: "action_approve_approval"
+        as_user: "base.user_admin"
+        asserts:
+          state:
+            type: "value"
+            expected: "open"
+
+      - step: "Create the fee waiver type"
+        action: "create"
+        model: "school_fee_waiver_type"
+        save_as: "admou2_type"
+        values:
+          name: "ADMOU2 Type"
+          code: "ADMOU2TY"
+
+      - step: "Create the fee waiver reason"
+        action: "create"
+        model: "school_fee_waiver_reason"
+        save_as: "admou2_reason"
+        values:
+          name: "ADMOU2 Reason"
+          code: "ADMOU2RS"
+
+      - step: "Create the fee waiver for Admission A (School A)"
+        action: "create"
+        model: "school_fee_waiver"
+        save_as: "admou2_waiver"
+        values:
+          type_id: "REC: admou2_type.id"
+          reason_id: "REC: admou2_reason.id"
+          student_id: "REC: admou2_admission_a.school_student_id.id"
+          source_type: "admission"
+          admission_id: "REC: admou2_admission_a.id"
+          coverage: "multi_term"
+
+      - step: "Assert operating unit was derived from School A"
+        action: "assert"
+        target: "admou2_waiver"
+        asserts:
+          operating_unit_id:
+            type: "m2o"
+            expected: "REC: admou2_a"
+
+      - step: "Write admission_id to Admission B (School B)"
+        action: "write"
+        target: "admou2_waiver"
+        values:
+          admission_id: "REC: admou2_admission_b.id"
+          student_id: "REC: admou2_admission_b.school_student_id.id"
+
+      - step: "Assert operating unit moved to School B"
+        action: "assert"
+        target: "admou2_waiver"
+        asserts:
+          operating_unit_id:
+            type: "m2o"
+            expected: "REC: admou2_b"
+
+  - name:
+      "FW Enrollment OU - regression, an Enrollment-sourced waiver still derives
+      operating_unit_id from the Enrollment's School"
+    steps:
+      # ── Shared fixture chain (suffix ADMOU3) ─────────────────────
+      - step: "Create partner for the school's own operating unit"
+        action: "create"
+        model: "res.partner"
+        save_as: "admou3_partner"
+        values:
+          name: "FW AdmOU3 Partner"
+
+      - step: "Create the school's own operating unit"
+        action: "create"
+        model: "operating.unit"
+        save_as: "admou3_ou"
+        values:
+          name: "FW AdmOU3"
+          code: "ADMOU3"
+          company_id: "REF: base.main_company"
+          partner_id: "REC: admou3_partner.id"
+
+      - step: "Create the grade type"
+        action: "create"
+        model: "school_grade_type"
+        save_as: "admou3_grade_type"
+        values:
+          name: "ADMOU3 Grade Type"
+          code: "ADMOU3GT"
+
+      - step: "Create the school with exactly one operating unit"
+        action: "create"
+        model: "school"
+        save_as: "admou3_school"
+        values:
+          name: "ADMOU3 School"
+          code: "ADMOU3SCH"
+          grade_type_id: "REC: admou3_grade_type.id"
+          operating_unit_ids: [[6, 0, ["REC: admou3_ou.id"]]]
+
+      - step: "Create the grade"
+        action: "create"
+        model: "school_grade"
+        save_as: "admou3_grade"
+        values:
+          name: "ADMOU3 Grade"
+          code: "ADMOU3GR"
+          type_id: "REC: admou3_grade_type.id"
+
+      - step: "Create the grade class"
+        action: "create"
+        model: "school_grade_class"
+        save_as: "admou3_grade_class"
+        values:
+          name: "ADMOU3 Class"
+          code: "ADMOU3CL"
+          school_id: "REC: admou3_school.id"
+          grade_id: "REC: admou3_grade.id"
+
+      - step: "Create the academic year"
+        action: "create"
+        model: "school_academic_year"
+        save_as: "admou3_academic_year"
+        values:
+          name: "ADMOU3 Academic Year"
+          code: "ADMOU3AY"
+          date_start: 2026-07-01
+          date_end: 2027-06-30
+
+      - step: "Create the academic term"
+        action: "create"
+        model: "school_academic_term"
+        save_as: "admou3_academic_term"
+        values:
+          name: "ADMOU3 Term"
+          code: "ADMOU3TM"
+          date_start: 2026-07-01
+          date_end: 2026-12-31
+          year_id: "REC: admou3_academic_year.id"
+
+      - step: "Create the student's contact"
+        action: "create"
+        model: "res.partner"
+        save_as: "admou3_contact"
+        values:
+          name: "ADMOU3 Contact"
+
+      - step: "Create the student"
+        action: "create"
+        model: "school_student"
+        save_as: "admou3_student"
+        values:
+          name: "ADMOU3 Student"
+          code: "ADMOU3ST"
+          contact_id: "REC: admou3_contact.id"
+          school_id: "REC: admou3_school.id"
+
+      - step: "Create the enrollment"
+        action: "create"
+        model: "school_enrollment"
+        save_as: "admou3_enrollment"
+        values:
+          academic_year_id: "REC: admou3_academic_year.id"
+          academic_term_id: "REC: admou3_academic_term.id"
+          school_id: "REC: admou3_school.id"
+          grade_id: "REC: admou3_grade.id"
+          grade_class_id: "REC: admou3_grade_class.id"
+          student_id: "REC: admou3_student.id"
+
+      - step: "Create the fee waiver type"
+        action: "create"
+        model: "school_fee_waiver_type"
+        save_as: "admou3_type"
+        values:
+          name: "ADMOU3 Type"
+          code: "ADMOU3TY"
+
+      - step: "Create the fee waiver reason"
+        action: "create"
+        model: "school_fee_waiver_reason"
+        save_as: "admou3_reason"
+        values:
+          name: "ADMOU3 Reason"
+          code: "ADMOU3RS"
+
+      - step: "Create the Enrollment-sourced fee waiver (Billing Source default)"
+        action: "create"
+        model: "school_fee_waiver"
+        save_as: "admou3_waiver"
+        values:
+          type_id: "REC: admou3_type.id"
+          reason_id: "REC: admou3_reason.id"
+          student_id: "REC: admou3_student.id"
+          enrollment_id: "REC: admou3_enrollment.id"
+          coverage: "multi_term"
+
+      - step: "Assert Billing Source stayed at the default Enrollment"
+        action: "assert"
+        target: "admou3_waiver"
+        asserts:
+          source_type:
+            type: "value"
+            expected: "enrollment"
+
+      - step: "Assert operating unit was still derived from the Enrollment's School"
+        action: "assert"
+        target: "admou3_waiver"
+        asserts:
+          operating_unit_id:
+            type: "m2o"
+            expected: "REC: admou3_ou"
+
+  - name: "FW Admission OU - explicit operating_unit_id is never overridden"
+    steps:
+      # ── Shared fixture chain (suffix ADMOU4) ─────────────────────
+      - step: "Create partner for the school's own (derivable) operating unit"
+        action: "create"
+        model: "res.partner"
+        save_as: "admou4_derived_partner"
+        values:
+          name: "FW AdmOU4 Derived Partner"
+
+      - step: "Create the school's own operating unit"
+        action: "create"
+        model: "operating.unit"
+        save_as: "admou4_derived_ou"
+        values:
+          name: "FW AdmOU4 Derived"
+          code: "ADMOU4D"
+          company_id: "REF: base.main_company"
+          partner_id: "REC: admou4_derived_partner.id"
+
+      - step: "Create partner for the explicitly-chosen operating unit"
+        action: "create"
+        model: "res.partner"
+        save_as: "admou4_explicit_partner"
+        values:
+          name: "FW AdmOU4 Explicit Partner"
+
+      - step: "Create the explicitly-chosen operating unit"
+        action: "create"
+        model: "operating.unit"
+        save_as: "admou4_explicit_ou"
+        values:
+          name: "FW AdmOU4 Explicit"
+          code: "ADMOU4E"
+          company_id: "REF: base.main_company"
+          partner_id: "REC: admou4_explicit_partner.id"
+
+      - step: "Create the grade type"
+        action: "create"
+        model: "school_grade_type"
+        save_as: "admou4_grade_type"
+        values:
+          name: "ADMOU4 Grade Type"
+          code: "ADMOU4GT"
+
+      - step: "Create the school with exactly one (derivable) operating unit"
+        action: "create"
+        model: "school"
+        save_as: "admou4_school"
+        values:
+          name: "ADMOU4 School"
+          code: "ADMOU4SCH"
+          grade_type_id: "REC: admou4_grade_type.id"
+          operating_unit_ids: [[6, 0, ["REC: admou4_derived_ou.id"]]]
+
+      - step: "Create the grade"
+        action: "create"
+        model: "school_grade"
+        save_as: "admou4_grade"
+        values:
+          name: "ADMOU4 Grade"
+          code: "ADMOU4GR"
+          type_id: "REC: admou4_grade_type.id"
+
+      - step: "Create the academic year"
+        action: "create"
+        model: "school_academic_year"
+        save_as: "admou4_academic_year"
+        values:
+          name: "ADMOU4 Academic Year"
+          code: "ADMOU4AY"
+          date_start: 2026-07-01
+          date_end: 2027-06-30
+
+      - step: "Create the academic term"
+        action: "create"
+        model: "school_academic_term"
+        save_as: "admou4_academic_term"
+        values:
+          name: "ADMOU4 Term"
+          code: "ADMOU4TM"
+          date_start: 2026-07-01
+          date_end: 2026-12-31
+          year_id: "REC: admou4_academic_year.id"
+
+      - step: "Create the admission student's contact"
+        action: "create"
+        model: "res.partner"
+        save_as: "admou4_admission_contact"
+        values:
+          name: "ADMOU4 Admission Contact"
+
+      - step: "Create the admission"
+        action: "create"
+        model: "school_admission"
+        save_as: "admou4_admission"
+        values:
+          academic_year_id: "REC: admou4_academic_year.id"
+          academic_term_id: "REC: admou4_academic_term.id"
+          school_id: "REC: admou4_school.id"
+          grade_id: "REC: admou4_grade.id"
+          student_id: "REC: admou4_admission_contact.id"
+          user_id: "REF: base.user_admin"
+
+      - step: "Confirm the admission as admin"
+        action: "call"
+        target: "admou4_admission"
+        method: "action_confirm"
+        as_user: "base.user_admin"
+        refresh: true
+        asserts:
+          state:
+            type: "value"
+            expected: "confirm"
+
+      - step: "Approve the admission as admin (auto-opens)"
+        action: "call"
+        target: "admou4_admission"
+        method: "action_approve_approval"
+        as_user: "base.user_admin"
+        asserts:
+          state:
+            type: "value"
+            expected: "open"
+
+      - step: "Create the fee waiver type"
+        action: "create"
+        model: "school_fee_waiver_type"
+        save_as: "admou4_type"
+        values:
+          name: "ADMOU4 Type"
+          code: "ADMOU4TY"
+
+      - step: "Create the fee waiver reason"
+        action: "create"
+        model: "school_fee_waiver_reason"
+        save_as: "admou4_reason"
+        values:
+          name: "ADMOU4 Reason"
+          code: "ADMOU4RS"
+
+      - step:
+          "Create the Admission-sourced waiver WITH an explicit operating_unit_id in the
+          same vals"
+        action: "create"
+        model: "school_fee_waiver"
+        save_as: "admou4_waiver"
+        values:
+          type_id: "REC: admou4_type.id"
+          reason_id: "REC: admou4_reason.id"
+          student_id: "REC: admou4_admission.school_student_id.id"
+          source_type: "admission"
+          admission_id: "REC: admou4_admission.id"
+          coverage: "multi_term"
+          operating_unit_id: "REC: admou4_explicit_ou.id"
+
+      - step: "Assert the explicit operating unit was kept, not the derived one"
+        action: "assert"
+        target: "admou4_waiver"
+        asserts:
+          operating_unit_id:
+            type: "m2o"
+            expected: "REC: admou4_explicit_ou"
+
+  - name:
+      "FW Admission OU - negative, an Admission school with zero or more than one
+      operating unit leaves operating_unit_id at the mixin's own default, without
+      raising an error"
+    steps:
+      # ── Shared fixture chain (suffix ADMOU5) ─────────────────────
+      - step: "Create partner for operating unit A (multi-OU school)"
+        action: "create"
+        model: "res.partner"
+        save_as: "admou5_a_partner"
+        values:
+          name: "FW AdmOU5 A Partner"
+
+      - step: "Create operating unit A"
+        action: "create"
+        model: "operating.unit"
+        save_as: "admou5_a"
+        values:
+          name: "FW AdmOU5 A"
+          code: "ADMOU5A"
+          company_id: "REF: base.main_company"
+          partner_id: "REC: admou5_a_partner.id"
+
+      - step: "Create partner for operating unit B (multi-OU school)"
+        action: "create"
+        model: "res.partner"
+        save_as: "admou5_b_partner"
+        values:
+          name: "FW AdmOU5 B Partner"
+
+      - step: "Create operating unit B"
+        action: "create"
+        model: "operating.unit"
+        save_as: "admou5_b"
+        values:
+          name: "FW AdmOU5 B"
+          code: "ADMOU5B"
+          company_id: "REF: base.main_company"
+          partner_id: "REC: admou5_b_partner.id"
+
+      - step: "Create the grade type"
+        action: "create"
+        model: "school_grade_type"
+        save_as: "admou5_grade_type"
+        values:
+          name: "ADMOU5 Grade Type"
+          code: "ADMOU5GT"
+
+      - step: "Create the school with NO operating unit"
+        action: "create"
+        model: "school"
+        save_as: "admou5_school_none"
+        values:
+          name: "ADMOU5 School None"
+          code: "ADMOU5SCN"
+          grade_type_id: "REC: admou5_grade_type.id"
+
+      - step: "Create the school with TWO operating units"
+        action: "create"
+        model: "school"
+        save_as: "admou5_school_multi"
+        values:
+          name: "ADMOU5 School Multi"
+          code: "ADMOU5SCM"
+          grade_type_id: "REC: admou5_grade_type.id"
+          operating_unit_ids: [[6, 0, ["REC: admou5_a.id", "REC: admou5_b.id"]]]
+
+      - step: "Create the grade"
+        action: "create"
+        model: "school_grade"
+        save_as: "admou5_grade"
+        values:
+          name: "ADMOU5 Grade"
+          code: "ADMOU5GR"
+          type_id: "REC: admou5_grade_type.id"
+
+      - step: "Create the academic year"
+        action: "create"
+        model: "school_academic_year"
+        save_as: "admou5_academic_year"
+        values:
+          name: "ADMOU5 Academic Year"
+          code: "ADMOU5AY"
+          date_start: 2026-07-01
+          date_end: 2027-06-30
+
+      - step: "Create the academic term"
+        action: "create"
+        model: "school_academic_term"
+        save_as: "admou5_academic_term"
+        values:
+          name: "ADMOU5 Term"
+          code: "ADMOU5TM"
+          date_start: 2026-07-01
+          date_end: 2026-12-31
+          year_id: "REC: admou5_academic_year.id"
+
+      - step: "Create the OU-less admission's contact"
+        action: "create"
+        model: "res.partner"
+        save_as: "admou5_contact_none"
+        values:
+          name: "ADMOU5 Admission Contact None"
+
+      - step: "Create the admission at the OU-less school"
+        action: "create"
+        model: "school_admission"
+        save_as: "admou5_admission_none"
+        values:
+          academic_year_id: "REC: admou5_academic_year.id"
+          academic_term_id: "REC: admou5_academic_term.id"
+          school_id: "REC: admou5_school_none.id"
+          grade_id: "REC: admou5_grade.id"
+          student_id: "REC: admou5_contact_none.id"
+          user_id: "REF: base.user_admin"
+
+      - step: "Confirm the OU-less admission as admin"
+        action: "call"
+        target: "admou5_admission_none"
+        method: "action_confirm"
+        as_user: "base.user_admin"
+        refresh: true
+        asserts:
+          state:
+            type: "value"
+            expected: "confirm"
+
+      - step: "Approve the OU-less admission as admin (auto-opens)"
+        action: "call"
+        target: "admou5_admission_none"
+        method: "action_approve_approval"
+        as_user: "base.user_admin"
+        asserts:
+          state:
+            type: "value"
+            expected: "open"
+
+      - step: "Create the multi-OU admission's contact"
+        action: "create"
+        model: "res.partner"
+        save_as: "admou5_contact_multi"
+        values:
+          name: "ADMOU5 Admission Contact Multi"
+
+      - step: "Create the admission at the multi-OU school"
+        action: "create"
+        model: "school_admission"
+        save_as: "admou5_admission_multi"
+        values:
+          academic_year_id: "REC: admou5_academic_year.id"
+          academic_term_id: "REC: admou5_academic_term.id"
+          school_id: "REC: admou5_school_multi.id"
+          grade_id: "REC: admou5_grade.id"
+          student_id: "REC: admou5_contact_multi.id"
+          user_id: "REF: base.user_admin"
+
+      - step: "Confirm the multi-OU admission as admin"
+        action: "call"
+        target: "admou5_admission_multi"
+        method: "action_confirm"
+        as_user: "base.user_admin"
+        refresh: true
+        asserts:
+          state:
+            type: "value"
+            expected: "confirm"
+
+      - step: "Approve the multi-OU admission as admin (auto-opens)"
+        action: "call"
+        target: "admou5_admission_multi"
+        method: "action_approve_approval"
+        as_user: "base.user_admin"
+        asserts:
+          state:
+            type: "value"
+            expected: "open"
+
+      - step: "Create the fee waiver type"
+        action: "create"
+        model: "school_fee_waiver_type"
+        save_as: "admou5_type"
+        values:
+          name: "ADMOU5 Type"
+          code: "ADMOU5TY"
+
+      - step: "Create the fee waiver reason"
+        action: "create"
+        model: "school_fee_waiver_reason"
+        save_as: "admou5_reason"
+        values:
+          name: "ADMOU5 Reason"
+          code: "ADMOU5RS"
+
+      - step: "Create the fee waiver at the OU-less school's admission"
+        action: "create"
+        model: "school_fee_waiver"
+        save_as: "admou5_waiver_none"
+        values:
+          type_id: "REC: admou5_type.id"
+          reason_id: "REC: admou5_reason.id"
+          student_id: "REC: admou5_admission_none.school_student_id.id"
+          source_type: "admission"
+          admission_id: "REC: admou5_admission_none.id"
+          coverage: "multi_term"
+
+      - step:
+          "Assert operating_unit_id is left at the mixin's own default, no error, no
+          derivation (zero operating units)"
+        action: "assert"
+        target: "admou5_waiver_none"
+        asserts:
+          operating_unit_id:
+            type: "m2o"
+            expected: "EVAL: env['res.users'].operating_unit_default_get()"
+
+      - step: "Create the fee waiver at the multi-OU school's admission"
+        action: "create"
+        model: "school_fee_waiver"
+        save_as: "admou5_waiver_multi"
+        values:
+          type_id: "REC: admou5_type.id"
+          reason_id: "REC: admou5_reason.id"
+          student_id: "REC: admou5_admission_multi.school_student_id.id"
+          source_type: "admission"
+          admission_id: "REC: admou5_admission_multi.id"
+          coverage: "multi_term"
+
+      - step:
+          "Assert operating_unit_id is left at the mixin's own default, no error, no
+          derivation (two operating units)"
+        action: "assert"
+        target: "admou5_waiver_multi"
+        asserts:
+          operating_unit_id:
+            type: "m2o"
+            expected: "EVAL: env['res.users'].operating_unit_default_get()"
