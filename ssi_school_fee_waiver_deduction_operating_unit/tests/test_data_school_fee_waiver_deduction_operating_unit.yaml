@@ -1,0 +1,754 @@
+# Copyright 2026 OpenSynergy Indonesia
+# Copyright 2026 PT. Simetri Sinergi Indonesia
+# License AGPL-3.0 or later (http://www.gnu.org/licenses/agpl).
+#
+# T-01 (odoo-development-unit-test/test-traps.md): scenarios in one YAML file
+# share a single, un-rolled-back DB transaction, and a top-level `setup:`
+# block is replayed before EVERY scenario in the file. This file therefore
+# uses exactly ONE scenario with no `setup:` block at all, so T-01's
+# fixture-replay/unique-constraint trap and the "order between scenarios is
+# significant" trap simply do not apply here.
+options:
+  auto_refresh: true
+scenarios:
+  - name:
+      "Deduction OU - Derive from Waiver, propagate to the move, record rule, negative
+      mismatch"
+    steps:
+      # ── Two Operating Units + two Schools/Enrollments (suffix FWDOU1) ────
+      - step: "Create partner for Operating Unit A"
+        action: "create"
+        model: "res.partner"
+        save_as: "fwdou1_a_partner"
+        values:
+          name: "FWDOU1 A Partner"
+
+      - step: "Create Operating Unit A (the acting user's own default)"
+        action: "create"
+        model: "operating.unit"
+        save_as: "fwdou1_a"
+        values:
+          name: "FWDOU1 A"
+          code: "FWDOU1A"
+          company_id: "REF: base.main_company"
+          partner_id: "REC: fwdou1_a_partner.id"
+
+      - step: "Create partner for Operating Unit B"
+        action: "create"
+        model: "res.partner"
+        save_as: "fwdou1_b_partner"
+        values:
+          name: "FWDOU1 B Partner"
+
+      - step: "Create Operating Unit B (Waiver 1's own school)"
+        action: "create"
+        model: "operating.unit"
+        save_as: "fwdou1_b"
+        values:
+          name: "FWDOU1 B"
+          code: "FWDOU1B"
+          company_id: "REF: base.main_company"
+          partner_id: "REC: fwdou1_b_partner.id"
+
+      - step: "Create grade type"
+        action: "create"
+        model: "school_grade_type"
+        save_as: "fwdou1_grade_type"
+        values:
+          name: "FWDOU1 Grade Type"
+          code: "FWDOU1GT"
+
+      - step: "Create School A with Operating Unit A"
+        action: "create"
+        model: "school"
+        save_as: "fwdou1_school_a"
+        values:
+          name: "FWDOU1 School A"
+          code: "FWDOU1SCA"
+          grade_type_id: "REC: fwdou1_grade_type.id"
+          operating_unit_ids: [[6, 0, ["REC: fwdou1_a.id"]]]
+
+      - step: "Create School B with Operating Unit B"
+        action: "create"
+        model: "school"
+        save_as: "fwdou1_school_b"
+        values:
+          name: "FWDOU1 School B"
+          code: "FWDOU1SCB"
+          grade_type_id: "REC: fwdou1_grade_type.id"
+          operating_unit_ids: [[6, 0, ["REC: fwdou1_b.id"]]]
+
+      - step: "Create grade"
+        action: "create"
+        model: "school_grade"
+        save_as: "fwdou1_grade"
+        values:
+          name: "FWDOU1 Grade"
+          code: "FWDOU1GR"
+          type_id: "REC: fwdou1_grade_type.id"
+
+      - step: "Create grade class at School A"
+        action: "create"
+        model: "school_grade_class"
+        save_as: "fwdou1_grade_class_a"
+        values:
+          name: "FWDOU1 Class A"
+          code: "FWDOU1CLA"
+          school_id: "REC: fwdou1_school_a.id"
+          grade_id: "REC: fwdou1_grade.id"
+
+      - step: "Create grade class at School B"
+        action: "create"
+        model: "school_grade_class"
+        save_as: "fwdou1_grade_class_b"
+        values:
+          name: "FWDOU1 Class B"
+          code: "FWDOU1CLB"
+          school_id: "REC: fwdou1_school_b.id"
+          grade_id: "REC: fwdou1_grade.id"
+
+      - step: "Create academic year"
+        action: "create"
+        model: "school_academic_year"
+        save_as: "fwdou1_academic_year"
+        values:
+          name: "FWDOU1 Academic Year"
+          code: "FWDOU1AY"
+          date_start: 2026-07-01
+          date_end: 2027-06-30
+
+      - step: "Create academic term"
+        action: "create"
+        model: "school_academic_term"
+        save_as: "fwdou1_academic_term"
+        values:
+          name: "FWDOU1 Term"
+          code: "FWDOU1TM"
+          date_start: 2026-07-01
+          date_end: 2026-12-31
+          year_id: "REC: fwdou1_academic_year.id"
+
+      - step: "Create student contact A"
+        action: "create"
+        model: "res.partner"
+        save_as: "fwdou1_contact_a"
+        values:
+          name: "FWDOU1 Contact A"
+
+      - step: "Create student A (School A)"
+        action: "create"
+        model: "school_student"
+        save_as: "fwdou1_student_a"
+        values:
+          name: "FWDOU1 Student A"
+          code: "FWDOU1STA"
+          contact_id: "REC: fwdou1_contact_a.id"
+          school_id: "REC: fwdou1_school_a.id"
+
+      - step: "Create student contact B"
+        action: "create"
+        model: "res.partner"
+        save_as: "fwdou1_contact_b"
+        values:
+          name: "FWDOU1 Contact B"
+
+      - step: "Create student B (School B)"
+        action: "create"
+        model: "school_student"
+        save_as: "fwdou1_student_b"
+        values:
+          name: "FWDOU1 Student B"
+          code: "FWDOU1STB"
+          contact_id: "REC: fwdou1_contact_b.id"
+          school_id: "REC: fwdou1_school_b.id"
+
+      - step: "Create enrollment A (School A, no payment term)"
+        action: "create"
+        model: "school_enrollment"
+        save_as: "fwdou1_enrollment_a"
+        values:
+          academic_year_id: "REC: fwdou1_academic_year.id"
+          academic_term_id: "REC: fwdou1_academic_term.id"
+          school_id: "REC: fwdou1_school_a.id"
+          grade_id: "REC: fwdou1_grade.id"
+          grade_class_id: "REC: fwdou1_grade_class_a.id"
+          student_id: "REC: fwdou1_student_a.id"
+
+      - step: "Create enrollment B (School B)"
+        action: "create"
+        model: "school_enrollment"
+        save_as: "fwdou1_enrollment_b"
+        values:
+          academic_year_id: "REC: fwdou1_academic_year.id"
+          academic_term_id: "REC: fwdou1_academic_term.id"
+          school_id: "REC: fwdou1_school_b.id"
+          grade_id: "REC: fwdou1_grade.id"
+          grade_class_id: "REC: fwdou1_grade_class_b.id"
+          student_id: "REC: fwdou1_student_b.id"
+
+      # The acting user's own default Operating Unit is set to A so the
+      # derivation asserted below is unambiguously about the Waiver's own
+      # operating unit, not a coincidence of the acting user's default --
+      # same technique as ssi_school_fee_waiver_operating_unit's own test.
+      - step: "Set the acting user's own default operating unit to A"
+        action: "write"
+        target: "user"
+        values:
+          default_operating_unit_id: "REC: fwdou1_a.id"
+          assigned_operating_unit_ids: [[6, 0, ["REC: fwdou1_a.id"]]]
+
+      # ── Accounting fixtures ────────────────────────────────────────────
+      - step: "Get the account.account.type Receivable reference"
+        action: "ref"
+        xml_id: "account.data_account_type_receivable"
+        save_as: "fwdou1_receivable_acc_type"
+
+      - step: "Get the account.account.type Income reference"
+        action: "ref"
+        xml_id: "account.data_account_type_revenue"
+        save_as: "fwdou1_income_acc_type"
+
+      - step: "Get the account.account.type Expense reference"
+        action: "ref"
+        xml_id: "account.data_account_type_expenses"
+        save_as: "fwdou1_expense_acc_type"
+
+      - step: "Create the shared Receivable Account"
+        action: "create"
+        model: "account.account"
+        save_as: "fwdou1_receivable_account"
+        values:
+          name: "FWDOU1 Receivable Account"
+          code: "FWDOU1RA"
+          user_type_id: "REC: fwdou1_receivable_acc_type.id"
+          reconcile: true
+
+      - step: "Create the income account used by invoices"
+        action: "create"
+        model: "account.account"
+        save_as: "fwdou1_income_account"
+        values:
+          name: "FWDOU1 Income Account"
+          code: "FWDOU1IA"
+          user_type_id: "REC: fwdou1_income_acc_type.id"
+          reconcile: false
+
+      - step: "Create the discount (contra-revenue) account"
+        action: "create"
+        model: "account.account"
+        save_as: "fwdou1_discount_account"
+        values:
+          name: "FWDOU1 Discount Account"
+          code: "FWDOU1DA"
+          user_type_id: "REC: fwdou1_expense_acc_type.id"
+          reconcile: false
+
+      - step: "Create the deduction journal"
+        action: "create"
+        model: "account.journal"
+        save_as: "fwdou1_deduction_journal"
+        values:
+          name: "FWDOU1 Deduction Journal"
+          code: "FWDOU1DJ"
+          type: "general"
+
+      - step: "Create the sale journal (customer invoices)"
+        action: "create"
+        model: "account.journal"
+        save_as: "fwdou1_sale_journal"
+        values:
+          name: "FWDOU1 Sale Journal"
+          code: "FWDOU1SJ"
+          type: "sale"
+
+      - step: "Create the product covered by the waiver line"
+        action: "create"
+        model: "product.product"
+        save_as: "fwdou1_product"
+        values:
+          name: "FWDOU1 Product"
+          type: "service"
+
+      - step: "Create Payment Term 1 at Enrollment B"
+        action: "create"
+        model: "school_enrollment_payment_term"
+        save_as: "fwdou1_term_b1"
+        values:
+          enrollment_id: "REC: fwdou1_enrollment_b.id"
+          name: "FWDOU1 Term B1"
+          date_due: 2026-08-15
+          detail_ids:
+            - - 0
+              - 0
+              - product_id: "REC: fwdou1_product.id"
+                name: "FWDOU1 Term B1 Fee"
+                account_id: "REC: fwdou1_income_account.id"
+                uom_quantity: 1.0
+                uom_id: "REF: uom.product_uom_unit"
+                price_unit: 1000000.0
+
+      - step: "Create the fee waiver type"
+        action: "create"
+        model: "school_fee_waiver_type"
+        save_as: "fwdou1_type"
+        values:
+          name: "FWDOU1 Type"
+          code: "FWDOU1TY"
+          deduction_journal_id: "REC: fwdou1_deduction_journal.id"
+          discount_account_id: "REC: fwdou1_discount_account.id"
+
+      - step: "Create the fee waiver reason"
+        action: "create"
+        model: "school_fee_waiver_reason"
+        save_as: "fwdou1_reason"
+        values:
+          name: "FWDOU1 Reason"
+          code: "FWDOU1RS"
+
+      # ── Waiver 1 at School B (Operating Unit B) ──────────────────────────
+      - step: "Create Waiver 1 at Enrollment B"
+        action: "create"
+        model: "school_fee_waiver"
+        save_as: "fwdou1_waiver1"
+        values:
+          type_id: "REC: fwdou1_type.id"
+          reason_id: "REC: fwdou1_reason.id"
+          student_id: "REC: fwdou1_student_b.id"
+          enrollment_id: "REC: fwdou1_enrollment_b.id"
+          coverage: "multi_term"
+          user_id: "REF: base.user_admin"
+          line_ids:
+            - - 0
+              - 0
+              - product_id: "REC: fwdou1_product.id"
+                computation: "full"
+
+      - step: "Confirm Waiver 1"
+        action: "call"
+        target: "fwdou1_waiver1"
+        method: "action_confirm"
+        as_user: "base.user_admin"
+        asserts:
+          state:
+            type: "value"
+            expected: "confirm"
+
+      # T-04 (test-traps.md): a bare assert forces a cache refresh before
+      # approve_ok is read.
+      - step: "Force a refresh before reading approve_ok (T-04)"
+        action: "assert"
+        target: "fwdou1_waiver1"
+        asserts:
+          state:
+            type: "value"
+            expected: "confirm"
+
+      - step: "Approve Waiver 1"
+        action: "call"
+        target: "fwdou1_waiver1"
+        method: "action_approve_approval"
+        as_user: "base.user_admin"
+        asserts:
+          state:
+            type: "value"
+            expected: "open"
+
+      - step: "Sanity: Waiver 1 followed School B, not the acting user's default"
+        action: "assert"
+        target: "fwdou1_waiver1"
+        asserts:
+          operating_unit_id:
+            type: "m2o"
+            expected: "REC: fwdou1_b"
+
+      - step: "Find the Waiver 1 Schedule line for Term B1"
+        action: "search"
+        model: "school_fee_waiver_schedule"
+        domain:
+          [
+            ["waiver_id", "=", "REC: fwdou1_waiver1.id"],
+            ["payment_term_id", "=", "REC: fwdou1_term_b1.id"],
+          ]
+        save_as: "fwdou1_sched_b1"
+        limit: 1
+
+      # ── Onchange: selecting a Waiver fills operating_unit_id on the form ──
+      - step: "Open a new deduction form and select Waiver 1 (OU B)"
+        action: "form"
+        model: "school_fee_waiver_deduction"
+        save: false
+        values:
+          waiver_id: "REC: fwdou1_waiver1"
+        asserts:
+          operating_unit_id:
+            type: "m2o"
+            expected: "REC: fwdou1_b"
+
+      # ── Waiver 2 at School A (Operating Unit A), no Schedule needed ──────
+      - step: "Create Waiver 2 at Enrollment A"
+        action: "create"
+        model: "school_fee_waiver"
+        save_as: "fwdou1_waiver2"
+        values:
+          type_id: "REC: fwdou1_type.id"
+          reason_id: "REC: fwdou1_reason.id"
+          student_id: "REC: fwdou1_student_a.id"
+          enrollment_id: "REC: fwdou1_enrollment_a.id"
+          coverage: "multi_term"
+          user_id: "REF: base.user_admin"
+          line_ids:
+            - - 0
+              - 0
+              - product_id: "REC: fwdou1_product.id"
+                computation: "full"
+
+      - step: "Confirm Waiver 2"
+        action: "call"
+        target: "fwdou1_waiver2"
+        method: "action_confirm"
+        as_user: "base.user_admin"
+        asserts:
+          state:
+            type: "value"
+            expected: "confirm"
+
+      - step: "Force a refresh before reading approve_ok (T-04)"
+        action: "assert"
+        target: "fwdou1_waiver2"
+        asserts:
+          state:
+            type: "value"
+            expected: "confirm"
+
+      - step: "Approve Waiver 2 -- Enrollment A has no payment term, no error"
+        action: "call"
+        target: "fwdou1_waiver2"
+        method: "action_approve_approval"
+        as_user: "base.user_admin"
+        asserts:
+          state:
+            type: "value"
+            expected: "open"
+
+      - step: "Sanity: Waiver 2 followed School A"
+        action: "assert"
+        target: "fwdou1_waiver2"
+        asserts:
+          operating_unit_id:
+            type: "m2o"
+            expected: "REC: fwdou1_a"
+
+      # ── Waiver 3 at School B, but with NO operating unit of its own ──────
+      # Explicit `operating_unit_id: false` bypasses
+      # ssi_school_fee_waiver_operating_unit's own derivation (its guard is
+      # "operating_unit_id already in vals" -- present with a falsy value
+      # still counts as present), leaving this Waiver genuinely OU-less so
+      # the deduction-level constraint below has nothing to compare against.
+      - step: "Create Waiver 3 at Enrollment B, with NO operating unit"
+        action: "create"
+        model: "school_fee_waiver"
+        save_as: "fwdou1_waiver3"
+        values:
+          type_id: "REC: fwdou1_type.id"
+          reason_id: "REC: fwdou1_reason.id"
+          student_id: "REC: fwdou1_student_b.id"
+          enrollment_id: "REC: fwdou1_enrollment_b.id"
+          coverage: "multi_term"
+          user_id: "REF: base.user_admin"
+          operating_unit_id: false
+          line_ids:
+            - - 0
+              - 0
+              - product_id: "REC: fwdou1_product.id"
+                computation: "full"
+
+      - step: "Confirm Waiver 3"
+        action: "call"
+        target: "fwdou1_waiver3"
+        method: "action_confirm"
+        as_user: "base.user_admin"
+        asserts:
+          state:
+            type: "value"
+            expected: "confirm"
+
+      - step: "Force a refresh before reading approve_ok (T-04)"
+        action: "assert"
+        target: "fwdou1_waiver3"
+        asserts:
+          state:
+            type: "value"
+            expected: "confirm"
+
+      - step: "Approve Waiver 3"
+        action: "call"
+        target: "fwdou1_waiver3"
+        method: "action_approve_approval"
+        as_user: "base.user_admin"
+        asserts:
+          state:
+            type: "value"
+            expected: "open"
+
+      - step: "Sanity: Waiver 3 has no operating unit"
+        action: "assert"
+        target: "fwdou1_waiver3"
+        asserts:
+          operating_unit_id:
+            type: "value"
+            operator: "is_falsy"
+
+      # ── Positive: create derives operating_unit_id from Waiver 1 (OU B),
+      # overriding the acting user's own default operating unit (A) ────────
+      - step:
+          "Create a deduction against Waiver 1 (OU B) while the acting user's own
+          default is OU A"
+        action: "create"
+        model: "school_fee_waiver_deduction"
+        save_as: "fwdou1_deduction"
+        values:
+          waiver_id: "REC: fwdou1_waiver1.id"
+          journal_id: "REC: fwdou1_deduction_journal.id"
+          receivable_account_id: "REC: fwdou1_receivable_account.id"
+          date: 2026-08-20
+          user_id: "REF: base.user_admin"
+
+      - step: "The deduction followed Waiver 1's OU (B), not the user's default"
+        action: "assert"
+        target: "fwdou1_deduction"
+        asserts:
+          operating_unit_id:
+            type: "m2o"
+            expected: "REC: fwdou1_b"
+
+      # ── Positive: write that changes waiver_id moves operating_unit_id ────
+      - step: "Write waiver_id to Waiver 2 (OU A)"
+        action: "write"
+        target: "fwdou1_deduction"
+        values:
+          waiver_id: "REC: fwdou1_waiver2.id"
+
+      - step: "The deduction's operating unit moved to Waiver 2's own (A)"
+        action: "assert"
+        target: "fwdou1_deduction"
+        asserts:
+          operating_unit_id:
+            type: "m2o"
+            expected: "REC: fwdou1_a"
+
+      # ── Negative: an operating unit diverging from the Waiver's own is
+      # rejected ────────────────────────────────────────────────────────────
+      - step:
+          "Writing operating_unit_id to B, while waiver_id still points at Waiver 2 (OU
+          A), is rejected"
+        action: "write"
+        target: "fwdou1_deduction"
+        expect_error:
+          type: "ValidationError"
+          message_contains: "differs from Waiver's own Operating Unit"
+        values:
+          operating_unit_id: "REC: fwdou1_b.id"
+
+      # ── Positive: explicit operating_unit_id in create wins over
+      # derivation -- Waiver 3 has none of its own, so there is nothing for
+      # the mismatch constraint above to reject here ───────────────────────
+      - step:
+          "Create a deduction against Waiver 3 (no OU) with an explicit
+          operating_unit_id"
+        action: "create"
+        model: "school_fee_waiver_deduction"
+        save_as: "fwdou1_deduction3"
+        values:
+          waiver_id: "REC: fwdou1_waiver3.id"
+          operating_unit_id: "REC: fwdou1_b.id"
+          journal_id: "REC: fwdou1_deduction_journal.id"
+          receivable_account_id: "REC: fwdou1_receivable_account.id"
+          date: 2026-08-20
+          user_id: "REF: base.user_admin"
+
+      - step: "The explicit operating unit was kept, not overridden"
+        action: "assert"
+        target: "fwdou1_deduction3"
+        asserts:
+          operating_unit_id:
+            type: "m2o"
+            expected: "REC: fwdou1_b"
+
+      # ── Positive: opening a deduction propagates its OU to the move and
+      # every one of its journal items ─────────────────────────────────────
+      - step: "Create the customer invoice type"
+        action: "create"
+        model: "customer_invoice_type"
+        save_as: "fwdou1_invoice_type"
+        values:
+          name: "FWDOU1 Invoice Type"
+          code: "/"
+          journal_id: "REC: fwdou1_sale_journal.id"
+          receivable_account_id: "REC: fwdou1_receivable_account.id"
+
+      - step: "Create the invoice for Student B (allocation target)"
+        action: "create"
+        model: "customer_invoice"
+        save_as: "fwdou1_invoice"
+        values:
+          type_id: "REC: fwdou1_invoice_type.id"
+          partner_id: "REC: fwdou1_contact_b.id"
+          date: 2026-08-20
+          date_due: 2026-09-20
+          currency_id: "REC: company.currency_id.id"
+          journal_id: "REC: fwdou1_sale_journal.id"
+          receivable_account_id: "REC: fwdou1_receivable_account.id"
+
+      - step: "Add a detail line to the invoice"
+        action: "create"
+        model: "customer_invoice.line"
+        save_as: "fwdou1_invoice_line"
+        values:
+          customer_invoice_id: "REC: fwdou1_invoice.id"
+          name: "Line"
+          account_id: "REC: fwdou1_income_account.id"
+          uom_quantity: 1
+          price_unit: 1000000.0
+
+      - step: "Confirm the invoice"
+        action: "call"
+        target: "fwdou1_invoice"
+        method: "action_confirm"
+        as_user: "base.user_admin"
+        asserts:
+          state:
+            type: "value"
+            expected: "confirm"
+
+      - step: "Approve the invoice"
+        action: "call"
+        target: "fwdou1_invoice"
+        method: "action_approve_approval"
+        as_user: "base.user_admin"
+        asserts:
+          state:
+            type: "value"
+            expected: "open"
+          amount_residual:
+            type: "value"
+            expected: 1000000.0
+
+      - step: "Create a fresh deduction against Waiver 1 (OU B) to open"
+        action: "create"
+        model: "school_fee_waiver_deduction"
+        save_as: "fwdou1_deduction_open"
+        values:
+          waiver_id: "REC: fwdou1_waiver1.id"
+          journal_id: "REC: fwdou1_deduction_journal.id"
+          receivable_account_id: "REC: fwdou1_receivable_account.id"
+          date: 2026-08-20
+          user_id: "REF: base.user_admin"
+
+      - step: "Add the Deduction Line against the Waiver 1 Schedule"
+        action: "create"
+        model: "school_fee_waiver_deduction_line"
+        save_as: "fwdou1_line"
+        values:
+          deduction_id: "REC: fwdou1_deduction_open.id"
+          schedule_id: "REC: fwdou1_sched_b1.id"
+          account_id: "REC: fwdou1_discount_account.id"
+          amount: 1000000.0
+
+      - step: "Add the Allocation against the invoice, closing it in full"
+        action: "create"
+        model: "school_fee_waiver_deduction_allocation"
+        save_as: "fwdou1_alloc"
+        values:
+          deduction_id: "REC: fwdou1_deduction_open.id"
+          customer_invoice_id: "REC: fwdou1_invoice.id"
+          amount: 1000000.0
+
+      - step: "Confirm the deduction"
+        action: "call"
+        target: "fwdou1_deduction_open"
+        method: "action_confirm"
+        as_user: "base.user_admin"
+        asserts:
+          state:
+            type: "value"
+            expected: "confirm"
+
+      - step: "Force a refresh before reading approve_ok (T-04)"
+        action: "assert"
+        target: "fwdou1_deduction_open"
+        asserts:
+          state:
+            type: "value"
+            expected: "confirm"
+
+      - step: "Approve the deduction -- auto-opens, posting its own move"
+        action: "call"
+        target: "fwdou1_deduction_open"
+        method: "action_approve_approval"
+        as_user: "base.user_admin"
+        asserts:
+          state:
+            type: "value"
+            expected: "open"
+
+      - step: "The posted move carries the same operating unit as the document"
+        action: "assert"
+        target: "fwdou1_deduction_open"
+        asserts:
+          move_id:
+            type: "value"
+            operator: "is_truthy"
+          move_id.state:
+            type: "value"
+            expected: "posted"
+          move_id.operating_unit_id:
+            type: "m2o"
+            expected: "REC: fwdou1_b"
+
+      - step:
+          "No journal item of the posted move diverges from the document's own operating
+          unit"
+        action: "search"
+        model: "account.move.line"
+        domain:
+          [
+            ["move_id", "=", "REC: fwdou1_deduction_open.move_id.id"],
+            ["operating_unit_id", "!=", "REC: fwdou1_b.id"],
+          ]
+        save_as: "fwdou1_mismatched_ml"
+        expect_count: 0
+
+      # ── Record rule: a user restricted to OU A does not see the OU B
+      # deduction in a list search ──────────────────────────────────────────
+      - step: "Create a user restricted to Operating Unit A only"
+        action: "create"
+        model: "res.users"
+        save_as: "fwdou1_restricted_user"
+        values:
+          name: "FWDOU1 Restricted User"
+          login: "fwdou1_restricted_user@example.com"
+          groups_id:
+            - - 6
+              - 0
+              - - "REF: base.group_user"
+                - "REF:
+                  ssi_school_fee_waiver_deduction.school_fee_waiver_deduction_viewer_group"
+                - "REF:
+                  ssi_school_fee_waiver_deduction_operating_unit.school_fee_waiver_deduction_operating_unit_group"
+          assigned_operating_unit_ids: [[6, 0, ["REC: fwdou1_a.id"]]]
+
+      - step: "Restricted user searches for the OU B deduction -- it is excluded"
+        action: "search"
+        model: "school_fee_waiver_deduction"
+        domain: [["id", "=", "REC: fwdou1_deduction_open.id"]]
+        save_as: "fwdou1_search_b"
+        as_user: "fwdou1_restricted_user"
+        expect_count: 0
+
+      - step: "Restricted user searches for the OU A deduction -- it is visible"
+        action: "search"
+        model: "school_fee_waiver_deduction"
+        domain: [["id", "=", "REC: fwdou1_deduction.id"]]
+        save_as: "fwdou1_search_a"
+        as_user: "fwdou1_restricted_user"
+        expect_count: 1
