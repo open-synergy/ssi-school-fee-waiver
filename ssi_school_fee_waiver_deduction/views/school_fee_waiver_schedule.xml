@@ -1,0 +1,28 @@
+<?xml version="1.0" encoding="utf-8" ?>
+<!-- Copyright 2026 OpenSynergy Indonesia
+     Copyright 2026 PT. Simetri Sinergi Indonesia
+     License AGPL-3.0 or later (http://www.gnu.org/licenses/agpl). -->
+<odoo>
+<record id="school_fee_waiver_view_form_deduction" model="ir.ui.view">
+    <field name="name">school_fee_waiver - form - deduction schedule</field>
+    <field name="model">school_fee_waiver</field>
+    <field name="inherit_id" ref="ssi_school_fee_waiver.school_fee_waiver_view_form" />
+    <field name="mode">extension</field>
+    <field name="arch" type="xml">
+        <data>
+            <xpath
+                    expr="//page[@name='schedule']//tree/field[@name='amount_realized']"
+                    position="after"
+                >
+                <field name="deduction_id" />
+            </xpath>
+            <xpath
+                    expr="//page[@name='schedule']//form//field[@name='amount_realized']"
+                    position="after"
+                >
+                <field name="deduction_id" />
+            </xpath>
+        </data>
+    </field>
+</record>
+</odoo>
