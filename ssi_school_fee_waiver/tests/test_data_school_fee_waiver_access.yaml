@@ -1,0 +1,90 @@
+scenarios:
+  - name: "Outsider cannot create a Fee Waiver Type"
+    steps:
+      - step: "Create a user without the Fee Waiver Configurator group"
+        action: "create"
+        model: "res.users"
+        save_as: "outsider1"
+        values:
+          name: "Fee Waiver Outsider 1"
+          login: "fee_waiver_outsider1@example.com"
+          groups_id: [[6, 0, ["REF: base.group_user"]]]
+
+      - step: "Create as outsider must be rejected"
+        action: "create"
+        model: "school_fee_waiver_type"
+        as_user: "outsider1"
+        expect_error:
+          type: "AccessError"
+        values:
+          name: "Blocked Fee Waiver Type"
+          code: "TFWTA01"
+
+  - name: "Outsider cannot create a Fee Waiver Reason"
+    steps:
+      - step: "Create a user without the Fee Waiver Configurator group"
+        action: "create"
+        model: "res.users"
+        save_as: "outsider2"
+        values:
+          name: "Fee Waiver Outsider 2"
+          login: "fee_waiver_outsider2@example.com"
+          groups_id: [[6, 0, ["REF: base.group_user"]]]
+
+      - step: "Create as outsider must be rejected"
+        action: "create"
+        model: "school_fee_waiver_reason"
+        as_user: "outsider2"
+        expect_error:
+          type: "AccessError"
+        values:
+          name: "Blocked Fee Waiver Reason"
+          code: "TFWRA01"
+
+  - name: "Outsider does not see the Fee Waiver Type configuration menu"
+    steps:
+      - step: "Create a user without the Fee Waiver Configurator group"
+        action: "create"
+        model: "res.users"
+        save_as: "outsider3"
+        values:
+          name: "Fee Waiver Outsider 3"
+          login: "fee_waiver_outsider3@example.com"
+          groups_id: [[6, 0, ["REF: base.group_user"]]]
+
+      - step: "Get the Fee Waiver Type configuration menu"
+        action: "ref"
+        xml_id: "ssi_school_fee_waiver.school_fee_waiver_type_menu"
+        save_as: "type_menu"
+
+      - step: "Search the Fee Waiver Type menu as outsider"
+        action: "search"
+        model: "ir.ui.menu"
+        as_user: "outsider3"
+        domain: [["id", "=", "REC: type_menu.id"]]
+        save_as: "result"
+        expect_count: 0
+
+  - name: "Outsider does not see the Fee Waiver Reason configuration menu"
+    steps:
+      - step: "Create a user without the Fee Waiver Configurator group"
+        action: "create"
+        model: "res.users"
+        save_as: "outsider4"
+        values:
+          name: "Fee Waiver Outsider 4"
+          login: "fee_waiver_outsider4@example.com"
+          groups_id: [[6, 0, ["REF: base.group_user"]]]
+
+      - step: "Get the Fee Waiver Reason configuration menu"
+        action: "ref"
+        xml_id: "ssi_school_fee_waiver.school_fee_waiver_reason_menu"
+        save_as: "reason_menu"
+
+      - step: "Search the Fee Waiver Reason menu as outsider"
+        action: "search"
+        model: "ir.ui.menu"
+        as_user: "outsider4"
+        domain: [["id", "=", "REC: reason_menu.id"]]
+        save_as: "result"
+        expect_count: 0

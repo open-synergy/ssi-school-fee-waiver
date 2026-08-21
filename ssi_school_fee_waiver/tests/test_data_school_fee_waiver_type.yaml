@@ -1,0 +1,114 @@
+scenarios:
+  - name: "Fee Waiver Type - Create"
+    steps:
+      - step: "Create the fee waiver type"
+        action: "create"
+        model: "school_fee_waiver_type"
+        save_as: "fee_waiver_type"
+        values:
+          name: "Test Fee Waiver Type"
+          code: "TFWT001"
+
+      - step: "Assert the fee waiver type was created with active default True"
+        action: "assert"
+        target: "fee_waiver_type"
+        asserts:
+          id:
+            type: "value"
+            operator: "is_truthy"
+          name:
+            type: "value"
+            expected: "Test Fee Waiver Type"
+          code:
+            type: "value"
+            expected: "TFWT001"
+          active:
+            type: "value"
+            expected: true
+
+  - name: "Fee Waiver Type - Edit"
+    steps:
+      - step: "Create the fee waiver type to edit"
+        action: "create"
+        model: "school_fee_waiver_type"
+        save_as: "fee_waiver_type"
+        values:
+          name: "Original Fee Waiver Type Name"
+          code: "TFWT002"
+
+      - step: "Update the fee waiver type name"
+        action: "write"
+        target: "fee_waiver_type"
+        values:
+          name: "Updated Fee Waiver Type Name"
+
+      - step: "Assert the name was updated"
+        action: "assert"
+        target: "fee_waiver_type"
+        asserts:
+          name:
+            type: "value"
+            expected: "Updated Fee Waiver Type Name"
+
+  - name: "Fee Waiver Type - Delete"
+    steps:
+      - step: "Create the fee waiver type to delete"
+        action: "create"
+        model: "school_fee_waiver_type"
+        save_as: "fee_waiver_type"
+        values:
+          name: "Fee Waiver Type To Delete"
+          code: "TFWT003"
+
+      - step: "Delete the fee waiver type"
+        action: "unlink"
+        target: "fee_waiver_type"
+
+      - step: "Verify the fee waiver type no longer exists"
+        action: "search"
+        model: "school_fee_waiver_type"
+        domain: [["code", "=", "TFWT003"]]
+        save_as: "result"
+        expect_count: 0
+
+  - name: "Fee Waiver Type - Archive"
+    steps:
+      - step: "Create the fee waiver type to archive"
+        action: "create"
+        model: "school_fee_waiver_type"
+        save_as: "fee_waiver_type"
+        values:
+          name: "Fee Waiver Type To Archive"
+          code: "TFWT004"
+
+      - step: "Archive the fee waiver type"
+        action: "write"
+        target: "fee_waiver_type"
+        values:
+          active: false
+
+      - step: "Assert active is now False"
+        action: "assert"
+        target: "fee_waiver_type"
+        asserts:
+          active:
+            type: "value"
+            expected: false
+
+      - step: "Verify the archived type is absent from the default search"
+        action: "search"
+        model: "school_fee_waiver_type"
+        domain: [["code", "=", "TFWT004"]]
+        save_as: "result"
+        expect_count: 0
+
+  - name: "Fee Waiver Type - Name Is Required"
+    steps:
+      - step: "Saving without a name must be rejected by the form"
+        action: "form"
+        model: "school_fee_waiver_type"
+        values:
+          code: "TFWT005"
+        expect_error:
+          type: "AssertionError"
+          message_contains: "required field"

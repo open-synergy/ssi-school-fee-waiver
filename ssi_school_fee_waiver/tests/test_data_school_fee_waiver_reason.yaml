@@ -1,0 +1,83 @@
+scenarios:
+  - name: "Fee Waiver Reason - Create"
+    steps:
+      - step: "Create the fee waiver reason"
+        action: "create"
+        model: "school_fee_waiver_reason"
+        save_as: "fee_waiver_reason"
+        values:
+          name: "Economic Hardship"
+          code: "TFWR001"
+
+      - step: "Assert the fee waiver reason was created with active default True"
+        action: "assert"
+        target: "fee_waiver_reason"
+        asserts:
+          id:
+            type: "value"
+            operator: "is_truthy"
+          name:
+            type: "value"
+            expected: "Economic Hardship"
+          code:
+            type: "value"
+            expected: "TFWR001"
+          active:
+            type: "value"
+            expected: true
+
+  - name: "Fee Waiver Reason - Edit"
+    steps:
+      - step: "Create the fee waiver reason to edit"
+        action: "create"
+        model: "school_fee_waiver_reason"
+        save_as: "fee_waiver_reason"
+        values:
+          name: "Original Fee Waiver Reason Name"
+          code: "TFWR002"
+
+      - step: "Update the fee waiver reason name"
+        action: "write"
+        target: "fee_waiver_reason"
+        values:
+          name: "Updated Fee Waiver Reason Name"
+
+      - step: "Assert the name was updated"
+        action: "assert"
+        target: "fee_waiver_reason"
+        asserts:
+          name:
+            type: "value"
+            expected: "Updated Fee Waiver Reason Name"
+
+  - name: "Fee Waiver Reason - Delete"
+    steps:
+      - step: "Create the fee waiver reason to delete"
+        action: "create"
+        model: "school_fee_waiver_reason"
+        save_as: "fee_waiver_reason"
+        values:
+          name: "Fee Waiver Reason To Delete"
+          code: "TFWR003"
+
+      - step: "Delete the fee waiver reason"
+        action: "unlink"
+        target: "fee_waiver_reason"
+
+      - step: "Verify the fee waiver reason no longer exists"
+        action: "search"
+        model: "school_fee_waiver_reason"
+        domain: [["code", "=", "TFWR003"]]
+        save_as: "result"
+        expect_count: 0
+
+  - name: "Fee Waiver Reason - Name Is Required"
+    steps:
+      - step: "Saving without a name must be rejected by the form"
+        action: "form"
+        model: "school_fee_waiver_reason"
+        values:
+          code: "TFWR004"
+        expect_error:
+          type: "AssertionError"
+          message_contains: "required field"
