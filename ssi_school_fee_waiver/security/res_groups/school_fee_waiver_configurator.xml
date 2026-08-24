@@ -3,9 +3,18 @@
      Copyright 2026 PT. Simetri Sinergi Indonesia
      License AGPL-3.0 or later (http://www.gnu.org/licenses/agpl). -->
 <odoo>
-<record id="school_fee_waiver_configurator_group" model="res.groups">
-    <field name="name">Configurator</field>
-    <field name="category_id" ref="school_fee_waiver_configurator_module_category" />
+<record id="school_fee_waiver_type_group" model="res.groups">
+    <field name="name">Fee Waiver Type</field>
+    <field name="category_id" ref="ssi_school.school_configurator_module_category" />
+    <field
+            name="users"
+            eval="[(4, ref('base.user_root')), (4, ref('base.user_admin'))]"
+        />
+</record>
+
+<record id="school_fee_waiver_reason_group" model="res.groups">
+    <field name="name">Fee Waiver Reason</field>
+    <field name="category_id" ref="ssi_school.school_configurator_module_category" />
     <field
             name="users"
             eval="[(4, ref('base.user_root')), (4, ref('base.user_admin'))]"

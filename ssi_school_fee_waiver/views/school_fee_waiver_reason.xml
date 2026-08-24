@@ -43,7 +43,7 @@
         name="Fee Waiver Reasons"
         parent="menu_school_fee_waiver_configuration"
         action="school_fee_waiver_reason_action"
-        groups="school_fee_waiver_configurator_group"
+        groups="school_fee_waiver_reason_group"
         sequence="20"
     />
 
