@@ -315,11 +315,6 @@ msgid "Computation"
 msgstr ""
 
 #. module: ssi_school_fee_waiver
-#: model:res.groups,name:ssi_school_fee_waiver.school_fee_waiver_configurator_group
-msgid "Configurator"
-msgstr ""
-
-#. module: ssi_school_fee_waiver
 #: model:ir.model.fields,help:ssi_school_fee_waiver.field_school_fee_waiver__confirm_ok
 msgid ""
 "Confirm policy\n"
@@ -450,9 +445,19 @@ msgid "Fee Waiver"
 msgstr ""
 
 #. module: ssi_school_fee_waiver
+#: model:res.groups,name:ssi_school_fee_waiver.school_fee_waiver_reason_group
+msgid "Fee Waiver Reason"
+msgstr ""
+
+#. module: ssi_school_fee_waiver
 #: model:ir.actions.act_window,name:ssi_school_fee_waiver.school_fee_waiver_reason_action
 #: model:ir.ui.menu,name:ssi_school_fee_waiver.school_fee_waiver_reason_menu
 msgid "Fee Waiver Reasons"
+msgstr ""
+
+#. module: ssi_school_fee_waiver
+#: model:res.groups,name:ssi_school_fee_waiver.school_fee_waiver_type_group
+msgid "Fee Waiver Type"
 msgstr ""
 
 #. module: ssi_school_fee_waiver
@@ -988,27 +993,9 @@ msgid "School"
 msgstr ""
 
 #. module: ssi_school_fee_waiver
-#: model:ir.module.category,name:ssi_school_fee_waiver.school_fee_waiver_module_category
-msgid "School - Fee Waiver"
-msgstr ""
-
-#. module: ssi_school_fee_waiver
-#: model:ir.module.category,name:ssi_school_fee_waiver.school_fee_waiver_configurator_module_category
-msgid "School - Fee Waiver - Configurator"
-msgstr ""
-
-#. module: ssi_school_fee_waiver
-#: model:ir.module.category,name:ssi_school_fee_waiver.school_fee_waiver_data_ownership_module_category
-msgid "School - Fee Waiver - Data Ownership"
-msgstr ""
-
-#. module: ssi_school_fee_waiver
-#: model:ir.module.category,name:ssi_school_fee_waiver.school_fee_waiver_workflow_module_category
-msgid "School - Fee Waiver - Workflow"
-msgstr ""
-
-#. module: ssi_school_fee_waiver
 #: model:ir.model,name:ssi_school_fee_waiver.model_school_fee_waiver
+#: model:ir.module.category,name:ssi_school_fee_waiver.school_fee_waiver_data_ownership_module_category
+#: model:ir.module.category,name:ssi_school_fee_waiver.school_fee_waiver_workflow_module_category
 msgid "School Fee Waiver"
 msgstr ""
 
