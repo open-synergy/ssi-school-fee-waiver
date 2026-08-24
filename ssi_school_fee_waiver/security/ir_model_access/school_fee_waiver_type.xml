@@ -15,7 +15,7 @@
 <record id="school_fee_waiver_type_configurator_access" model="ir.model.access">
     <field name="name">school_fee_waiver_type - configurator</field>
     <field name="model_id" ref="model_school_fee_waiver_type" />
-    <field name="group_id" ref="school_fee_waiver_configurator_group" />
+    <field name="group_id" ref="school_fee_waiver_type_group" />
     <field name="perm_read" eval="1" />
     <field name="perm_create" eval="1" />
     <field name="perm_write" eval="1" />

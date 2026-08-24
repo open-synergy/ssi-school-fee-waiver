@@ -9,14 +9,20 @@ from odoo.tests import tagged
 
 @tagged("post_install", "-at_install")
 class TestSchoolFeeWaiverAccess(YamlTransactionCase):
-    """Scenario tests for access to the Fee Waiver configurator group.
+    """Scenario tests for the Fee Waiver Type/Reason configurator groups.
 
     Kept separate from the CRUD scenarios of ``school_fee_waiver_type``
-    and ``school_fee_waiver_reason`` because it exercises a different
-    actor (a user without the configurator group) rather than the
-    happy-path configurator.
+    and ``school_fee_waiver_reason`` because it exercises different
+    actors: a user with no configurator group at all, and a user with
+    only one of the two split configurator groups.
     """
 
     def test_school_fee_waiver_access(self):
-        """Run the no-configurator-group negative scenarios."""
+        """Run the split-configurator-group access scenarios.
+
+        Covers both the outsider negative path (no configurator group
+        at all) and the type/reason separation: a user holding only
+        ``school_fee_waiver_type_group`` can manage Fee Waiver Types
+        but is rejected on Fee Waiver Reason.
+        """
         self.run_yaml_scenario("test_data_school_fee_waiver_access.yaml")
