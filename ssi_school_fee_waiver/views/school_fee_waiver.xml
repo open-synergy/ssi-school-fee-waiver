@@ -160,7 +160,7 @@
                             <field name="base_amount" />
                             <field name="amount_planned" />
                             <field name="amount_realized" />
-                            <field name="state" />
+                            <field name="state" readonly="1" />
                             <field name="note" />
                             <field name="currency_id" invisible="1" />
                             <button
@@ -184,7 +184,7 @@
                                 <field name="base_amount" />
                                 <field name="amount_planned" />
                                 <field name="amount_realized" />
-                                <field name="state" />
+                                <field name="state" readonly="1" />
                                 <field name="currency_id" invisible="1" />
                             </group>
                             <field name="note" />
