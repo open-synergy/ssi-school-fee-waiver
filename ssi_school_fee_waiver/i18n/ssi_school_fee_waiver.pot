@@ -174,8 +174,8 @@ msgstr ""
 msgid ""
 "Billing amount this schedule line's Computation is applied to: the sum of "
 "the linked payment term's detail lines matching the Line's Product, or its "
-"Product Category when the Line targets one. Zero when no payment term is "
-"linked."
+"Product Category when the Line targets one. Detail lines marked Voided are "
+"always excluded. Zero when no payment term is linked."
 msgstr ""
 
 #. module: ssi_school_fee_waiver
