@@ -1,0 +1,515 @@
+options:
+  auto_refresh: true
+scenarios:
+  - name: "Fee Waiver Schedule Base Amount excludes Voided Detail Lines"
+    steps:
+      # ── Shared fixture chain (suffix FV1) ────────────────────────
+      - step: "Create the grade type"
+        action: "create"
+        model: "school_grade_type"
+        save_as: "fv1_grade_type"
+        values:
+          name: "FV1 Grade Type"
+          code: "FV1GT"
+
+      - step: "Create the school"
+        action: "create"
+        model: "school"
+        save_as: "fv1_school"
+        values:
+          name: "FV1 School"
+          code: "FV1SC"
+          grade_type_id: "REC: fv1_grade_type.id"
+
+      - step: "Create the academic year"
+        action: "create"
+        model: "school_academic_year"
+        save_as: "fv1_academic_year"
+        values:
+          name: "FV1 Academic Year"
+          code: "FV1AY"
+          date_start: 2026-07-01
+          date_end: 2027-06-30
+
+      - step: "Create the academic term"
+        action: "create"
+        model: "school_academic_term"
+        save_as: "fv1_academic_term"
+        values:
+          name: "FV1 Term"
+          code: "FV1TM"
+          date_start: 2026-07-01
+          date_end: 2026-12-31
+          year_id: "REC: fv1_academic_year.id"
+
+      - step: "Create the grade"
+        action: "create"
+        model: "school_grade"
+        save_as: "fv1_grade"
+        values:
+          name: "FV1 Grade"
+          code: "FV1GR"
+          type_id: "REC: fv1_grade_type.id"
+
+      - step: "Create the grade class"
+        action: "create"
+        model: "school_grade_class"
+        save_as: "fv1_grade_class"
+        values:
+          name: "FV1 Class"
+          code: "FV1CL"
+          school_id: "REC: fv1_school.id"
+          grade_id: "REC: fv1_grade.id"
+
+      - step: "Create the student contact"
+        action: "create"
+        model: "res.partner"
+        save_as: "fv1_contact"
+        values:
+          name: "FV1 Contact"
+
+      - step: "Create the student"
+        action: "create"
+        model: "school_student"
+        save_as: "fv1_student"
+        values:
+          name: "FV1 Student"
+          code: "FV1ST"
+          contact_id: "REC: fv1_contact.id"
+          school_id: "REC: fv1_school.id"
+
+      - step: "Create the enrollment"
+        action: "create"
+        model: "school_enrollment"
+        save_as: "fv1_enrollment"
+        values:
+          academic_year_id: "REC: fv1_academic_year.id"
+          academic_term_id: "REC: fv1_academic_term.id"
+          school_id: "REC: fv1_school.id"
+          grade_id: "REC: fv1_grade.id"
+          grade_class_id: "REC: fv1_grade_class.id"
+          student_id: "REC: fv1_student.id"
+
+      - step: "Get the account.account.type Income reference"
+        action: "ref"
+        xml_id: "account.data_account_type_revenue"
+        save_as: "fv1_account_type_income"
+
+      - step: "Create the income account used by payment term details"
+        action: "create"
+        model: "account.account"
+        save_as: "fv1_income_account"
+        values:
+          name: "FV1 Income Account"
+          code: "FV1IA"
+          user_type_id: "REC: fv1_account_type_income.id"
+          reconcile: false
+
+      - step: "Create Product P (matched by Product)"
+        action: "create"
+        model: "product.product"
+        save_as: "fv1_product_p"
+        values:
+          name: "FV1 Product P"
+          type: "service"
+
+      - step: "Create Product Category C (matched by Category)"
+        action: "create"
+        model: "product.category"
+        save_as: "fv1_category_c"
+        values:
+          name: "FV1 Category C"
+
+      - step: "Create Product Q, under Category C"
+        action: "create"
+        model: "product.product"
+        save_as: "fv1_product_q"
+        values:
+          name: "FV1 Product Q"
+          type: "service"
+          categ_id: "REC: fv1_category_c.id"
+
+      - step: "Create the fee waiver type"
+        action: "create"
+        model: "school_fee_waiver_type"
+        save_as: "fv1_type"
+        values:
+          name: "FV1 Type"
+          code: "FV1TY"
+
+      - step: "Create the fee waiver reason"
+        action: "create"
+        model: "school_fee_waiver_reason"
+        save_as: "fv1_reason"
+        values:
+          name: "FV1 Reason"
+          code: "FV1RS"
+
+      # ── Case 1 — Product match, one of two details voided ────────
+      - step: "Create Term 1 with two Product P details (1,000,000 each)"
+        action: "create"
+        model: "school_enrollment_payment_term"
+        save_as: "fv1_term1"
+        values:
+          enrollment_id: "REC: fv1_enrollment.id"
+          name: "FV1 Term 1"
+          date_due: 2026-07-15
+          detail_ids:
+            - - 0
+              - 0
+              - product_id: "REC: fv1_product_p.id"
+                name: "FV1 Term 1 Fee A"
+                account_id: "REC: fv1_income_account.id"
+                uom_quantity: 1.0
+                uom_id: "REF: uom.product_uom_unit"
+                price_unit: 1000000.0
+            - - 0
+              - 0
+              - product_id: "REC: fv1_product_p.id"
+                name: "FV1 Term 1 Fee B"
+                account_id: "REC: fv1_income_account.id"
+                uom_quantity: 1.0
+                uom_id: "REF: uom.product_uom_unit"
+                price_unit: 1000000.0
+
+      - step: "Find the second detail line of Term 1"
+        action: "search"
+        model: "school_enrollment_payment_term_detail"
+        domain:
+          - ["term_id", "=", "REC: fv1_term1.id"]
+          - ["name", "=", "FV1 Term 1 Fee B"]
+        save_as: "fv1_term1_detail_b"
+        limit: 1
+
+      - step: "Void the second detail line of Term 1"
+        action: "write"
+        target: "fv1_term1_detail_b"
+        values:
+          voided: true
+
+      - step: "Create the Product-matched waiver on Term 1"
+        action: "create"
+        model: "school_fee_waiver"
+        save_as: "fv1_waiver1"
+        values:
+          type_id: "REC: fv1_type.id"
+          reason_id: "REC: fv1_reason.id"
+          student_id: "REC: fv1_student.id"
+          enrollment_id: "REC: fv1_enrollment.id"
+          coverage: "single_term"
+          payment_term_id: "REC: fv1_term1.id"
+          user_id: "REF: base.user_admin"
+          line_ids:
+            - - 0
+              - 0
+              - product_id: "REC: fv1_product_p.id"
+                computation: "percentage"
+                percentage: 100.0
+
+      - step: "Confirm the Product-matched waiver"
+        action: "call"
+        target: "fv1_waiver1"
+        method: "action_confirm"
+        as_user: "base.user_admin"
+        asserts:
+          state:
+            type: "value"
+            expected: "confirm"
+
+      - step: "Approve the Product-matched waiver"
+        action: "call"
+        target: "fv1_waiver1"
+        method: "action_approve_approval"
+        as_user: "base.user_admin"
+        asserts:
+          state:
+            type: "value"
+            expected: "open"
+
+      - step: "Find the Schedule line generated for Term 1"
+        action: "search"
+        model: "school_fee_waiver_schedule"
+        domain: [["payment_term_id", "=", "REC: fv1_term1.id"]]
+        save_as: "fv1_sched1"
+        limit: 1
+
+      - step: "Base Amount counts only the non-voided detail"
+        action: "assert"
+        target: "fv1_sched1"
+        asserts:
+          base_amount:
+            type: "value"
+            expected: 1000000.0
+
+      # ── Case 2 — Category match, one of two details voided ───────
+      - step: "Create Term 2 with two Product Q details (1,000,000 each)"
+        action: "create"
+        model: "school_enrollment_payment_term"
+        save_as: "fv1_term2"
+        values:
+          enrollment_id: "REC: fv1_enrollment.id"
+          name: "FV1 Term 2"
+          date_due: 2026-08-15
+          detail_ids:
+            - - 0
+              - 0
+              - product_id: "REC: fv1_product_q.id"
+                name: "FV1 Term 2 Fee A"
+                account_id: "REC: fv1_income_account.id"
+                uom_quantity: 1.0
+                uom_id: "REF: uom.product_uom_unit"
+                price_unit: 1000000.0
+            - - 0
+              - 0
+              - product_id: "REC: fv1_product_q.id"
+                name: "FV1 Term 2 Fee B"
+                account_id: "REC: fv1_income_account.id"
+                uom_quantity: 1.0
+                uom_id: "REF: uom.product_uom_unit"
+                price_unit: 1000000.0
+
+      - step: "Find the second detail line of Term 2"
+        action: "search"
+        model: "school_enrollment_payment_term_detail"
+        domain:
+          - ["term_id", "=", "REC: fv1_term2.id"]
+          - ["name", "=", "FV1 Term 2 Fee B"]
+        save_as: "fv1_term2_detail_b"
+        limit: 1
+
+      - step: "Void the second detail line of Term 2"
+        action: "write"
+        target: "fv1_term2_detail_b"
+        values:
+          voided: true
+
+      - step: "Create the Category-matched waiver on Term 2"
+        action: "create"
+        model: "school_fee_waiver"
+        save_as: "fv1_waiver2"
+        values:
+          type_id: "REC: fv1_type.id"
+          reason_id: "REC: fv1_reason.id"
+          student_id: "REC: fv1_student.id"
+          enrollment_id: "REC: fv1_enrollment.id"
+          coverage: "single_term"
+          payment_term_id: "REC: fv1_term2.id"
+          user_id: "REF: base.user_admin"
+          line_ids:
+            - - 0
+              - 0
+              - product_category_id: "REC: fv1_category_c.id"
+                computation: "percentage"
+                percentage: 100.0
+
+      - step: "Confirm the Category-matched waiver"
+        action: "call"
+        target: "fv1_waiver2"
+        method: "action_confirm"
+        as_user: "base.user_admin"
+        asserts:
+          state:
+            type: "value"
+            expected: "confirm"
+
+      - step: "Approve the Category-matched waiver"
+        action: "call"
+        target: "fv1_waiver2"
+        method: "action_approve_approval"
+        as_user: "base.user_admin"
+        asserts:
+          state:
+            type: "value"
+            expected: "open"
+
+      - step: "Find the Schedule line generated for Term 2"
+        action: "search"
+        model: "school_fee_waiver_schedule"
+        domain: [["payment_term_id", "=", "REC: fv1_term2.id"]]
+        save_as: "fv1_sched2"
+        limit: 1
+
+      - step: "Base Amount counts only the non-voided detail (category match)"
+        action: "assert"
+        target: "fv1_sched2"
+        asserts:
+          base_amount:
+            type: "value"
+            expected: 1000000.0
+
+      # ── Case 3 — No detail voided: Base Amount unchanged ──────────
+      - step: "Create Term 3 with two Product P details (1,000,000 each), none voided"
+        action: "create"
+        model: "school_enrollment_payment_term"
+        save_as: "fv1_term3"
+        values:
+          enrollment_id: "REC: fv1_enrollment.id"
+          name: "FV1 Term 3"
+          date_due: 2026-09-15
+          detail_ids:
+            - - 0
+              - 0
+              - product_id: "REC: fv1_product_p.id"
+                name: "FV1 Term 3 Fee A"
+                account_id: "REC: fv1_income_account.id"
+                uom_quantity: 1.0
+                uom_id: "REF: uom.product_uom_unit"
+                price_unit: 1000000.0
+            - - 0
+              - 0
+              - product_id: "REC: fv1_product_p.id"
+                name: "FV1 Term 3 Fee B"
+                account_id: "REC: fv1_income_account.id"
+                uom_quantity: 1.0
+                uom_id: "REF: uom.product_uom_unit"
+                price_unit: 1000000.0
+
+      - step: "Create the Product-matched waiver on Term 3"
+        action: "create"
+        model: "school_fee_waiver"
+        save_as: "fv1_waiver3"
+        values:
+          type_id: "REC: fv1_type.id"
+          reason_id: "REC: fv1_reason.id"
+          student_id: "REC: fv1_student.id"
+          enrollment_id: "REC: fv1_enrollment.id"
+          coverage: "single_term"
+          payment_term_id: "REC: fv1_term3.id"
+          user_id: "REF: base.user_admin"
+          line_ids:
+            - - 0
+              - 0
+              - product_id: "REC: fv1_product_p.id"
+                computation: "percentage"
+                percentage: 100.0
+
+      - step: "Confirm the untouched waiver"
+        action: "call"
+        target: "fv1_waiver3"
+        method: "action_confirm"
+        as_user: "base.user_admin"
+        asserts:
+          state:
+            type: "value"
+            expected: "confirm"
+
+      - step: "Approve the untouched waiver"
+        action: "call"
+        target: "fv1_waiver3"
+        method: "action_approve_approval"
+        as_user: "base.user_admin"
+        asserts:
+          state:
+            type: "value"
+            expected: "open"
+
+      - step: "Find the Schedule line generated for Term 3"
+        action: "search"
+        model: "school_fee_waiver_schedule"
+        domain: [["payment_term_id", "=", "REC: fv1_term3.id"]]
+        save_as: "fv1_sched3"
+        limit: 1
+
+      - step: "Base Amount sums both details, exactly as before this change"
+        action: "assert"
+        target: "fv1_sched3"
+        asserts:
+          base_amount:
+            type: "value"
+            expected: 2000000.0
+
+      # ── Case 4 — Every matching detail voided: Base Amount is zero ─
+      - step: "Create Term 4 with a single Product P detail (1,000,000)"
+        action: "create"
+        model: "school_enrollment_payment_term"
+        save_as: "fv1_term4"
+        values:
+          enrollment_id: "REC: fv1_enrollment.id"
+          name: "FV1 Term 4"
+          date_due: 2026-10-15
+          detail_ids:
+            - - 0
+              - 0
+              - product_id: "REC: fv1_product_p.id"
+                name: "FV1 Term 4 Fee A"
+                account_id: "REC: fv1_income_account.id"
+                uom_quantity: 1.0
+                uom_id: "REF: uom.product_uom_unit"
+                price_unit: 1000000.0
+
+      - step: "Create the Product-matched waiver on Term 4 (Full Coverage)"
+        action: "create"
+        model: "school_fee_waiver"
+        save_as: "fv1_waiver4"
+        values:
+          type_id: "REC: fv1_type.id"
+          reason_id: "REC: fv1_reason.id"
+          student_id: "REC: fv1_student.id"
+          enrollment_id: "REC: fv1_enrollment.id"
+          coverage: "single_term"
+          payment_term_id: "REC: fv1_term4.id"
+          user_id: "REF: base.user_admin"
+          line_ids:
+            - - 0
+              - 0
+              - product_id: "REC: fv1_product_p.id"
+                computation: "full"
+
+      - step: "Confirm the waiver whose whole basis will be voided"
+        action: "call"
+        target: "fv1_waiver4"
+        method: "action_confirm"
+        as_user: "base.user_admin"
+        asserts:
+          state:
+            type: "value"
+            expected: "confirm"
+
+      - step: "Approve the waiver whose whole basis will be voided"
+        action: "call"
+        target: "fv1_waiver4"
+        method: "action_approve_approval"
+        as_user: "base.user_admin"
+        asserts:
+          state:
+            type: "value"
+            expected: "open"
+
+      - step: "Find the Schedule line generated for Term 4"
+        action: "search"
+        model: "school_fee_waiver_schedule"
+        domain: [["payment_term_id", "=", "REC: fv1_term4.id"]]
+        save_as: "fv1_sched4"
+        limit: 1
+
+      - step: "Base Amount is non-zero before voiding the only detail"
+        action: "assert"
+        target: "fv1_sched4"
+        asserts:
+          base_amount:
+            type: "value"
+            expected: 1000000.0
+
+      - step: "Find the only detail line of Term 4"
+        action: "search"
+        model: "school_enrollment_payment_term_detail"
+        domain: [["term_id", "=", "REC: fv1_term4.id"]]
+        save_as: "fv1_term4_detail_a"
+        limit: 1
+
+      - step: "Void the only detail line of Term 4"
+        action: "write"
+        target: "fv1_term4_detail_a"
+        values:
+          voided: true
+
+      - step: "Base Amount and Amount Planned recompute to zero, no error"
+        action: "assert"
+        target: "fv1_sched4"
+        asserts:
+          base_amount:
+            type: "value"
+            expected: 0.0
+          amount_planned:
+            type: "value"
+            expected: 0.0

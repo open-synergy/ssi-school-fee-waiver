@@ -72,8 +72,8 @@ class SchoolFeeWaiverSchedule(models.Model):
         help="Billing amount this schedule line's Computation is "
         "applied to: the sum of the linked payment term's detail "
         "lines matching the Line's Product, or its Product Category "
-        "when the Line targets one. Zero when no payment term is "
-        "linked.",
+        "when the Line targets one. Detail lines marked Voided are "
+        "always excluded. Zero when no payment term is linked.",
     )
     amount_planned = fields.Monetary(
         string="Amount Planned",
@@ -147,6 +147,7 @@ class SchoolFeeWaiverSchedule(models.Model):
         "payment_term_id.detail_ids.price_subtotal",
         "payment_term_id.detail_ids.product_id",
         "payment_term_id.detail_ids.product_id.categ_id",
+        "payment_term_id.detail_ids.voided",
         "line_id.product_id",
         "line_id.product_category_id",
     )
@@ -155,7 +156,10 @@ class SchoolFeeWaiverSchedule(models.Model):
 
         Matches by the detail lines' own ``product_id`` when the Line
         has a Product, or by their ``product_id.categ_id`` when the
-        Line targets a Product Category instead.
+        Line targets a Product Category instead. Detail lines marked
+        ``voided`` are always excluded first: their full amount has
+        already been moved to another payment term, so counting them
+        here would double the billing amount a waiver is based on.
 
         :return: nothing; assigns ``base_amount``
         """
@@ -164,13 +168,14 @@ class SchoolFeeWaiverSchedule(models.Model):
             term = record._get_source_term()
             line = record.line_id
             if term:
+                candidates = term.detail_ids.filtered(lambda detail: not detail.voided)
                 if line.product_category_id:
-                    details = term.detail_ids.filtered(
+                    details = candidates.filtered(
                         lambda detail: detail.product_id.categ_id
                         == line.product_category_id
                     )
                 else:
-                    details = term.detail_ids.filtered(
+                    details = candidates.filtered(
                         lambda detail: detail.product_id == line.product_id
                     )
                 result = sum(details.mapped("price_subtotal"))
