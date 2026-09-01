@@ -1,0 +1,710 @@
+options:
+  auto_refresh: true
+scenarios:
+  - name:
+      "Fee Waiver Admission Schedule - Base Amount recomputes on voided (admission term)"
+    steps:
+      # ── Shared fixture chain (suffix AV1) ────────────────────────
+      - step: "Create the grade type"
+        action: "create"
+        model: "school_grade_type"
+        save_as: "av1_grade_type"
+        values:
+          name: "AV1 Grade Type"
+          code: "AV1GT"
+
+      - step: "Create the school"
+        action: "create"
+        model: "school"
+        save_as: "av1_school"
+        values:
+          name: "AV1 School"
+          code: "AV1SC"
+          grade_type_id: "REC: av1_grade_type.id"
+
+      - step: "Create the academic year"
+        action: "create"
+        model: "school_academic_year"
+        save_as: "av1_academic_year"
+        values:
+          name: "AV1 Academic Year"
+          code: "AV1AY"
+          date_start: 2026-07-01
+          date_end: 2027-06-30
+
+      - step: "Create the academic term"
+        action: "create"
+        model: "school_academic_term"
+        save_as: "av1_academic_term"
+        values:
+          name: "AV1 Term"
+          code: "AV1TM"
+          date_start: 2026-07-01
+          date_end: 2026-12-31
+          year_id: "REC: av1_academic_year.id"
+
+      - step: "Create the grade"
+        action: "create"
+        model: "school_grade"
+        save_as: "av1_grade"
+        values:
+          name: "AV1 Grade"
+          code: "AV1GR"
+          type_id: "REC: av1_grade_type.id"
+
+      - step: "Create the admission student's contact"
+        action: "create"
+        model: "res.partner"
+        save_as: "av1_admission_contact"
+        values:
+          name: "AV1 Admission Contact"
+
+      - step: "Create the admission"
+        action: "create"
+        model: "school_admission"
+        save_as: "av1_admission"
+        values:
+          academic_year_id: "REC: av1_academic_year.id"
+          academic_term_id: "REC: av1_academic_term.id"
+          school_id: "REC: av1_school.id"
+          grade_id: "REC: av1_grade.id"
+          student_id: "REC: av1_admission_contact.id"
+          user_id: "REF: base.user_admin"
+
+      - step: "Confirm the admission as admin"
+        action: "call"
+        target: "av1_admission"
+        method: "action_confirm"
+        as_user: "base.user_admin"
+        asserts:
+          state:
+            type: "value"
+            expected: "confirm"
+
+      # Refresh point required before Approve -- test-traps.md T-04.
+      - step: "Approve the admission as admin (auto-opens)"
+        action: "call"
+        target: "av1_admission"
+        method: "action_approve_approval"
+        as_user: "base.user_admin"
+        asserts:
+          state:
+            type: "value"
+            expected: "open"
+
+      - step: "Get the account.account.type Income reference"
+        action: "ref"
+        xml_id: "account.data_account_type_revenue"
+        save_as: "av1_account_type_income"
+
+      - step: "Create the income account used by the payment term detail"
+        action: "create"
+        model: "account.account"
+        save_as: "av1_income_account"
+        values:
+          name: "AV1 Income Account"
+          code: "AV1IA"
+          user_type_id: "REC: av1_account_type_income.id"
+          reconcile: false
+
+      - step: "Create the product covered by the waiver line"
+        action: "create"
+        model: "product.product"
+        save_as: "av1_product"
+        values:
+          name: "AV1 Product"
+          type: "service"
+
+      - step:
+          "Create the Admission Payment Term with two details of the same product
+          (1,000,000 each)"
+        action: "create"
+        model: "school_admission_payment_term"
+        save_as: "av1_term"
+        values:
+          admission_id: "REC: av1_admission.id"
+          name: "AV1 Term"
+          date_due: 2026-08-15
+          detail_ids:
+            - - 0
+              - 0
+              - product_id: "REC: av1_product.id"
+                name: "AV1 Term Fee A"
+                account_id: "REC: av1_income_account.id"
+                uom_quantity: 1.0
+                uom_id: "REF: uom.product_uom_unit"
+                price_unit: 1000000.0
+            - - 0
+              - 0
+              - product_id: "REC: av1_product.id"
+                name: "AV1 Term Fee B"
+                account_id: "REC: av1_income_account.id"
+                uom_quantity: 1.0
+                uom_id: "REF: uom.product_uom_unit"
+                price_unit: 1000000.0
+
+      - step: "Create the fee waiver type"
+        action: "create"
+        model: "school_fee_waiver_type"
+        save_as: "av1_type"
+        values:
+          name: "AV1 Type"
+          code: "AV1TY"
+
+      - step: "Create the fee waiver reason"
+        action: "create"
+        model: "school_fee_waiver_reason"
+        save_as: "av1_reason"
+        values:
+          name: "AV1 Reason"
+          code: "AV1RS"
+
+      - step: "Create the Admission-sourced waiver"
+        action: "create"
+        model: "school_fee_waiver"
+        save_as: "av1_waiver"
+        values:
+          type_id: "REC: av1_type.id"
+          reason_id: "REC: av1_reason.id"
+          student_id: "REC: av1_admission.school_student_id.id"
+          source_type: "admission"
+          admission_id: "REC: av1_admission.id"
+          coverage: "multi_term"
+          date_start: 2026-08-01
+          date_end: 2026-08-31
+          user_id: "REF: base.user_admin"
+          line_ids:
+            - - 0
+              - 0
+              - product_id: "REC: av1_product.id"
+                computation: "full"
+
+      - step: "Confirm the waiver as admin"
+        action: "call"
+        target: "av1_waiver"
+        method: "action_confirm"
+        as_user: "base.user_admin"
+        asserts:
+          state:
+            type: "value"
+            expected: "confirm"
+
+      # Refresh point required before Approve -- test-traps.md T-04.
+      - step: "Approve the waiver as admin (auto-opens, generates schedule)"
+        action: "call"
+        target: "av1_waiver"
+        method: "action_approve_approval"
+        as_user: "base.user_admin"
+        asserts:
+          state:
+            type: "value"
+            expected: "open"
+
+      - step: "Find the Schedule line realizing the Admission Term"
+        action: "search"
+        model: "school_fee_waiver_schedule"
+        domain:
+          - ["waiver_id", "=", "REC: av1_waiver.id"]
+          - ["admission_payment_term_id", "=", "REC: av1_term.id"]
+        save_as: "av1_sched"
+        limit: 1
+
+      - step: "Base Amount counts both details before voiding"
+        action: "assert"
+        target: "av1_sched"
+        asserts:
+          base_amount:
+            type: "value"
+            expected: 2000000.0
+
+      - step: "Find the second detail line of the Admission Term"
+        action: "search"
+        model: "school_admission_payment_term_detail"
+        domain:
+          - ["term_id", "=", "REC: av1_term.id"]
+          - ["name", "=", "AV1 Term Fee B"]
+        save_as: "av1_term_detail_b"
+        limit: 1
+
+      - step: "Void the second detail line of the Admission Term"
+        action: "write"
+        target: "av1_term_detail_b"
+        values:
+          voided: true
+
+      - step: "Base Amount recomputes to exclude the voided detail, no error"
+        action: "assert"
+        target: "av1_sched"
+        asserts:
+          base_amount:
+            type: "value"
+            expected: 1000000.0
+
+  - name:
+      "Fee Waiver Admission Schedule - Base Amount recomputes on voided (enrollment
+      term, regression)"
+    steps:
+      # ── Shared fixture chain (suffix AV2) ────────────────────────
+      - step: "Create the grade type"
+        action: "create"
+        model: "school_grade_type"
+        save_as: "av2_grade_type"
+        values:
+          name: "AV2 Grade Type"
+          code: "AV2GT"
+
+      - step: "Create the school"
+        action: "create"
+        model: "school"
+        save_as: "av2_school"
+        values:
+          name: "AV2 School"
+          code: "AV2SC"
+          grade_type_id: "REC: av2_grade_type.id"
+
+      - step: "Create the academic year"
+        action: "create"
+        model: "school_academic_year"
+        save_as: "av2_academic_year"
+        values:
+          name: "AV2 Academic Year"
+          code: "AV2AY"
+          date_start: 2026-07-01
+          date_end: 2027-06-30
+
+      - step: "Create the academic term"
+        action: "create"
+        model: "school_academic_term"
+        save_as: "av2_academic_term"
+        values:
+          name: "AV2 Term"
+          code: "AV2TM"
+          date_start: 2026-07-01
+          date_end: 2026-12-31
+          year_id: "REC: av2_academic_year.id"
+
+      - step: "Create the grade"
+        action: "create"
+        model: "school_grade"
+        save_as: "av2_grade"
+        values:
+          name: "AV2 Grade"
+          code: "AV2GR"
+          type_id: "REC: av2_grade_type.id"
+
+      - step: "Create the grade class"
+        action: "create"
+        model: "school_grade_class"
+        save_as: "av2_grade_class"
+        values:
+          name: "AV2 Class"
+          code: "AV2CL"
+          school_id: "REC: av2_school.id"
+          grade_id: "REC: av2_grade.id"
+
+      - step: "Create the student contact"
+        action: "create"
+        model: "res.partner"
+        save_as: "av2_contact"
+        values:
+          name: "AV2 Contact"
+
+      - step: "Create the student"
+        action: "create"
+        model: "school_student"
+        save_as: "av2_student"
+        values:
+          name: "AV2 Student"
+          code: "AV2ST"
+          contact_id: "REC: av2_contact.id"
+          school_id: "REC: av2_school.id"
+
+      - step: "Create the enrollment"
+        action: "create"
+        model: "school_enrollment"
+        save_as: "av2_enrollment"
+        values:
+          academic_year_id: "REC: av2_academic_year.id"
+          academic_term_id: "REC: av2_academic_term.id"
+          school_id: "REC: av2_school.id"
+          grade_id: "REC: av2_grade.id"
+          grade_class_id: "REC: av2_grade_class.id"
+          student_id: "REC: av2_student.id"
+
+      - step: "Get the account.account.type Income reference"
+        action: "ref"
+        xml_id: "account.data_account_type_revenue"
+        save_as: "av2_account_type_income"
+
+      - step: "Create the income account used by the payment term detail"
+        action: "create"
+        model: "account.account"
+        save_as: "av2_income_account"
+        values:
+          name: "AV2 Income Account"
+          code: "AV2IA"
+          user_type_id: "REC: av2_account_type_income.id"
+          reconcile: false
+
+      - step: "Create the product covered by the waiver line"
+        action: "create"
+        model: "product.product"
+        save_as: "av2_product"
+        values:
+          name: "AV2 Product"
+          type: "service"
+
+      - step:
+          "Create the Enrollment Payment Term with two details of the same product
+          (1,000,000 each)"
+        action: "create"
+        model: "school_enrollment_payment_term"
+        save_as: "av2_term"
+        values:
+          enrollment_id: "REC: av2_enrollment.id"
+          name: "AV2 Term"
+          date_due: 2026-08-15
+          detail_ids:
+            - - 0
+              - 0
+              - product_id: "REC: av2_product.id"
+                name: "AV2 Term Fee A"
+                account_id: "REC: av2_income_account.id"
+                uom_quantity: 1.0
+                uom_id: "REF: uom.product_uom_unit"
+                price_unit: 1000000.0
+            - - 0
+              - 0
+              - product_id: "REC: av2_product.id"
+                name: "AV2 Term Fee B"
+                account_id: "REC: av2_income_account.id"
+                uom_quantity: 1.0
+                uom_id: "REF: uom.product_uom_unit"
+                price_unit: 1000000.0
+
+      - step: "Create the fee waiver type"
+        action: "create"
+        model: "school_fee_waiver_type"
+        save_as: "av2_type"
+        values:
+          name: "AV2 Type"
+          code: "AV2TY"
+
+      - step: "Create the fee waiver reason"
+        action: "create"
+        model: "school_fee_waiver_reason"
+        save_as: "av2_reason"
+        values:
+          name: "AV2 Reason"
+          code: "AV2RS"
+
+      - step: "Create the Enrollment-sourced waiver (Billing Source default)"
+        action: "create"
+        model: "school_fee_waiver"
+        save_as: "av2_waiver"
+        values:
+          type_id: "REC: av2_type.id"
+          reason_id: "REC: av2_reason.id"
+          student_id: "REC: av2_student.id"
+          enrollment_id: "REC: av2_enrollment.id"
+          coverage: "single_term"
+          payment_term_id: "REC: av2_term.id"
+          user_id: "REF: base.user_admin"
+          line_ids:
+            - - 0
+              - 0
+              - product_id: "REC: av2_product.id"
+                computation: "full"
+
+      - step: "Confirm the waiver as admin"
+        action: "call"
+        target: "av2_waiver"
+        method: "action_confirm"
+        as_user: "base.user_admin"
+        asserts:
+          state:
+            type: "value"
+            expected: "confirm"
+
+      # Refresh point required before Approve -- test-traps.md T-04.
+      - step: "Approve the waiver as admin (auto-opens, generates schedule)"
+        action: "call"
+        target: "av2_waiver"
+        method: "action_approve_approval"
+        as_user: "base.user_admin"
+        asserts:
+          state:
+            type: "value"
+            expected: "open"
+
+      - step: "Find the Schedule line realizing the Enrollment Term"
+        action: "search"
+        model: "school_fee_waiver_schedule"
+        domain:
+          - ["waiver_id", "=", "REC: av2_waiver.id"]
+          - ["payment_term_id", "=", "REC: av2_term.id"]
+        save_as: "av2_sched"
+        limit: 1
+
+      - step: "Base Amount counts both details before voiding"
+        action: "assert"
+        target: "av2_sched"
+        asserts:
+          base_amount:
+            type: "value"
+            expected: 2000000.0
+
+      - step: "Find the second detail line of the Enrollment Term"
+        action: "search"
+        model: "school_enrollment_payment_term_detail"
+        domain:
+          - ["term_id", "=", "REC: av2_term.id"]
+          - ["name", "=", "AV2 Term Fee B"]
+        save_as: "av2_term_detail_b"
+        limit: 1
+
+      - step: "Void the second detail line of the Enrollment Term"
+        action: "write"
+        target: "av2_term_detail_b"
+        values:
+          voided: true
+
+      - step:
+          "Base Amount still recomputes on the Enrollment path in this module, no error"
+        action: "assert"
+        target: "av2_sched"
+        asserts:
+          base_amount:
+            type: "value"
+            expected: 1000000.0
+
+  - name:
+      "Fee Waiver Admission Schedule - Base Amount goes to zero when every matching
+      detail is voided"
+    steps:
+      # ── Shared fixture chain (suffix AV3) ────────────────────────
+      - step: "Create the grade type"
+        action: "create"
+        model: "school_grade_type"
+        save_as: "av3_grade_type"
+        values:
+          name: "AV3 Grade Type"
+          code: "AV3GT"
+
+      - step: "Create the school"
+        action: "create"
+        model: "school"
+        save_as: "av3_school"
+        values:
+          name: "AV3 School"
+          code: "AV3SC"
+          grade_type_id: "REC: av3_grade_type.id"
+
+      - step: "Create the academic year"
+        action: "create"
+        model: "school_academic_year"
+        save_as: "av3_academic_year"
+        values:
+          name: "AV3 Academic Year"
+          code: "AV3AY"
+          date_start: 2026-07-01
+          date_end: 2027-06-30
+
+      - step: "Create the academic term"
+        action: "create"
+        model: "school_academic_term"
+        save_as: "av3_academic_term"
+        values:
+          name: "AV3 Term"
+          code: "AV3TM"
+          date_start: 2026-07-01
+          date_end: 2026-12-31
+          year_id: "REC: av3_academic_year.id"
+
+      - step: "Create the grade"
+        action: "create"
+        model: "school_grade"
+        save_as: "av3_grade"
+        values:
+          name: "AV3 Grade"
+          code: "AV3GR"
+          type_id: "REC: av3_grade_type.id"
+
+      - step: "Create the admission student's contact"
+        action: "create"
+        model: "res.partner"
+        save_as: "av3_admission_contact"
+        values:
+          name: "AV3 Admission Contact"
+
+      - step: "Create the admission"
+        action: "create"
+        model: "school_admission"
+        save_as: "av3_admission"
+        values:
+          academic_year_id: "REC: av3_academic_year.id"
+          academic_term_id: "REC: av3_academic_term.id"
+          school_id: "REC: av3_school.id"
+          grade_id: "REC: av3_grade.id"
+          student_id: "REC: av3_admission_contact.id"
+          user_id: "REF: base.user_admin"
+
+      - step: "Confirm the admission as admin"
+        action: "call"
+        target: "av3_admission"
+        method: "action_confirm"
+        as_user: "base.user_admin"
+        asserts:
+          state:
+            type: "value"
+            expected: "confirm"
+
+      # Refresh point required before Approve -- test-traps.md T-04.
+      - step: "Approve the admission as admin (auto-opens)"
+        action: "call"
+        target: "av3_admission"
+        method: "action_approve_approval"
+        as_user: "base.user_admin"
+        asserts:
+          state:
+            type: "value"
+            expected: "open"
+
+      - step: "Get the account.account.type Income reference"
+        action: "ref"
+        xml_id: "account.data_account_type_revenue"
+        save_as: "av3_account_type_income"
+
+      - step: "Create the income account used by the payment term detail"
+        action: "create"
+        model: "account.account"
+        save_as: "av3_income_account"
+        values:
+          name: "AV3 Income Account"
+          code: "AV3IA"
+          user_type_id: "REC: av3_account_type_income.id"
+          reconcile: false
+
+      - step: "Create the product covered by the waiver line"
+        action: "create"
+        model: "product.product"
+        save_as: "av3_product"
+        values:
+          name: "AV3 Product"
+          type: "service"
+
+      - step: "Create the Admission Payment Term with a single detail (1,000,000)"
+        action: "create"
+        model: "school_admission_payment_term"
+        save_as: "av3_term"
+        values:
+          admission_id: "REC: av3_admission.id"
+          name: "AV3 Term"
+          date_due: 2026-08-15
+          detail_ids:
+            - - 0
+              - 0
+              - product_id: "REC: av3_product.id"
+                name: "AV3 Term Fee A"
+                account_id: "REC: av3_income_account.id"
+                uom_quantity: 1.0
+                uom_id: "REF: uom.product_uom_unit"
+                price_unit: 1000000.0
+
+      - step: "Create the fee waiver type"
+        action: "create"
+        model: "school_fee_waiver_type"
+        save_as: "av3_type"
+        values:
+          name: "AV3 Type"
+          code: "AV3TY"
+
+      - step: "Create the fee waiver reason"
+        action: "create"
+        model: "school_fee_waiver_reason"
+        save_as: "av3_reason"
+        values:
+          name: "AV3 Reason"
+          code: "AV3RS"
+
+      - step: "Create the Admission-sourced waiver whose whole basis will be voided"
+        action: "create"
+        model: "school_fee_waiver"
+        save_as: "av3_waiver"
+        values:
+          type_id: "REC: av3_type.id"
+          reason_id: "REC: av3_reason.id"
+          student_id: "REC: av3_admission.school_student_id.id"
+          source_type: "admission"
+          admission_id: "REC: av3_admission.id"
+          coverage: "multi_term"
+          date_start: 2026-08-01
+          date_end: 2026-08-31
+          user_id: "REF: base.user_admin"
+          line_ids:
+            - - 0
+              - 0
+              - product_id: "REC: av3_product.id"
+                computation: "full"
+
+      - step: "Confirm the waiver whose whole basis will be voided"
+        action: "call"
+        target: "av3_waiver"
+        method: "action_confirm"
+        as_user: "base.user_admin"
+        asserts:
+          state:
+            type: "value"
+            expected: "confirm"
+
+      # Refresh point required before Approve -- test-traps.md T-04.
+      - step: "Approve the waiver whose whole basis will be voided"
+        action: "call"
+        target: "av3_waiver"
+        method: "action_approve_approval"
+        as_user: "base.user_admin"
+        asserts:
+          state:
+            type: "value"
+            expected: "open"
+
+      - step: "Find the Schedule line realizing the Admission Term"
+        action: "search"
+        model: "school_fee_waiver_schedule"
+        domain:
+          - ["waiver_id", "=", "REC: av3_waiver.id"]
+          - ["admission_payment_term_id", "=", "REC: av3_term.id"]
+        save_as: "av3_sched"
+        limit: 1
+
+      - step: "Base Amount is non-zero before voiding the only detail"
+        action: "assert"
+        target: "av3_sched"
+        asserts:
+          base_amount:
+            type: "value"
+            expected: 1000000.0
+
+      - step: "Find the only detail line of the Admission Term"
+        action: "search"
+        model: "school_admission_payment_term_detail"
+        domain: [["term_id", "=", "REC: av3_term.id"]]
+        save_as: "av3_term_detail_a"
+        limit: 1
+
+      - step: "Void the only detail line of the Admission Term"
+        action: "write"
+        target: "av3_term_detail_a"
+        values:
+          voided: true
+
+      - step: "Base Amount and Amount Planned recompute to zero, no error"
+        action: "assert"
+        target: "av3_sched"
+        asserts:
+          base_amount:
+            type: "value"
+            expected: 0.0
+          amount_planned:
+            type: "value"
+            expected: 0.0
