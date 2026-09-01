@@ -58,10 +58,12 @@ class SchoolFeeWaiverSchedule(models.Model):
         "payment_term_id.detail_ids.price_subtotal",
         "payment_term_id.detail_ids.product_id",
         "payment_term_id.detail_ids.product_id.categ_id",
+        "payment_term_id.detail_ids.voided",
         "admission_payment_term_id",
         "admission_payment_term_id.detail_ids.price_subtotal",
         "admission_payment_term_id.detail_ids.product_id",
         "admission_payment_term_id.detail_ids.product_id.categ_id",
+        "admission_payment_term_id.detail_ids.voided",
         "line_id.product_id",
         "line_id.product_category_id",
     )
@@ -73,6 +75,9 @@ class SchoolFeeWaiverSchedule(models.Model):
         method in the MRO takes effect -- so
         ``admission_payment_term_id`` and its detail lines must be
         declared here for a change to them to retrigger this compute.
+        Both source term paths also depend on their detail lines'
+        ``voided`` flag, so toggling it on an enrollment or an
+        admission payment term detail retriggers this compute too.
         The body itself is unchanged: ``super()`` already goes
         through ``_get_source_term()``, which this module overrides
         to resolve ``admission_payment_term_id`` too.
