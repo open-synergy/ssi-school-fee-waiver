@@ -30,6 +30,11 @@ msgid "Account"
 msgstr ""
 
 #. module: ssi_school_fee_waiver_deduction
+#: model_terms:ir.ui.view,arch_db:ssi_school_fee_waiver_deduction.school_fee_waiver_deduction_view_form
+msgid "Accounting"
+msgstr ""
+
+#. module: ssi_school_fee_waiver_deduction
 #: model:ir.model.fields,help:ssi_school_fee_waiver_deduction.field_school_fee_waiver_deduction__date
 #: model:ir.model.fields,help:ssi_school_fee_waiver_deduction.field_school_fee_waiver_deduction_line__date
 msgid "Accounting date of this deduction document."
