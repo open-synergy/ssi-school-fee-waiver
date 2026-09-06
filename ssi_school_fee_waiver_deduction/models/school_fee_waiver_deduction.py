@@ -50,6 +50,7 @@ class SchoolFeeWaiverDeduction(models.Model):
     _approval_to_state = "open"
     _approval_state = "confirm"
     _after_approved_method = "action_open"
+    _automatically_insert_open_button = False
 
     # Attributes related to add element on view automatically
     _automatically_insert_view_element = True
