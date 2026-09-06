@@ -101,6 +101,11 @@ odoo.define(
                     in_modal: false,
                 },
                 {
+                    content: "Open the Accounting tab",
+                    trigger: ".o_notebook .nav-link:contains(Accounting)",
+                    extra_trigger: ".o_form_view.o_form_editable",
+                },
+                {
                     content: "Journal was defaulted from the Waiver's own Type",
                     trigger: ".o_field_many2one[name='journal_id'] input",
                     run: function () {

@@ -11,13 +11,13 @@
     <field name="arch" type="xml">
         <data>
             <xpath
-                    expr="//page[@name='schedule']//tree/field[@name='amount_realized']"
+                    expr="//field[@name='schedule_ids']/tree/field[@name='amount_realized']"
                     position="after"
                 >
                 <field name="deduction_id" />
             </xpath>
             <xpath
-                    expr="//page[@name='schedule']//form//field[@name='amount_realized']"
+                    expr="//field[@name='schedule_ids']/form//field[@name='amount_realized']"
                     position="after"
                 >
                 <field name="deduction_id" />
