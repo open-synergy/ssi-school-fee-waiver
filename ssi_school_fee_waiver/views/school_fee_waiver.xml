@@ -69,7 +69,6 @@
     <field name="arch" type="xml">
         <data>
             <xpath expr="//header" position="inside">
-                <field name="generate_schedule_ok" invisible="1" />
                 <button
                         name="action_generate_schedule"
                         type="object"
