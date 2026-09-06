@@ -21,7 +21,7 @@ Available addons
 ----------------
 addon | version | maintainers | summary
 --- | --- | --- | ---
-[ssi_school_fee_waiver](ssi_school_fee_waiver/) | 14.0.1.1.3 |  | School Fee Waiver
+[ssi_school_fee_waiver](ssi_school_fee_waiver/) | 14.0.1.1.4 |  | School Fee Waiver
 [ssi_school_fee_waiver_admission](ssi_school_fee_waiver_admission/) | 14.0.1.0.1 |  | School Fee Waiver - Admission
 [ssi_school_fee_waiver_admission_operating_unit](ssi_school_fee_waiver_admission_operating_unit/) | 14.0.1.0.0 |  | School Fee Waiver - Admission - Operating Unit
 [ssi_school_fee_waiver_deduction](ssi_school_fee_waiver_deduction/) | 14.0.1.0.0 |  | School Fee Waiver Deduction
