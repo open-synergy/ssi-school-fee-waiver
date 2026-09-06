@@ -24,11 +24,12 @@
    - **Waiver** _(required)_: Select the fee waiver document this deduction realizes.
      Selecting it fills Student and Partner, and defaults **Journal** from the waiver's
      own Fee Waiver Type.
+   - **Date**: Defaults to today's date.
+4. On the **Accounting** tab, fill in:
    - **Journal** _(required)_: Defaults from the Waiver's Type; may be overridden.
    - **Receivable Account** _(required)_: Select the receivable account credited for the
      total deduction amount.
-   - **Date**: Defaults to today's date.
-4. On the **Lines** tab, add **at least one** line:
+5. On the **Lines** tab, add **at least one** line:
    - **Schedule** _(required)_: Select a Scheduled line of the selected Waiver.
      Selecting it defaults **Account** from the Schedule's own Waiver Type.
    - **Account** _(required)_: Defaults from the Schedule's own Waiver Type; may be
@@ -36,12 +37,12 @@
    - **Analytic Account**: Optional.
    - **Amount** _(required)_: The portion of the Schedule line's own Amount Planned
      being deducted now. May not exceed the Schedule line's remaining planned amount.
-5. On the **Allocations** tab, add **at least one** line:
+6. On the **Allocations** tab, add **at least one** line:
    - **Customer Invoice** _(required)_: Select an open invoice of the Waiver's own
      Partner with a positive residual.
    - **Amount** _(required)_: The portion of this document's Amount Total applied to the
      selected invoice. May not exceed the invoice's own residual.
-6. Click **Save**.
+7. Click **Save**.
 
 ## Post-Condition
 
