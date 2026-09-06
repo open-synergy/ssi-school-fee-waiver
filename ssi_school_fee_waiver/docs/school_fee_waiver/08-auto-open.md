@@ -7,11 +7,11 @@
 > **State:** `confirm` → `open`\
 > **Requires:** `05-approve`
 
-There is no **Start** button on this model: the mixin-inserted button
-(`attrs="{'invisible':[('open_ok','!=',True)]}"`) never becomes visible, since this
-model's policy template has no active row for `open_ok`. The transition to **On
-Progress** is performed automatically by `action_approve_approval` itself, right after
-the last pending approval level is fulfilled.
+There is no **Start** button on this model: `school_fee_waiver` sets
+`_automatically_insert_open_button = False`, so the mixin never inserts the button in
+the first place -- there is no active policy row for `open_ok` to grant it against. The
+transition to **On Progress** is performed automatically by `action_approve_approval`
+itself, right after the last pending approval level is fulfilled.
 
 ## Pre-Condition
 

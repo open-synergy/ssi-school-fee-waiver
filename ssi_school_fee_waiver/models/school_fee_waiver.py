@@ -55,6 +55,7 @@ class SchoolFeeWaiver(models.Model):
 
     # Attributes related to add element on view automatically
     _automatically_insert_view_element = True
+    _automatically_insert_open_button = False
 
     _statusbar_visible_label = "draft,confirm,open,done"
     _policy_field_order = [
