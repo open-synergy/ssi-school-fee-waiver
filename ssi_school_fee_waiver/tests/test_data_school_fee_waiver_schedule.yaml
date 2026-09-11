@@ -630,7 +630,9 @@ scenarios:
       - step: "Find the Category B Schedule line"
         action: "search"
         model: "school_fee_waiver_schedule"
-        domain: [["payment_term_id", "=", "REC: fs1_term5.id"]]
+        domain:
+          - ["waiver_id", "=", "REC: fs1_single_full.id"]
+          - ["payment_term_id", "=", "REC: fs1_term5.id"]
         save_as: "fs1_sched_categ"
         limit: 1
 
@@ -688,7 +690,9 @@ scenarios:
       - step: "Find the Fixed Amount Schedule line"
         action: "search"
         model: "school_fee_waiver_schedule"
-        domain: [["payment_term_id", "=", "REC: fs1_term4.id"]]
+        domain:
+          - ["waiver_id", "=", "REC: fs1_fixed.id"]
+          - ["payment_term_id", "=", "REC: fs1_term4.id"]
         save_as: "fs1_sched_fixed"
         limit: 1
 
@@ -747,7 +751,9 @@ scenarios:
       - step: "Find the Max Amount Schedule line"
         action: "search"
         model: "school_fee_waiver_schedule"
-        domain: [["payment_term_id", "=", "REC: fs1_term1.id"]]
+        domain:
+          - ["waiver_id", "=", "REC: fs1_max.id"]
+          - ["payment_term_id", "=", "REC: fs1_term1.id"]
         save_as: "fs1_sched_max"
         limit: 1
 
@@ -872,7 +878,9 @@ scenarios:
       - step: "Find the Realized-test Schedule line"
         action: "search"
         model: "school_fee_waiver_schedule"
-        domain: [["payment_term_id", "=", "REC: fs1_term6.id"]]
+        domain:
+          - ["waiver_id", "=", "REC: fs1_realized_test.id"]
+          - ["payment_term_id", "=", "REC: fs1_term6.id"]
         save_as: "fs1_sched_realize"
         limit: 1
 
