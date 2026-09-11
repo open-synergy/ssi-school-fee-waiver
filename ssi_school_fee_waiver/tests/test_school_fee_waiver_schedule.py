@@ -17,9 +17,11 @@ class TestSchoolFeeWaiverSchedule(YamlTransactionCase):
         Covers Single/Multiple Payment Terms generation, matching by
         Product and by Product Category, all three ``computation``
         values, the Max Amount ceiling, idempotent regeneration
-        (including after Skip/Cancel), Amount Waived recomputation,
-        the duplicate (Line, Payment Term) constraint, the Payment
-        Term ownership constraint, and rejection of Skip/Cancel on a
-        Realized line.
+        (including after Skip/Cancel), the regenerate guard matching
+        pairings by ``_get_source_term()`` -- a Realized line is not
+        duplicated and a newly-eligible term still gets scheduled,
+        Amount Waived recomputation, the duplicate (Line, Payment
+        Term) constraint, the Payment Term ownership constraint, and
+        rejection of Skip/Cancel on a Realized line.
         """
         self.run_yaml_scenario("test_data_school_fee_waiver_schedule.yaml")

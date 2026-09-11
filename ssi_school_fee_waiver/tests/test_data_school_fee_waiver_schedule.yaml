@@ -449,6 +449,136 @@ scenarios:
             type: "value"
             expected: "skipped"
 
+      # ── Regenerate guard matches by _get_source_term(), not the raw
+      # payment_term_id domain (issue #37): a Realized line must not
+      # be duplicated, and a term that only later becomes eligible
+      # still gets its own Schedule line ─────────────────────────────
+      - step: "Create a second multi-term waiver (Aug-Sep coverage)"
+        action: "create"
+        model: "school_fee_waiver"
+        save_as: "fs1_multi2"
+        values:
+          type_id: "REC: fs1_type.id"
+          reason_id: "REC: fs1_reason.id"
+          student_id: "REC: fs1_student.id"
+          enrollment_id: "REC: fs1_enrollment.id"
+          coverage: "multi_term"
+          date_start: 2026-08-01
+          date_end: 2026-09-30
+          user_id: "REF: base.user_admin"
+          line_ids:
+            - - 0
+              - 0
+              - product_id: "REC: fs1_product_a.id"
+                computation: "percentage"
+                percentage: 50.0
+
+      - step: "Confirm the second multi-term waiver"
+        action: "call"
+        target: "fs1_multi2"
+        method: "action_confirm"
+        as_user: "base.user_admin"
+        asserts:
+          state:
+            type: "value"
+            expected: "confirm"
+
+      - step: "Approve the second multi-term waiver"
+        action: "call"
+        target: "fs1_multi2"
+        method: "action_approve_approval"
+        as_user: "base.user_admin"
+        asserts:
+          state:
+            type: "value"
+            expected: "open"
+
+      - step: "Second waiver got Schedule lines for August and September"
+        action: "assert"
+        target: "fs1_multi2"
+        asserts:
+          schedule_ids:
+            type: "o2m"
+            check: "count"
+            expected_count: 2
+
+      - step: "Find the second waiver's own Line"
+        action: "search"
+        model: "school_fee_waiver_line"
+        domain: [["waiver_id", "=", "REC: fs1_multi2.id"]]
+        save_as: "fs1_multi2_line"
+        limit: 1
+
+      - step: "Find the second waiver's August Schedule line"
+        action: "search"
+        model: "school_fee_waiver_schedule"
+        domain:
+          - ["line_id", "=", "REC: fs1_multi2_line.id"]
+          - ["payment_term_id", "=", "REC: fs1_term2.id"]
+        save_as: "fs1_multi2_sched_aug"
+        limit: 1
+
+      - step: "Force the second waiver's August line to Realized"
+        action: "write"
+        target: "fs1_multi2_sched_aug"
+        as_user: "base.user_admin"
+        values:
+          state: "realized"
+
+      - step: "Regenerate must not duplicate the Realized August line"
+        action: "call"
+        target: "fs1_multi2"
+        method: "action_generate_schedule"
+        as_user: "base.user_admin"
+
+      - step: "Exactly one Schedule line still covers August"
+        action: "search"
+        model: "school_fee_waiver_schedule"
+        domain:
+          - ["line_id", "=", "REC: fs1_multi2_line.id"]
+          - ["payment_term_id", "=", "REC: fs1_term2.id"]
+        save_as: "fs1_multi2_sched_aug_after"
+        expect_count: 1
+
+      - step: "The surviving August line is still Realized"
+        action: "assert"
+        target: "fs1_multi2_sched_aug_after"
+        asserts:
+          state:
+            type: "value"
+            expected: "realized"
+
+      - step: "Widen the second waiver's coverage to include October"
+        action: "write"
+        target: "fs1_multi2"
+        as_user: "base.user_admin"
+        values:
+          date_end: 2026-10-31
+
+      - step: "Regenerate again after widening the date range"
+        action: "call"
+        target: "fs1_multi2"
+        method: "action_generate_schedule"
+        as_user: "base.user_admin"
+
+      - step: "October, newly eligible, gets its own Schedule line"
+        action: "search"
+        model: "school_fee_waiver_schedule"
+        domain:
+          - ["line_id", "=", "REC: fs1_multi2_line.id"]
+          - ["payment_term_id", "=", "REC: fs1_term4.id"]
+        save_as: "fs1_multi2_sched_oct"
+        expect_count: 1
+
+      - step: "Realized August survived, September and October both present"
+        action: "assert"
+        target: "fs1_multi2"
+        asserts:
+          schedule_ids:
+            type: "o2m"
+            check: "count"
+            expected_count: 3
+
       # ── Single Term, Full Coverage, matched by Product Category ────
       - step: "Create the single-term waiver (Full Coverage, by Category)"
         action: "create"
@@ -500,7 +630,9 @@ scenarios:
       - step: "Find the Category B Schedule line"
         action: "search"
         model: "school_fee_waiver_schedule"
-        domain: [["payment_term_id", "=", "REC: fs1_term5.id"]]
+        domain:
+          - ["waiver_id", "=", "REC: fs1_single_full.id"]
+          - ["payment_term_id", "=", "REC: fs1_term5.id"]
         save_as: "fs1_sched_categ"
         limit: 1
 
@@ -558,7 +690,9 @@ scenarios:
       - step: "Find the Fixed Amount Schedule line"
         action: "search"
         model: "school_fee_waiver_schedule"
-        domain: [["payment_term_id", "=", "REC: fs1_term4.id"]]
+        domain:
+          - ["waiver_id", "=", "REC: fs1_fixed.id"]
+          - ["payment_term_id", "=", "REC: fs1_term4.id"]
         save_as: "fs1_sched_fixed"
         limit: 1
 
@@ -617,7 +751,9 @@ scenarios:
       - step: "Find the Max Amount Schedule line"
         action: "search"
         model: "school_fee_waiver_schedule"
-        domain: [["payment_term_id", "=", "REC: fs1_term1.id"]]
+        domain:
+          - ["waiver_id", "=", "REC: fs1_max.id"]
+          - ["payment_term_id", "=", "REC: fs1_term1.id"]
         save_as: "fs1_sched_max"
         limit: 1
 
@@ -742,7 +878,9 @@ scenarios:
       - step: "Find the Realized-test Schedule line"
         action: "search"
         model: "school_fee_waiver_schedule"
-        domain: [["payment_term_id", "=", "REC: fs1_term6.id"]]
+        domain:
+          - ["waiver_id", "=", "REC: fs1_realized_test.id"]
+          - ["payment_term_id", "=", "REC: fs1_term6.id"]
         save_as: "fs1_sched_realize"
         limit: 1
 
