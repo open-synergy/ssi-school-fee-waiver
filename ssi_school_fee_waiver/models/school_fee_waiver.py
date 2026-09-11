@@ -550,7 +550,14 @@ Solution: The realized period can no longer be withdrawn by cancelling this waiv
         Schedule line in ``realized``, ``skipped``, or ``cancelled``
         is left untouched -- it is never a match target for deletion
         or a duplicate target for creation, so a period already
-        settled or withdrawn survives regeneration unchanged.
+        settled or withdrawn survives regeneration unchanged. The
+        pairing is matched through each existing Schedule line's own
+        ``_get_source_term()`` -- its effective source term -- rather
+        than the raw ``payment_term_id`` field, so an extension module
+        that keys its Schedule lines off a different source field
+        (e.g. ``admission_payment_term_id``) is still matched
+        correctly and does not get its already-realized/skipped/
+        cancelled lines duplicated.
 
         :param bypass_policy_check: skip the ``generate_schedule_ok``
             policy check, used when called from
@@ -565,20 +572,17 @@ Solution: The realized period can no longer be withdrawn by cancelling this waiv
             lambda schedule: schedule.state in ("draft", "scheduled")
         )
         stale.unlink()
-        schedule_obj = self.env["school_fee_waiver_schedule"]
         terms = self._get_schedule_payment_terms()
         for line in self.line_ids:
+            scheduled_term_ids = line.schedule_ids.mapped(
+                lambda schedule: schedule._get_source_term().id
+            )
             for term in terms:
-                existing = schedule_obj.search(
-                    [
-                        ("line_id", "=", line.id),
-                        ("payment_term_id", "=", term.id),
-                    ],
-                    limit=1,
-                )
-                if existing:
+                if term.id in scheduled_term_ids:
                     continue
-                schedule_obj.create(self._prepare_schedule_data(line, term))
+                self.env["school_fee_waiver_schedule"].create(
+                    self._prepare_schedule_data(line, term)
+                )
 
     def _check_generate_schedule_policy(self):
         """Reject schedule generation when the policy check fails.
