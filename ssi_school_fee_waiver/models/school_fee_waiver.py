@@ -574,9 +574,9 @@ Solution: The realized period can no longer be withdrawn by cancelling this waiv
         stale.unlink()
         terms = self._get_schedule_payment_terms()
         for line in self.line_ids:
-            scheduled_term_ids = line.schedule_ids.mapped(
-                lambda schedule: schedule._get_source_term().id
-            )
+            scheduled_term_ids = [
+                schedule._get_source_term().id for schedule in line.schedule_ids
+            ]
             for term in terms:
                 if term.id in scheduled_term_ids:
                     continue
