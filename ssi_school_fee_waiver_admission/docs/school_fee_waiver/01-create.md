@@ -1,6 +1,6 @@
 # Create Fee Waiver
 
-> **Module:** ssi_school_fee_waiver_admission\
+> **Module:** `ssi_school_fee_waiver_admission`\
 > **Extends:** ssi_school_fee_waiver -- model `school_fee_waiver`, action `01-create`
 
 ## Additional Fields

@@ -1,6 +1,6 @@
 # Generate Fee Waiver Schedule
 
-> **Module:** ssi_school_fee_waiver_admission\
+> **Module:** `ssi_school_fee_waiver_admission`\
 > **Extends:** ssi_school_fee_waiver -- model `school_fee_waiver`, action `07-generate-schedule`
 
 ## Additional Post-Condition
