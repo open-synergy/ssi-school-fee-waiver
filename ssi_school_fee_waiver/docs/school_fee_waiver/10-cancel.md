@@ -1,6 +1,6 @@
 # Cancel Fee Waiver
 
-> **Module:** ssi_school_fee_waiver\
+> **Module:** `ssi_school_fee_waiver`\
 > **Model:** `school_fee_waiver`\
 > **Menu:** School > Fee Waiver > Fee Waivers\
 > **Actor:** user in group `Validator`\
