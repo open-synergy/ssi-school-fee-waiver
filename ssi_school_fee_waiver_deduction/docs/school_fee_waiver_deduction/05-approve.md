@@ -1,6 +1,6 @@
 # Approve Fee Waiver Deduction
 
-> **Module:** ssi_school_fee_waiver_deduction\
+> **Module:** `ssi_school_fee_waiver_deduction`\
 > **Model:** `school_fee_waiver_deduction`\
 > **Menu:** School > Fee Waiver > Fee Waiver Deductions\
 > **Actor:** approver on the pending approval level\
