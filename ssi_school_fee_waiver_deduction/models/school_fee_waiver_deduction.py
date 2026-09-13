@@ -462,6 +462,22 @@ Solution: Allocate the full Amount Total across the Allocation lines
         entry cannot be deleted while its lines are still
         reconciled.
 
+        ``remove_move_reconcile()`` only unlinks the
+        ``account.partial.reconcile`` rows matched against THIS
+        document's own ``receivable_move_line_id`` -- never a partial
+        belonging to another document reconciled against the same
+        invoice. When the invoice was fully paid, one
+        ``account.full.reconcile`` grouped every one of those partials
+        together, so unlinking this document's own partial deletes
+        that full reconcile too (core's own
+        ``account.partial.reconcile.unlink()``); but ``full_reconcile_id``
+        is a plain Many2one with no explicit ``ondelete``, so Odoo's
+        default ``"set null"`` applies wherever it pointed, and no
+        other partial is deleted. A customer payment reconciled
+        against the same invoice therefore stays reconciled after
+        this document is cancelled -- only this document's own share
+        of the reconciliation is undone.
+
         :return: nothing
         """
         self.ensure_one()

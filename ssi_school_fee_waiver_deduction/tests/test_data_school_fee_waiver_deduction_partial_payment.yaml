@@ -1,0 +1,672 @@
+# Copyright 2026 OpenSynergy Indonesia
+# Copyright 2026 PT. Simetri Sinergi Indonesia
+# License AGPL-3.0 or later (http://www.gnu.org/licenses/agpl).
+#
+# T-01 (odoo-development-unit-test/test-traps.md): scenarios in one YAML file
+# share a single, un-rolled-back DB transaction, and a top-level `setup:`
+# block is replayed before EVERY scenario in the file. This file therefore
+# uses exactly ONE scenario with no `setup:` block, so T-01's fixture-replay
+# trap does not apply here. Fixture codes use the `PP1*`/`pp1_*` prefix,
+# deliberately different from `FWD1*` (test_data_school_fee_waiver_deduction.
+# yaml) and `P2*` (test_school_fee_waiver_deduction.py), so both files can
+# run against the same database without unique-constraint collisions.
+options:
+  auto_refresh: true
+scenarios:
+  - name: "Deduction cancel on a partially-paid invoice only unreconciles its own share"
+    steps:
+      # ── Fixture chain ─────────────────────────────────────────────────
+      - step: "Create the grade type"
+        action: "create"
+        model: "school_grade_type"
+        save_as: "pp1_grade_type"
+        values:
+          name: "PP1 Grade Type"
+          code: "PP1GT"
+
+      - step: "Create the school"
+        action: "create"
+        model: "school"
+        save_as: "pp1_school"
+        values:
+          name: "PP1 School"
+          code: "PP1SC"
+          grade_type_id: "REC: pp1_grade_type.id"
+
+      - step: "Create the academic year"
+        action: "create"
+        model: "school_academic_year"
+        save_as: "pp1_academic_year"
+        values:
+          name: "PP1 Academic Year"
+          code: "PP1AY"
+          date_start: 2026-07-01
+          date_end: 2027-06-30
+
+      - step: "Create the academic term"
+        action: "create"
+        model: "school_academic_term"
+        save_as: "pp1_academic_term"
+        values:
+          name: "PP1 Term"
+          code: "PP1TM"
+          date_start: 2026-07-01
+          date_end: 2026-12-31
+          year_id: "REC: pp1_academic_year.id"
+
+      - step: "Create the grade"
+        action: "create"
+        model: "school_grade"
+        save_as: "pp1_grade"
+        values:
+          name: "PP1 Grade"
+          code: "PP1GR"
+          type_id: "REC: pp1_grade_type.id"
+
+      - step: "Create the grade class"
+        action: "create"
+        model: "school_grade_class"
+        save_as: "pp1_grade_class"
+        values:
+          name: "PP1 Class"
+          code: "PP1CL"
+          school_id: "REC: pp1_school.id"
+          grade_id: "REC: pp1_grade.id"
+
+      - step: "Create the student contact"
+        action: "create"
+        model: "res.partner"
+        save_as: "pp1_contact"
+        values:
+          name: "PP1 Contact"
+
+      - step: "Create the student"
+        action: "create"
+        model: "school_student"
+        save_as: "pp1_student"
+        values:
+          name: "PP1 Student"
+          code: "PP1ST"
+          contact_id: "REC: pp1_contact.id"
+          school_id: "REC: pp1_school.id"
+
+      - step: "Create the enrollment"
+        action: "create"
+        model: "school_enrollment"
+        save_as: "pp1_enrollment"
+        values:
+          academic_year_id: "REC: pp1_academic_year.id"
+          academic_term_id: "REC: pp1_academic_term.id"
+          school_id: "REC: pp1_school.id"
+          grade_id: "REC: pp1_grade.id"
+          grade_class_id: "REC: pp1_grade_class.id"
+          student_id: "REC: pp1_student.id"
+
+      - step: "Get the account.account.type Receivable reference"
+        action: "ref"
+        xml_id: "account.data_account_type_receivable"
+        save_as: "pp1_receivable_acc_type"
+
+      - step: "Get the account.account.type Income reference"
+        action: "ref"
+        xml_id: "account.data_account_type_revenue"
+        save_as: "pp1_income_acc_type"
+
+      - step: "Get the account.account.type Expense reference"
+        action: "ref"
+        xml_id: "account.data_account_type_expenses"
+        save_as: "pp1_expense_acc_type"
+
+      - step: "Get the account.account.type Liquidity reference"
+        action: "ref"
+        xml_id: "account.data_account_type_liquidity"
+        save_as: "pp1_liquidity_acc_type"
+
+      - step: "Create the shared Receivable Account"
+        action: "create"
+        model: "account.account"
+        save_as: "pp1_receivable_account"
+        values:
+          name: "PP1 Receivable Account"
+          code: "PP1RA"
+          user_type_id: "REC: pp1_receivable_acc_type.id"
+          reconcile: true
+
+      - step: "Create the income account used by the payment term and invoice"
+        action: "create"
+        model: "account.account"
+        save_as: "pp1_income_account"
+        values:
+          name: "PP1 Income Account"
+          code: "PP1IA"
+          user_type_id: "REC: pp1_income_acc_type.id"
+          reconcile: false
+
+      - step: "Create the discount (contra-revenue) account"
+        action: "create"
+        model: "account.account"
+        save_as: "pp1_discount_account"
+        values:
+          name: "PP1 Discount Account"
+          code: "PP1DA"
+          user_type_id: "REC: pp1_expense_acc_type.id"
+          reconcile: false
+
+      - step: "Create the liquidity account used by the customer payment"
+        action: "create"
+        model: "account.account"
+        save_as: "pp1_liquidity_account"
+        values:
+          name: "PP1 Liquidity Account"
+          code: "PP1LQ"
+          user_type_id: "REC: pp1_liquidity_acc_type.id"
+          reconcile: false
+
+      - step: "Create the deduction journal"
+        action: "create"
+        model: "account.journal"
+        save_as: "pp1_deduction_journal"
+        values:
+          name: "PP1 Deduction Journal"
+          code: "PP1DJ"
+          type: "general"
+
+      - step: "Create the sale journal (customer invoices)"
+        action: "create"
+        model: "account.journal"
+        save_as: "pp1_sale_journal"
+        values:
+          name: "PP1 Sale Journal"
+          code: "PP1SJ"
+          type: "sale"
+
+      - step: "Create the general journal used by the customer payment"
+        action: "create"
+        model: "account.journal"
+        save_as: "pp1_payment_journal"
+        values:
+          name: "PP1 Payment Journal"
+          code: "PP1PJ"
+          type: "general"
+
+      - step: "Create the product covered by the waiver line"
+        action: "create"
+        model: "product.product"
+        save_as: "pp1_product"
+        values:
+          name: "PP1 Product"
+          type: "service"
+
+      - step: "Create the (single) Payment Term, billed 1,000,000"
+        action: "create"
+        model: "school_enrollment_payment_term"
+        save_as: "pp1_term"
+        values:
+          enrollment_id: "REC: pp1_enrollment.id"
+          name: "PP1 Term"
+          date_due: 2026-08-15
+          detail_ids:
+            - - 0
+              - 0
+              - product_id: "REC: pp1_product.id"
+                name: "PP1 Term Fee"
+                account_id: "REC: pp1_income_account.id"
+                uom_quantity: 1.0
+                uom_id: "REF: uom.product_uom_unit"
+                price_unit: 1000000.0
+
+      - step: "Create the fee waiver type, with deduction accounting defaults"
+        action: "create"
+        model: "school_fee_waiver_type"
+        save_as: "pp1_type"
+        values:
+          name: "PP1 Type"
+          code: "PP1TY"
+          deduction_journal_id: "REC: pp1_deduction_journal.id"
+          discount_account_id: "REC: pp1_discount_account.id"
+
+      - step: "Create the fee waiver reason"
+        action: "create"
+        model: "school_fee_waiver_reason"
+        save_as: "pp1_reason"
+        values:
+          name: "PP1 Reason"
+          code: "PP1RS"
+
+      - step: "Create the fee waiver document (Single Payment Term, fixed 400,000)"
+        action: "create"
+        model: "school_fee_waiver"
+        save_as: "pp1_waiver"
+        values:
+          type_id: "REC: pp1_type.id"
+          reason_id: "REC: pp1_reason.id"
+          student_id: "REC: pp1_student.id"
+          enrollment_id: "REC: pp1_enrollment.id"
+          coverage: "single_term"
+          payment_term_id: "REC: pp1_term.id"
+          user_id: "REF: base.user_admin"
+          line_ids:
+            - - 0
+              - 0
+              - product_id: "REC: pp1_product.id"
+                computation: "fixed"
+                amount_fixed: 400000.0
+
+      - step: "Confirm the fee waiver"
+        action: "call"
+        target: "pp1_waiver"
+        method: "action_confirm"
+        as_user: "base.user_admin"
+        asserts:
+          state:
+            type: "value"
+            expected: "confirm"
+
+      - step: "Force a refresh before reading approve_ok (T-04)"
+        action: "assert"
+        target: "pp1_waiver"
+        asserts:
+          state:
+            type: "value"
+            expected: "confirm"
+
+      - step: "Approve the fee waiver -- auto-opens (single level)"
+        action: "call"
+        target: "pp1_waiver"
+        method: "action_approve_approval"
+        as_user: "base.user_admin"
+        asserts:
+          state:
+            type: "value"
+            expected: "open"
+
+      - step: "Waiver Schedule was auto-generated for the single term"
+        action: "assert"
+        target: "pp1_waiver"
+        asserts:
+          schedule_ids:
+            type: "o2m"
+            check: "count"
+            expected_count: 1
+
+      - step: "Find the Term's Schedule line"
+        action: "search"
+        model: "school_fee_waiver_schedule"
+        domain:
+          [
+            ["waiver_id", "=", "REC: pp1_waiver.id"],
+            ["payment_term_id", "=", "REC: pp1_term.id"],
+          ]
+        save_as: "pp1_schedule"
+        limit: 1
+
+      - step: "Schedule line is Scheduled with the fixed Amount Planned"
+        action: "assert"
+        target: "pp1_schedule"
+        asserts:
+          state:
+            type: "value"
+            expected: "scheduled"
+          amount_planned:
+            type: "value"
+            expected: 400000.0
+
+      # ── Bill the invoice, at the term's full 1,000,000 ────────────────
+      - step: "Create the customer invoice type"
+        action: "create"
+        model: "customer_invoice_type"
+        save_as: "pp1_invoice_type"
+        values:
+          name: "PP1 Invoice Type"
+          code: "/"
+          journal_id: "REC: pp1_sale_journal.id"
+          receivable_account_id: "REC: pp1_receivable_account.id"
+
+      - step: "Create the customer invoice"
+        action: "create"
+        model: "customer_invoice"
+        save_as: "pp1_invoice"
+        values:
+          type_id: "REC: pp1_invoice_type.id"
+          partner_id: "REC: pp1_contact.id"
+          date: 2026-08-20
+          date_due: 2026-09-20
+          currency_id: "REC: company.currency_id.id"
+          journal_id: "REC: pp1_sale_journal.id"
+          receivable_account_id: "REC: pp1_receivable_account.id"
+
+      - step: "Add a detail line to the invoice"
+        action: "create"
+        model: "customer_invoice.line"
+        save_as: "pp1_invoice_line"
+        values:
+          customer_invoice_id: "REC: pp1_invoice.id"
+          name: "Line"
+          account_id: "REC: pp1_income_account.id"
+          uom_quantity: 1
+          price_unit: 1000000.0
+
+      - step: "Confirm the invoice"
+        action: "call"
+        target: "pp1_invoice"
+        method: "action_confirm"
+        as_user: "base.user_admin"
+        asserts:
+          state:
+            type: "value"
+            expected: "confirm"
+
+      - step: "Force a refresh before reading approve_ok (T-04)"
+        action: "assert"
+        target: "pp1_invoice"
+        asserts:
+          state:
+            type: "value"
+            expected: "confirm"
+
+      - step: "Approve the invoice -- auto-opens (single level)"
+        action: "call"
+        target: "pp1_invoice"
+        method: "action_approve_approval"
+        as_user: "base.user_admin"
+        asserts:
+          state:
+            type: "value"
+            expected: "open"
+          amount_residual:
+            type: "value"
+            expected: 1000000.0
+          receivable_move_line_id:
+            type: "value"
+            operator: "is_truthy"
+
+      # ── Positive: a customer payment PARTIALLY pays the invoice ───────
+      - step: "Create the customer payment as a plain, posted journal entry"
+        action: "create"
+        model: "account.move"
+        save_as: "pp1_payment_move"
+        values:
+          journal_id: "REC: pp1_payment_journal.id"
+          date: 2026-08-25
+          ref: "PP1 Customer Payment"
+          line_ids:
+            - - 0
+              - 0
+              - name: "PP1 Customer Payment - Liquidity"
+                account_id: "REC: pp1_liquidity_account.id"
+                partner_id: "REC: pp1_contact.id"
+                debit: 600000.0
+                credit: 0.0
+            - - 0
+              - 0
+              - name: "PP1 Customer Payment - Receivable"
+                account_id: "REC: pp1_receivable_account.id"
+                partner_id: "REC: pp1_contact.id"
+                debit: 0.0
+                credit: 600000.0
+
+      - step: "Post the customer payment"
+        action: "call"
+        target: "pp1_payment_move"
+        method: "action_post"
+        asserts:
+          state:
+            type: "value"
+            expected: "posted"
+
+      - step: "Find the payment's own Receivable journal item"
+        action: "search"
+        model: "account.move.line"
+        domain:
+          [
+            ["move_id", "=", "REC: pp1_payment_move.id"],
+            ["account_id", "=", "REC: pp1_receivable_account.id"],
+          ]
+        save_as: "pp1_payment_receivable_line"
+        expect_count: 1
+
+      - step: "Find both Receivable journal items (payment + invoice)"
+        action: "search"
+        model: "account.move.line"
+        domain:
+          [
+            [
+              "id",
+              "in",
+              [
+                "REC: pp1_payment_receivable_line.id",
+                "REC: pp1_invoice.receivable_move_line_id.id",
+              ],
+            ],
+          ]
+        save_as: "pp1_payment_reconcile_lines"
+        expect_count: 2
+
+      - step: "Reconcile the payment against the invoice (partial)"
+        action: "call"
+        target: "pp1_payment_reconcile_lines"
+        method: "reconcile"
+
+      - step: "Invoice residual dropped by the payment; still Open"
+        action: "assert"
+        target: "pp1_invoice"
+        asserts:
+          amount_residual:
+            type: "value"
+            expected: 400000.0
+          state:
+            type: "value"
+            expected: "open"
+
+      - step: "The payment's own Receivable line is now fully reconciled"
+        action: "assert"
+        target: "pp1_payment_receivable_line"
+        asserts:
+          reconciled:
+            type: "value"
+            expected: true
+          amount_residual:
+            type: "value"
+            expected: 0.0
+
+      # ── Draft the Deduction up front so the negative check below can
+      # attach its (rejected) Allocation to a real document, then reuse
+      # the very same Deduction for the positive path. ───────────────────
+      - step: "Create the fee waiver deduction document (draft)"
+        action: "create"
+        model: "school_fee_waiver_deduction"
+        save_as: "pp1_deduction"
+        values:
+          waiver_id: "REC: pp1_waiver.id"
+          journal_id: "REC: pp1_deduction_journal.id"
+          receivable_account_id: "REC: pp1_receivable_account.id"
+          date: 2026-08-26
+
+      # ── Negative: an Allocation may not exceed the invoice's CURRENT
+      # residual (400,000 after the partial payment above), not its
+      # original Amount Total. ───────────────────────────────────────────
+      - step: "Reject an Allocation of 500,000 against a 400,000 residual"
+        action: "create"
+        model: "school_fee_waiver_deduction_allocation"
+        values:
+          deduction_id: "REC: pp1_deduction.id"
+          customer_invoice_id: "REC: pp1_invoice.id"
+          amount: 500000.0
+        expect_error:
+          type: "ValidationError"
+          message_contains: "exceeds invoice"
+
+      # ── Positive: the Deduction covers the remaining 400,000 ──────────
+      - step: "Add the Deduction Line (realizing the Schedule, 400,000)"
+        action: "create"
+        model: "school_fee_waiver_deduction_line"
+        save_as: "pp1_deduction_line"
+        values:
+          deduction_id: "REC: pp1_deduction.id"
+          schedule_id: "REC: pp1_schedule.id"
+          account_id: "REC: pp1_discount_account.id"
+          amount: 400000.0
+
+      - step: "Add the Allocation (closing the invoice's remaining residual)"
+        action: "create"
+        model: "school_fee_waiver_deduction_allocation"
+        save_as: "pp1_allocation"
+        values:
+          deduction_id: "REC: pp1_deduction.id"
+          customer_invoice_id: "REC: pp1_invoice.id"
+          amount: 400000.0
+
+      - step: "Confirm the deduction document"
+        action: "call"
+        target: "pp1_deduction"
+        method: "action_confirm"
+        as_user: "base.user_admin"
+        asserts:
+          state:
+            type: "value"
+            expected: "confirm"
+
+      - step: "Force a refresh before reading approve_ok (T-04)"
+        action: "assert"
+        target: "pp1_deduction"
+        asserts:
+          state:
+            type: "value"
+            expected: "confirm"
+
+      - step: "Approve the deduction document -- auto-opens (single level)"
+        action: "call"
+        target: "pp1_deduction"
+        method: "action_approve_approval"
+        as_user: "base.user_admin"
+        asserts:
+          state:
+            type: "value"
+            expected: "open"
+          reconciled:
+            type: "value"
+            expected: true
+
+      - step: "Invoice is now fully paid"
+        action: "assert"
+        target: "pp1_invoice"
+        asserts:
+          amount_residual:
+            type: "value"
+            expected: 0.0
+          state:
+            type: "value"
+            expected: "done"
+
+      - step: "Schedule line is Realized, pointing at this document"
+        action: "assert"
+        target: "pp1_schedule"
+        asserts:
+          state:
+            type: "value"
+            expected: "realized"
+          amount_realized:
+            type: "value"
+            expected: 400000.0
+          deduction_id:
+            type: "m2o"
+            expected: "REC: pp1_deduction"
+
+      # ── Capture the deduction's OWN receivable line before cancel
+      # clears it (``receivable_move_line_id`` reverts to falsy once
+      # ``_20_delete_accounting_entry`` deletes its move). ───────────────
+      - step: "Capture the deduction's own Receivable journal item"
+        action: "search"
+        model: "account.move.line"
+        domain: [["id", "=", "REC: pp1_deduction.receivable_move_line_id.id"]]
+        save_as: "pp1_deduction_receivable_line"
+        expect_count: 1
+
+      # ── Positive: cancelling only unreconciles THIS document's share ──
+      - step: "Create the cancellation reason"
+        action: "create"
+        model: "base.cancel_reason"
+        save_as: "pp1_cancel_reason"
+        values:
+          name: "PP1 Cancel Reason"
+          code: "PP1CR"
+          global_use: true
+
+      - step: "Cancel the deduction document via the wizard"
+        action: "wizard"
+        model: "base.select_cancel_reason"
+        target: "pp1_deduction"
+        as_user: "base.user_admin"
+        values:
+          cancel_reason_id: "REC: pp1_cancel_reason"
+        method: "action_confirm"
+        asserts:
+          state:
+            type: "value"
+            expected: "cancel"
+
+      - step: "The deduction's own journal entry link was cleared"
+        action: "assert"
+        target: "pp1_deduction"
+        asserts:
+          move_id:
+            type: "value"
+            operator: "is_falsy"
+
+      - step: "Invoice residual is restored to exactly the Deduction's share"
+        action: "assert"
+        target: "pp1_invoice"
+        asserts:
+          amount_residual:
+            type: "value"
+            expected: 400000.0
+          state:
+            type: "value"
+            expected: "open"
+
+      - step: "Invoice's own Receivable line lost its full reconcile"
+        action: "assert"
+        target: "pp1_invoice"
+        asserts:
+          receivable_move_line_id.full_reconcile_id:
+            type: "value"
+            operator: "is_falsy"
+
+      - step: "Schedule line reverted to Scheduled"
+        action: "assert"
+        target: "pp1_schedule"
+        asserts:
+          state:
+            type: "value"
+            expected: "scheduled"
+          amount_realized:
+            type: "value"
+            expected: 0.0
+          deduction_id:
+            type: "value"
+            operator: "is_falsy"
+
+      - step: "The payment's own Receivable line is STILL fully reconciled"
+        action: "assert"
+        target: "pp1_payment_receivable_line"
+        asserts:
+          reconciled:
+            type: "value"
+            expected: true
+          amount_residual:
+            type: "value"
+            expected: 0.0
+
+      - step: "Exactly one partial reconcile remains: the payment's own"
+        action: "search"
+        model: "account.partial.reconcile"
+        domain: [["credit_move_id", "=", "REC: pp1_payment_receivable_line.id"]]
+        save_as: "pp1_surviving_partial"
+        expect_count: 1
+
+      - step: "No partial reconcile remains for the cancelled Deduction"
+        action: "search"
+        model: "account.partial.reconcile"
+        domain: [["credit_move_id", "=", "REC: pp1_deduction_receivable_line.id"]]
+        save_as: "pp1_deduction_partials_gone"
+        expect_count: 0
