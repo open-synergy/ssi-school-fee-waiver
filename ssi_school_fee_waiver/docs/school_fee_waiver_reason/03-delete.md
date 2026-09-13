@@ -1,6 +1,6 @@
 # Delete Fee Waiver Reason
 
-> **Module:** ssi_school_fee_waiver\
+> **Module:** `ssi_school_fee_waiver`\
 > **Model:** `school_fee_waiver_reason`\
 > **Menu:** School > Configuration > Fee Waiver > Fee Waiver Reasons\
 > **Actor:** user in group `Fee Waiver Reason`\
