@@ -1,6 +1,6 @@
 # Create Fee Waiver Type
 
-> **Module:** ssi_school_fee_waiver\
+> **Module:** `ssi_school_fee_waiver`\
 > **Model:** `school_fee_waiver_type`\
 > **Menu:** School > Configuration > Fee Waiver > Fee Waiver Types\
 > **Actor:** user in group `Fee Waiver Type`
