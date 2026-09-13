@@ -1,6 +1,6 @@
 # Create Fee Waiver Type
 
-> **Module:** ssi_school_fee_waiver_operating_unit\
+> **Module:** `ssi_school_fee_waiver_operating_unit`\
 > **Extends:** ssi_school_fee_waiver — model `school_fee_waiver_type`, action `01-create`
 
 ## Additional Fields
