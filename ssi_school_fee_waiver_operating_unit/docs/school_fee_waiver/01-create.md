@@ -1,6 +1,6 @@
 # Create Fee Waiver
 
-> **Module:** ssi_school_fee_waiver_operating_unit\
+> **Module:** `ssi_school_fee_waiver_operating_unit`\
 > **Extends:** ssi_school_fee_waiver — model `school_fee_waiver`, action `01-create`
 
 ## Additional Post-Condition
