@@ -20,6 +20,7 @@ msgid "Admission"
 msgstr ""
 
 #. module: ssi_school_fee_waiver_admission
+#: model:ir.model.fields,field_description:ssi_school_fee_waiver_admission.field_school_fee_waiver__admission_payment_term_id
 #: model:ir.model.fields,field_description:ssi_school_fee_waiver_admission.field_school_fee_waiver_schedule__admission_payment_term_id
 msgid "Admission Payment Term"
 msgstr ""
@@ -71,6 +72,15 @@ msgstr ""
 #: model:ir.model.fields,field_description:ssi_school_fee_waiver_admission.field_school_fee_waiver____last_update
 #: model:ir.model.fields,field_description:ssi_school_fee_waiver_admission.field_school_fee_waiver_schedule____last_update
 msgid "Last Modified on"
+msgstr ""
+
+#. module: ssi_school_fee_waiver_admission
+#: model:ir.model.fields,help:ssi_school_fee_waiver_admission.field_school_fee_waiver__admission_payment_term_id
+msgid ""
+"Payment term this waiver closes out, restricted to payment terms of the "
+"selected Admission. Required when Billing Source is Admission and Coverage "
+"is Single Payment Term -- enforced by ``_check_coverage_payment_term``, not "
+"by this field itself. Must be empty when Coverage is Multiple Payment Terms."
 msgstr ""
 
 #. module: ssi_school_fee_waiver_admission
