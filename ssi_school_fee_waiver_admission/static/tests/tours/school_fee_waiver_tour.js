@@ -54,12 +54,12 @@ odoo.define("ssi_school_fee_waiver_admission.school_fee_waiver_tour", function (
     // odoo-development-ui-test, scope-and-boundaries.md §1 ("Backing
     // dua file: tour extension = base IK ∪ delta IK"). The delta
     // itself: switching Billing Source to Admission hides Enrollment
-    // and reveals Admission; Payment Term is also hidden, so Coverage
-    // is set to Multiple Payment Terms (Single Payment Term is not
-    // wired for Admission by this module -- see the IK's own note).
-    // The tour verifies the fields are present and the record is
-    // saved, not the values it derives (that is
-    // odoo-development-unit-test's job).
+    // and reveals Admission; Payment Term is also hidden, and with
+    // Coverage left at its default Single Payment Term, Admission
+    // Payment Term is revealed and selected instead. The tour
+    // verifies the fields are present and the record is saved, not
+    // the values it derives (that is odoo-development-unit-test's
+    // job).
     tour.register(
         "ssi_school_fee_waiver_admission_school_fee_waiver_create",
         {test: true, url: "/web"},
@@ -134,20 +134,26 @@ odoo.define("ssi_school_fee_waiver_admission.school_fee_waiver_tour", function (
                     ".ui-autocomplete .ui-menu-item:not(.o_m2o_dropdown_option) a:contains(TOUR-ADM-FW-ADM-001)",
                 in_modal: false,
             },
+            // ── Coverage stays at its default, Single Payment Term --
+            // Admission Payment Term is already revealed by that
+            // default plus Billing Source Admission just selected.
             {
-                content: "Switch Coverage to Multiple Payment Terms",
-                trigger: "select.o_field_widget[name='coverage']",
-                run: "text Multiple Payment Terms",
+                content: "Admission Payment Term field is now displayed",
+                trigger: ".o_field_many2one[name='admission_payment_term_id']",
+                run: function () {
+                    // Assertion only; do not trigger the default click.
+                },
             },
             {
-                content: "Fill in Start Date",
-                trigger: ".o_field_widget[name='date_start'] input",
-                run: "text 08/01/2026",
+                content: "Select the Admission Payment Term",
+                trigger: ".o_field_many2one[name='admission_payment_term_id'] input",
+                run: "text TOUR ADM FW ADM TERM 1",
             },
             {
-                content: "Fill in End Date",
-                trigger: ".o_field_widget[name='date_end'] input",
-                run: "text 10/31/2026",
+                content: "Pick the Admission Payment Term from the dropdown",
+                trigger:
+                    ".ui-autocomplete .ui-menu-item:not(.o_m2o_dropdown_option) a:contains(TOUR ADM FW ADM TERM 1)",
+                in_modal: false,
             },
             // ── Base Flow -- add a Line so the record can be saved.
             {

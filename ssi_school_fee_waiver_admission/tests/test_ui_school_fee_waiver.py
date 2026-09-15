@@ -117,6 +117,18 @@ class TestUiSchoolFeeWaiverAdmission(HttpSavepointCase):
         bypass.action_confirm()
         bypass.action_approve_approval()
 
+        # A single payment term for the create tour to pick as
+        # Admission Payment Term when it switches Coverage to Single
+        # Payment Term -- no detail lines are needed since the tour
+        # only selects the record, it never inspects its amount.
+        cls.tour_admission_term = cls.env["school_admission_payment_term"].create(
+            {
+                "admission_id": cls.tour_admission.id,
+                "name": "TOUR ADM FW ADM TERM 1",
+                "date_due": "2026-08-15",
+            }
+        )
+
         # ── Pre-Condition for 07-generate-schedule -- a second
         # Admission, an Admission-sourced waiver already On Progress
         # (one Schedule line auto-generated for the Payment Term that

@@ -550,6 +550,264 @@ scenarios:
             type: "value"
             expected: 800000.0
 
+  - name: "Fee Waiver Admission - Single Payment Term"
+    steps:
+      # ── Shared fixture chain (suffix ADM5) ───────────────────────
+      - step: "Create the grade type"
+        action: "create"
+        model: "school_grade_type"
+        save_as: "grade_type5"
+        values:
+          name: "ADM5 Grade Type"
+          code: "ADM5GT"
+
+      - step: "Create the school"
+        action: "create"
+        model: "school"
+        save_as: "school5"
+        values:
+          name: "ADM5 School"
+          code: "ADM5SC"
+          grade_type_id: "REC: grade_type5.id"
+
+      - step: "Create the academic year"
+        action: "create"
+        model: "school_academic_year"
+        save_as: "academic_year5"
+        values:
+          name: "ADM5 Academic Year"
+          code: "ADM5AY"
+          date_start: 2026-07-01
+          date_end: 2027-06-30
+
+      - step: "Create the academic term"
+        action: "create"
+        model: "school_academic_term"
+        save_as: "academic_term5"
+        values:
+          name: "ADM5 Term"
+          code: "ADM5TM"
+          date_start: 2026-07-01
+          date_end: 2026-12-31
+          year_id: "REC: academic_year5.id"
+
+      - step: "Create the grade"
+        action: "create"
+        model: "school_grade"
+        save_as: "grade5"
+        values:
+          name: "ADM5 Grade"
+          code: "ADM5GR"
+          type_id: "REC: grade_type5.id"
+
+      - step: "Create the admission student's contact"
+        action: "create"
+        model: "res.partner"
+        save_as: "admission_contact5"
+        values:
+          name: "ADM5 Admission Contact"
+
+      - step: "Create the admission"
+        action: "create"
+        model: "school_admission"
+        save_as: "admission5"
+        values:
+          academic_year_id: "REC: academic_year5.id"
+          academic_term_id: "REC: academic_term5.id"
+          school_id: "REC: school5.id"
+          grade_id: "REC: grade5.id"
+          student_id: "REC: admission_contact5.id"
+          user_id: "REF: base.user_admin"
+
+      - step: "Confirm the admission as admin"
+        action: "call"
+        target: "admission5"
+        method: "action_confirm"
+        as_user: "base.user_admin"
+        asserts:
+          state:
+            type: "value"
+            expected: "confirm"
+
+      - step: "Approve the admission as admin (auto-opens)"
+        action: "call"
+        target: "admission5"
+        method: "action_approve_approval"
+        as_user: "base.user_admin"
+        asserts:
+          state:
+            type: "value"
+            expected: "open"
+
+      - step: "Get the account.account.type Income reference"
+        action: "ref"
+        xml_id: "account.data_account_type_revenue"
+        save_as: "account_type_income"
+
+      - step: "Create the income account used by payment term details"
+        action: "create"
+        model: "account.account"
+        save_as: "income_account5"
+        values:
+          name: "ADM5 Income Account"
+          code: "ADM5IA"
+          user_type_id: "REC: account_type_income.id"
+          reconcile: false
+
+      - step: "Create the product covered by the waiver line"
+        action: "create"
+        model: "product.product"
+        save_as: "product5"
+        values:
+          name: "ADM5 Product"
+          type: "service"
+
+      - step: "Create Admission Payment Term 1"
+        action: "create"
+        model: "school_admission_payment_term"
+        save_as: "term5a"
+        values:
+          admission_id: "REC: admission5.id"
+          name: "ADM5 Term 1"
+          date_due: 2026-08-15
+          detail_ids:
+            - - 0
+              - 0
+              - product_id: "REC: product5.id"
+                name: "ADM5 Term 1 Fee"
+                account_id: "REC: income_account5.id"
+                uom_quantity: 1.0
+                uom_id: "REF: uom.product_uom_unit"
+                price_unit: 1000000.0
+
+      - step: "Create Admission Payment Term 2"
+        action: "create"
+        model: "school_admission_payment_term"
+        save_as: "term5b"
+        values:
+          admission_id: "REC: admission5.id"
+          name: "ADM5 Term 2"
+          date_due: 2026-09-15
+          detail_ids:
+            - - 0
+              - 0
+              - product_id: "REC: product5.id"
+                name: "ADM5 Term 2 Fee"
+                account_id: "REC: income_account5.id"
+                uom_quantity: 1.0
+                uom_id: "REF: uom.product_uom_unit"
+                price_unit: 1000000.0
+
+      - step: "Create the fee waiver type"
+        action: "create"
+        model: "school_fee_waiver_type"
+        save_as: "fw5_type"
+        values:
+          name: "ADM5 Type"
+          code: "ADM5TY"
+
+      - step: "Create the fee waiver reason"
+        action: "create"
+        model: "school_fee_waiver_reason"
+        save_as: "fw5_reason"
+        values:
+          name: "ADM5 Reason"
+          code: "ADM5RS"
+
+      # ── Positive: create with Coverage Single Payment Term against
+      # Admission Payment Term 2 -- the exact combination that used to
+      # be rejected by the base module's own constraint (issue #51).
+      - step: "Create the Admission-sourced waiver, Single Payment Term"
+        action: "create"
+        model: "school_fee_waiver"
+        save_as: "waiver5"
+        values:
+          type_id: "REC: fw5_type.id"
+          reason_id: "REC: fw5_reason.id"
+          student_id: "REC: admission5.school_student_id.id"
+          source_type: "admission"
+          admission_id: "REC: admission5.id"
+          coverage: "single_term"
+          admission_payment_term_id: "REC: term5b.id"
+          user_id: "REF: base.user_admin"
+          line_ids:
+            - - 0
+              - 0
+              - product_id: "REC: product5.id"
+                computation: "fixed"
+                amount_fixed: 250000.0
+
+      - step: "Assert derived fields came from the Admission"
+        action: "assert"
+        target: "waiver5"
+        asserts:
+          partner_id:
+            type: "m2o"
+            expected: "REC: admission_contact5"
+          school_id:
+            type: "m2o"
+            expected: "REC: school5"
+          grade_id:
+            type: "m2o"
+            expected: "REC: grade5"
+          academic_year_id:
+            type: "m2o"
+            expected: "REC: academic_year5"
+
+      - step: "Confirm the waiver as admin"
+        action: "call"
+        target: "waiver5"
+        method: "action_confirm"
+        as_user: "base.user_admin"
+        asserts:
+          state:
+            type: "value"
+            expected: "confirm"
+
+      # Refresh point required before Approve -- test-traps.md T-04.
+      - step: "Approve the waiver as admin (auto-opens, generates schedule)"
+        action: "call"
+        target: "waiver5"
+        method: "action_approve_approval"
+        as_user: "base.user_admin"
+        asserts:
+          state:
+            type: "value"
+            expected: "open"
+
+      - step: "Assert opening generated exactly one Schedule line"
+        action: "assert"
+        target: "waiver5"
+        asserts:
+          schedule_ids:
+            type: "o2m"
+            check: "count"
+            expected_count: 1
+
+      - step: "Find the Schedule line realizing Term 2"
+        action: "search"
+        model: "school_fee_waiver_schedule"
+        domain: [["waiver_id", "=", "REC: waiver5.id"]]
+        save_as: "sched5"
+        limit: 1
+
+      - step: "Assert the Schedule line used Admission Payment Term 2"
+        action: "assert"
+        target: "sched5"
+        asserts:
+          admission_payment_term_id:
+            type: "m2o"
+            expected: "REC: term5b"
+          payment_term_id:
+            type: "value"
+            operator: "is_falsy"
+          date:
+            type: "value"
+            expected: "EVAL: date(2026, 9, 15)"
+          amount_planned:
+            type: "value"
+            expected: 250000.0
+
   - name: "Fee Waiver Enrollment - regression, still generates schedule from Enrollment"
     steps:
       # ── Shared fixture chain (suffix ADM3) ───────────────────────
@@ -1010,3 +1268,149 @@ scenarios:
           date: 2026-08-01
           payment_term_id: "REC: payment_term4d.id"
           admission_payment_term_id: "REC: admission_payment_term4b.id"
+
+      # ── Negative: Single Payment Term with no Admission Payment
+      # Term (issue #51 -- the field the base constraint rejected the
+      # save for, because it was never exposed on this coverage).
+      - step: "Reject Single Payment Term with no Admission Payment Term"
+        action: "create"
+        model: "school_fee_waiver"
+        expect_error:
+          type: "ValidationError"
+          message_contains: "requires an Admission Payment Term"
+        values:
+          type_id: "REC: fw4_type.id"
+          reason_id: "REC: fw4_reason.id"
+          student_id: "REC: admission4b.school_student_id.id"
+          source_type: "admission"
+          admission_id: "REC: admission4b.id"
+          coverage: "single_term"
+
+      # ── Negative: Multiple Payment Terms with an Admission Payment
+      # Term set anyway ─────────────────────────────────────────────
+      - step: "Reject Multiple Payment Terms with an Admission Payment Term set"
+        action: "create"
+        model: "school_fee_waiver"
+        expect_error:
+          type: "ValidationError"
+          message_contains: "must not have an Admission Payment Term"
+        values:
+          type_id: "REC: fw4_type.id"
+          reason_id: "REC: fw4_reason.id"
+          student_id: "REC: admission4b.school_student_id.id"
+          source_type: "admission"
+          admission_id: "REC: admission4b.id"
+          coverage: "multi_term"
+          admission_payment_term_id: "REC: admission_payment_term4b.id"
+
+      # ── Negative: Admission Payment Term belongs to a DIFFERENT
+      # Admission than the one selected ───────────────────────────
+      - step: "Create the second admission's contact"
+        action: "create"
+        model: "res.partner"
+        save_as: "admission_contact4e"
+        values:
+          name: "ADM4 Admission Contact E"
+
+      - step: "Create Admission E, opened"
+        action: "create"
+        model: "school_admission"
+        save_as: "admission4e"
+        values:
+          academic_year_id: "REC: academic_year4.id"
+          academic_term_id: "REC: academic_term4.id"
+          school_id: "REC: school4.id"
+          grade_id: "REC: grade4.id"
+          student_id: "REC: admission_contact4e.id"
+          user_id: "REF: base.user_admin"
+
+      - step: "Confirm Admission E as admin"
+        action: "call"
+        target: "admission4e"
+        method: "action_confirm"
+        as_user: "base.user_admin"
+        asserts:
+          state:
+            type: "value"
+            expected: "confirm"
+
+      - step: "Approve Admission E as admin (auto-opens)"
+        action: "call"
+        target: "admission4e"
+        method: "action_approve_approval"
+        as_user: "base.user_admin"
+        asserts:
+          state:
+            type: "value"
+            expected: "open"
+
+      - step: "Reject an Admission Payment Term belonging to a different Admission"
+        action: "create"
+        model: "school_fee_waiver"
+        expect_error:
+          type: "ValidationError"
+          message_contains: "does not belong to Admission"
+        values:
+          type_id: "REC: fw4_type.id"
+          reason_id: "REC: fw4_reason.id"
+          student_id: "REC: admission4e.school_student_id.id"
+          source_type: "admission"
+          admission_id: "REC: admission4e.id"
+          coverage: "single_term"
+          admission_payment_term_id: "REC: admission_payment_term4b.id"
+
+      # ── Negative (regression): Enrollment + Single Payment Term
+      # with no Payment Term still rejects with the base module's own
+      # message -- proving super() is still reached for the
+      # non-Admission subset ───────────────────────────────────────
+      - step: "Create the grade class"
+        action: "create"
+        model: "school_grade_class"
+        save_as: "grade_class4f"
+        values:
+          name: "ADM4 Class F"
+          code: "ADM4CLF"
+          school_id: "REC: school4.id"
+          grade_id: "REC: grade4.id"
+
+      - step: "Create the enrollment student contact"
+        action: "create"
+        model: "res.partner"
+        save_as: "contact4f"
+        values:
+          name: "ADM4 Enrollment Contact F"
+
+      - step: "Create the enrollment student"
+        action: "create"
+        model: "school_student"
+        save_as: "student4f"
+        values:
+          name: "ADM4 Enrollment Student F"
+          code: "ADM4STF"
+          contact_id: "REC: contact4f.id"
+          school_id: "REC: school4.id"
+
+      - step: "Create the enrollment"
+        action: "create"
+        model: "school_enrollment"
+        save_as: "enrollment4f"
+        values:
+          academic_year_id: "REC: academic_year4.id"
+          academic_term_id: "REC: academic_term4.id"
+          school_id: "REC: school4.id"
+          grade_id: "REC: grade4.id"
+          grade_class_id: "REC: grade_class4f.id"
+          student_id: "REC: student4f.id"
+
+      - step: "Reject an Enrollment-sourced Single Payment Term with no Payment Term"
+        action: "create"
+        model: "school_fee_waiver"
+        expect_error:
+          type: "ValidationError"
+          message_contains: "requires a Payment Term"
+        values:
+          type_id: "REC: fw4_type.id"
+          reason_id: "REC: fw4_reason.id"
+          student_id: "REC: student4f.id"
+          enrollment_id: "REC: enrollment4f.id"
+          coverage: "single_term"

@@ -21,6 +21,13 @@
                         name="attrs"
                     >{'invisible': ['|', ('coverage', '!=', 'single_term'), ('source_type', '!=', 'enrollment')], 'required': [('coverage', '=', 'single_term'), ('source_type', '=', 'enrollment')]}</attribute>
             </xpath>
+            <xpath expr="//field[@name='payment_term_id']" position="after">
+                <field
+                        name="admission_payment_term_id"
+                        domain="[('admission_id', '=', admission_id)]"
+                        attrs="{'invisible': ['|', ('coverage', '!=', 'single_term'), ('source_type', '!=', 'admission')], 'required': [('coverage', '=', 'single_term'), ('source_type', '=', 'admission')]}"
+                    />
+            </xpath>
             <xpath
                     expr="//field[@name='schedule_ids']/tree/field[@name='payment_term_id']"
                     position="after"
