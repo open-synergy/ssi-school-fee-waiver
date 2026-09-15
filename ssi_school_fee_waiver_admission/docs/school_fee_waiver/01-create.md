@@ -15,7 +15,12 @@ When this module is installed, **Billing Source** gains a second value:
   not created one yet, so it cannot be billed against. Hidden when Billing Source is not
   Admission. Selecting it fills Partner, School, Grade, and Academic Year, the same as
   Enrollment does.
-- **Payment Term** is now also hidden when Billing Source is Admission. Building an
-  Admission-sourced waiver's Schedule against a single term of the Admission is not yet
-  supported by this module -- set Coverage to **Multiple Payment Terms** when Billing
-  Source is Admission; see `07-generate-schedule`.
+- **Payment Term** is now also hidden when Billing Source is Admission -- it names an
+  Enrollment payment term, which does not apply to an Admission-sourced waiver.
+- **Admission Payment Term** _(required when Billing Source is Admission and Coverage is
+  Single Payment Term)_: Select the payment term of the selected Admission this waiver
+  closes out, restricted to payment terms of that Admission. Hidden unless Billing
+  Source is Admission and Coverage is Single Payment Term; must be left empty when
+  Coverage is Multiple Payment Terms. Coverage Multiple Payment Terms still repeats the
+  waiver over every payment term of the Admission that falls within Start Date/End Date,
+  as described in `07-generate-schedule`.

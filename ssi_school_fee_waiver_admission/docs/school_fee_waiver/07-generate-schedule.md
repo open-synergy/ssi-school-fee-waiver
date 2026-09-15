@@ -15,3 +15,5 @@ unchanged:
 - Coverage **Multiple Payment Terms** repeats the waiver over every payment term of the
   Admission that falls within Start Date/End Date, exactly as it does against an
   Enrollment.
+- Coverage **Single Payment Term** creates exactly **one** Schedule line, realizing the
+  Admission Payment Term selected on the waiver itself -- see `01-create`.
