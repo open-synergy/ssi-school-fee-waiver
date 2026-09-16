@@ -14,9 +14,12 @@ class SchoolFeeWaiverDeductionAllocation(models.Model):
     An allocation line states how much of the deduction document's
     Amount Total (``amount``) is applied to a given open
     ``customer_invoice``, capped at that invoice's own residual. The
-    header's ``_20_reconcile`` hook merges the invoice's own
-    receivable journal item with the header's own
-    ``receivable_move_line_id`` and calls ``reconcile()``, then
+    header's ``_20_reconcile`` hook settles every allocation but the
+    last one (in this model's own ``_order``) with an
+    ``account.partial.reconcile`` created directly for exactly this
+    line's own ``amount`` -- never core's ``reconcile()``, which
+    would match ``min(residual of both lines)`` instead -- and
+    settles the last allocation through ``reconcile()`` itself, then
     snapshots the invoice's receivable journal item here as
     ``move_line_id`` for traceability.
     """

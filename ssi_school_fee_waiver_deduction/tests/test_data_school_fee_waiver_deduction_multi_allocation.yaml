@@ -1,0 +1,1003 @@
+# Copyright 2026 OpenSynergy Indonesia
+# Copyright 2026 PT. Simetri Sinergi Indonesia
+# License AGPL-3.0 or later (http://www.gnu.org/licenses/agpl).
+#
+# T-01 (odoo-development-unit-test/test-traps.md): scenarios in one YAML file
+# share a single, un-rolled-back DB transaction, and a top-level `setup:`
+# block is replayed before EVERY scenario in the file. This file therefore
+# uses exactly ONE scenario with no `setup:` block, so T-01's fixture-replay
+# trap does not apply here. Fixture codes use the `MA1*`/`ma1_*` prefix for
+# the positive path and `MA2*`/`ma2_*` for the negative path (own waiver,
+# terms and invoices, so the payment/reconcile steps in the negative path
+# cannot disturb the positive path's own assertions), deliberately
+# different from `FWD1*`/`PP1*`/`P2*` used by the other test files in this
+# module, so all of them can run against the same database without
+# unique-constraint collisions.
+options:
+  auto_refresh: true
+scenarios:
+  - name: "Deduction - Multi-Allocation reconciles each Allocation for its own Amount"
+    steps:
+      # ── Shared low-level fixtures (school hierarchy, accounts, journals,
+      # product, invoice type) -- reused by both the positive (MA1) and
+      # negative (MA2) paths below. ─────────────────────────────────────
+      - step: "Create the grade type"
+        action: "create"
+        model: "school_grade_type"
+        save_as: "ma_grade_type"
+        values:
+          name: "MA Grade Type"
+          code: "MAGT"
+
+      - step: "Create the school"
+        action: "create"
+        model: "school"
+        save_as: "ma_school"
+        values:
+          name: "MA School"
+          code: "MASC"
+          grade_type_id: "REC: ma_grade_type.id"
+
+      - step: "Create the academic year"
+        action: "create"
+        model: "school_academic_year"
+        save_as: "ma_academic_year"
+        values:
+          name: "MA Academic Year"
+          code: "MAAY"
+          date_start: 2026-07-01
+          date_end: 2027-06-30
+
+      - step: "Create the academic term"
+        action: "create"
+        model: "school_academic_term"
+        save_as: "ma_academic_term"
+        values:
+          name: "MA Term"
+          code: "MATM"
+          date_start: 2026-07-01
+          date_end: 2026-12-31
+          year_id: "REC: ma_academic_year.id"
+
+      - step: "Create the grade"
+        action: "create"
+        model: "school_grade"
+        save_as: "ma_grade"
+        values:
+          name: "MA Grade"
+          code: "MAGR"
+          type_id: "REC: ma_grade_type.id"
+
+      - step: "Create the grade class"
+        action: "create"
+        model: "school_grade_class"
+        save_as: "ma_grade_class"
+        values:
+          name: "MA Class"
+          code: "MACL"
+          school_id: "REC: ma_school.id"
+          grade_id: "REC: ma_grade.id"
+
+      - step: "Get the account.account.type Receivable reference"
+        action: "ref"
+        xml_id: "account.data_account_type_receivable"
+        save_as: "ma_receivable_acc_type"
+
+      - step: "Get the account.account.type Income reference"
+        action: "ref"
+        xml_id: "account.data_account_type_revenue"
+        save_as: "ma_income_acc_type"
+
+      - step: "Get the account.account.type Expense reference"
+        action: "ref"
+        xml_id: "account.data_account_type_expenses"
+        save_as: "ma_expense_acc_type"
+
+      - step: "Get the account.account.type Liquidity reference"
+        action: "ref"
+        xml_id: "account.data_account_type_liquidity"
+        save_as: "ma_liquidity_acc_type"
+
+      - step: "Create the shared Receivable Account"
+        action: "create"
+        model: "account.account"
+        save_as: "ma_receivable_account"
+        values:
+          name: "MA Receivable Account"
+          code: "MARA"
+          user_type_id: "REC: ma_receivable_acc_type.id"
+          reconcile: true
+
+      - step: "Create the income account used by terms and invoices"
+        action: "create"
+        model: "account.account"
+        save_as: "ma_income_account"
+        values:
+          name: "MA Income Account"
+          code: "MAIA"
+          user_type_id: "REC: ma_income_acc_type.id"
+          reconcile: false
+
+      - step: "Create the discount (contra-revenue) account"
+        action: "create"
+        model: "account.account"
+        save_as: "ma_discount_account"
+        values:
+          name: "MA Discount Account"
+          code: "MADA"
+          user_type_id: "REC: ma_expense_acc_type.id"
+          reconcile: false
+
+      - step: "Create the liquidity account used by the customer payment"
+        action: "create"
+        model: "account.account"
+        save_as: "ma_liquidity_account"
+        values:
+          name: "MA Liquidity Account"
+          code: "MALQ"
+          user_type_id: "REC: ma_liquidity_acc_type.id"
+          reconcile: false
+
+      - step: "Create the deduction journal"
+        action: "create"
+        model: "account.journal"
+        save_as: "ma_deduction_journal"
+        values:
+          name: "MA Deduction Journal"
+          code: "MADJ"
+          type: "general"
+
+      - step: "Create the sale journal (customer invoices)"
+        action: "create"
+        model: "account.journal"
+        save_as: "ma_sale_journal"
+        values:
+          name: "MA Sale Journal"
+          code: "MASJ"
+          type: "sale"
+
+      - step: "Create the general journal used by the customer payment"
+        action: "create"
+        model: "account.journal"
+        save_as: "ma_payment_journal"
+        values:
+          name: "MA Payment Journal"
+          code: "MAPJ"
+          type: "general"
+
+      - step: "Create the product covered by the waiver lines"
+        action: "create"
+        model: "product.product"
+        save_as: "ma_product"
+        values:
+          name: "MA Product"
+          type: "service"
+
+      - step: "Create the fee waiver type, with deduction accounting defaults"
+        action: "create"
+        model: "school_fee_waiver_type"
+        save_as: "ma_type"
+        values:
+          name: "MA Type"
+          code: "MATY"
+          deduction_journal_id: "REC: ma_deduction_journal.id"
+          discount_account_id: "REC: ma_discount_account.id"
+
+      - step: "Create the fee waiver reason"
+        action: "create"
+        model: "school_fee_waiver_reason"
+        save_as: "ma_reason"
+        values:
+          name: "MA Reason"
+          code: "MARS"
+
+      - step: "Create the customer invoice type"
+        action: "create"
+        model: "customer_invoice_type"
+        save_as: "ma_invoice_type"
+        values:
+          name: "MA Invoice Type"
+          code: "/"
+          journal_id: "REC: ma_sale_journal.id"
+          receivable_account_id: "REC: ma_receivable_account.id"
+
+      # ══ MA1 -- POSITIVE: a partial (non-last) Allocation reconciles for
+      # exactly its own Amount, and the last (full) Allocation still closes
+      # its invoice through core's own reconcile(). ═══════════════════════
+      - step: "MA1: create the student contact"
+        action: "create"
+        model: "res.partner"
+        save_as: "ma1_contact"
+        values:
+          name: "MA1 Contact"
+
+      - step: "MA1: create the student"
+        action: "create"
+        model: "school_student"
+        save_as: "ma1_student"
+        values:
+          name: "MA1 Student"
+          code: "MA1ST"
+          contact_id: "REC: ma1_contact.id"
+          school_id: "REC: ma_school.id"
+
+      - step: "MA1: create the enrollment"
+        action: "create"
+        model: "school_enrollment"
+        save_as: "ma1_enrollment"
+        values:
+          academic_year_id: "REC: ma_academic_year.id"
+          academic_term_id: "REC: ma_academic_term.id"
+          school_id: "REC: ma_school.id"
+          grade_id: "REC: ma_grade.id"
+          grade_class_id: "REC: ma_grade_class.id"
+          student_id: "REC: ma1_student.id"
+
+      - step: "MA1: create Payment Term 1 (300,000 -- the partial Allocation)"
+        action: "create"
+        model: "school_enrollment_payment_term"
+        save_as: "ma1_term1"
+        values:
+          enrollment_id: "REC: ma1_enrollment.id"
+          name: "MA1 Term 1"
+          date_due: 2026-08-15
+          detail_ids:
+            - - 0
+              - 0
+              - product_id: "REC: ma_product.id"
+                name: "MA1 Term 1 Fee"
+                account_id: "REC: ma_income_account.id"
+                uom_quantity: 1.0
+                uom_id: "REF: uom.product_uom_unit"
+                price_unit: 300000.0
+
+      - step: "MA1: create Payment Term 2 (200,000 -- the full Allocation)"
+        action: "create"
+        model: "school_enrollment_payment_term"
+        save_as: "ma1_term2"
+        values:
+          enrollment_id: "REC: ma1_enrollment.id"
+          name: "MA1 Term 2"
+          date_due: 2026-09-15
+          detail_ids:
+            - - 0
+              - 0
+              - product_id: "REC: ma_product.id"
+                name: "MA1 Term 2 Fee"
+                account_id: "REC: ma_income_account.id"
+                uom_quantity: 1.0
+                uom_id: "REF: uom.product_uom_unit"
+                price_unit: 200000.0
+
+      - step: "MA1: create the fee waiver document (Multiple Payment Terms)"
+        action: "create"
+        model: "school_fee_waiver"
+        save_as: "ma1_waiver"
+        values:
+          type_id: "REC: ma_type.id"
+          reason_id: "REC: ma_reason.id"
+          student_id: "REC: ma1_student.id"
+          enrollment_id: "REC: ma1_enrollment.id"
+          coverage: "multi_term"
+          date_start: 2026-07-01
+          date_end: 2026-12-31
+          user_id: "REF: base.user_admin"
+          line_ids:
+            - - 0
+              - 0
+              - product_id: "REC: ma_product.id"
+                computation: "full"
+
+      - step: "MA1: confirm the fee waiver"
+        action: "call"
+        target: "ma1_waiver"
+        method: "action_confirm"
+        as_user: "base.user_admin"
+        asserts:
+          state:
+            type: "value"
+            expected: "confirm"
+
+      - step: "MA1: approve the fee waiver"
+        action: "call"
+        target: "ma1_waiver"
+        method: "action_approve_approval"
+        as_user: "base.user_admin"
+        asserts:
+          state:
+            type: "value"
+            expected: "open"
+
+      - step: "MA1: find the Term 1 Schedule line"
+        action: "search"
+        model: "school_fee_waiver_schedule"
+        domain:
+          [
+            ["waiver_id", "=", "REC: ma1_waiver.id"],
+            ["payment_term_id", "=", "REC: ma1_term1.id"],
+          ]
+        save_as: "ma1_sched1"
+        limit: 1
+
+      - step: "MA1: find the Term 2 Schedule line"
+        action: "search"
+        model: "school_fee_waiver_schedule"
+        domain:
+          [
+            ["waiver_id", "=", "REC: ma1_waiver.id"],
+            ["payment_term_id", "=", "REC: ma1_term2.id"],
+          ]
+        save_as: "ma1_sched2"
+        limit: 1
+
+      - step: "MA1: create Invoice A (billed 1,000,000 -- the partial target)"
+        action: "create"
+        model: "customer_invoice"
+        save_as: "ma1_invoice_a"
+        values:
+          type_id: "REC: ma_invoice_type.id"
+          partner_id: "REC: ma1_contact.id"
+          date: 2026-08-20
+          date_due: 2026-09-20
+          currency_id: "REC: company.currency_id.id"
+          journal_id: "REC: ma_sale_journal.id"
+          receivable_account_id: "REC: ma_receivable_account.id"
+
+      - step: "MA1: add a detail line to Invoice A"
+        action: "create"
+        model: "customer_invoice.line"
+        save_as: "ma1_invoice_a_line"
+        values:
+          customer_invoice_id: "REC: ma1_invoice_a.id"
+          name: "Line"
+          account_id: "REC: ma_income_account.id"
+          uom_quantity: 1
+          price_unit: 1000000.0
+
+      - step: "MA1: confirm Invoice A"
+        action: "call"
+        target: "ma1_invoice_a"
+        method: "action_confirm"
+        as_user: "base.user_admin"
+        asserts:
+          state:
+            type: "value"
+            expected: "confirm"
+
+      - step: "MA1: approve Invoice A"
+        action: "call"
+        target: "ma1_invoice_a"
+        method: "action_approve_approval"
+        as_user: "base.user_admin"
+        asserts:
+          state:
+            type: "value"
+            expected: "open"
+          amount_residual:
+            type: "value"
+            expected: 1000000.0
+
+      - step: "MA1: create Invoice B (billed 200,000 -- the full target)"
+        action: "create"
+        model: "customer_invoice"
+        save_as: "ma1_invoice_b"
+        values:
+          type_id: "REC: ma_invoice_type.id"
+          partner_id: "REC: ma1_contact.id"
+          date: 2026-08-20
+          date_due: 2026-09-20
+          currency_id: "REC: company.currency_id.id"
+          journal_id: "REC: ma_sale_journal.id"
+          receivable_account_id: "REC: ma_receivable_account.id"
+
+      - step: "MA1: add a detail line to Invoice B"
+        action: "create"
+        model: "customer_invoice.line"
+        save_as: "ma1_invoice_b_line"
+        values:
+          customer_invoice_id: "REC: ma1_invoice_b.id"
+          name: "Line"
+          account_id: "REC: ma_income_account.id"
+          uom_quantity: 1
+          price_unit: 200000.0
+
+      - step: "MA1: confirm Invoice B"
+        action: "call"
+        target: "ma1_invoice_b"
+        method: "action_confirm"
+        as_user: "base.user_admin"
+        asserts:
+          state:
+            type: "value"
+            expected: "confirm"
+
+      - step: "MA1: approve Invoice B"
+        action: "call"
+        target: "ma1_invoice_b"
+        method: "action_approve_approval"
+        as_user: "base.user_admin"
+        asserts:
+          state:
+            type: "value"
+            expected: "open"
+          amount_residual:
+            type: "value"
+            expected: 200000.0
+
+      - step: "MA1: create the fee waiver deduction document"
+        action: "create"
+        model: "school_fee_waiver_deduction"
+        save_as: "ma1_deduction"
+        values:
+          waiver_id: "REC: ma1_waiver.id"
+          journal_id: "REC: ma_deduction_journal.id"
+          receivable_account_id: "REC: ma_receivable_account.id"
+          date: 2026-08-25
+
+      - step: "MA1: add Line 1 (Term 1 Schedule, 300,000)"
+        action: "create"
+        model: "school_fee_waiver_deduction_line"
+        save_as: "ma1_line1"
+        values:
+          deduction_id: "REC: ma1_deduction.id"
+          schedule_id: "REC: ma1_sched1.id"
+          account_id: "REC: ma_discount_account.id"
+          amount: 300000.0
+
+      - step: "MA1: add Line 2 (Term 2 Schedule, 200,000)"
+        action: "create"
+        model: "school_fee_waiver_deduction_line"
+        save_as: "ma1_line2"
+        values:
+          deduction_id: "REC: ma1_deduction.id"
+          schedule_id: "REC: ma1_sched2.id"
+          account_id: "REC: ma_discount_account.id"
+          amount: 200000.0
+
+      - step: "MA1: add Allocation 1 (Invoice A, PARTIAL -- 300,000 of 1,000,000)"
+        action: "create"
+        model: "school_fee_waiver_deduction_allocation"
+        save_as: "ma1_alloc1"
+        values:
+          deduction_id: "REC: ma1_deduction.id"
+          customer_invoice_id: "REC: ma1_invoice_a.id"
+          amount: 300000.0
+
+      - step: "MA1: add Allocation 2 (Invoice B, FULL -- 200,000 of 200,000)"
+        action: "create"
+        model: "school_fee_waiver_deduction_allocation"
+        save_as: "ma1_alloc2"
+        values:
+          deduction_id: "REC: ma1_deduction.id"
+          customer_invoice_id: "REC: ma1_invoice_b.id"
+          amount: 200000.0
+
+      - step: "MA1: Amount Unallocated is zero (500,000 Total, 500,000 Allocated)"
+        action: "assert"
+        target: "ma1_deduction"
+        asserts:
+          amount_total:
+            type: "value"
+            expected: 500000.0
+          amount_unallocated:
+            type: "value"
+            expected: 0.0
+
+      - step: "MA1: confirm the deduction document"
+        action: "call"
+        target: "ma1_deduction"
+        method: "action_confirm"
+        as_user: "base.user_admin"
+        asserts:
+          state:
+            type: "value"
+            expected: "confirm"
+
+      # T-04 (test-traps.md): a bare `assert` step between action_confirm and
+      # action_approve_approval is REQUIRED to force a cache refresh before
+      # approve_ok is read.
+      - step: "MA1: force a refresh before reading approve_ok (T-04)"
+        action: "assert"
+        target: "ma1_deduction"
+        asserts:
+          state:
+            type: "value"
+            expected: "confirm"
+
+      - step: "MA1: approve the deduction document -- auto-opens (single level)"
+        action: "call"
+        target: "ma1_deduction"
+        method: "action_approve_approval"
+        as_user: "base.user_admin"
+        asserts:
+          state:
+            type: "value"
+            expected: "open"
+          reconciled:
+            type: "value"
+            expected: true
+
+      - step: "MA1: Invoice A's residual dropped by exactly the partial Allocation"
+        action: "assert"
+        target: "ma1_invoice_a"
+        asserts:
+          amount_residual:
+            type: "value"
+            expected: 700000.0
+          state:
+            type: "value"
+            expected: "open"
+
+      - step: "MA1: Invoice B's residual dropped to zero and it moved to Paid"
+        action: "assert"
+        target: "ma1_invoice_b"
+        asserts:
+          amount_residual:
+            type: "value"
+            expected: 0.0
+          state:
+            type: "value"
+            expected: "done"
+
+      - step:
+          "MA1: exactly two partial reconciles were created for this document's own
+          credit line"
+        action: "search"
+        model: "account.partial.reconcile"
+        domain:
+          [["credit_move_id", "=", "REC: ma1_deduction.receivable_move_line_id.id"]]
+        save_as: "ma1_partials"
+        expect_count: 2
+
+      - step: "MA1: create the cancellation reason"
+        action: "create"
+        model: "base.cancel_reason"
+        save_as: "ma1_cancel_reason"
+        values:
+          name: "MA1 Cancel Reason"
+          code: "MA1CR"
+          global_use: true
+
+      # Capture the header's own receivable line before cancel clears it
+      # (`receivable_move_line_id` reverts to falsy once
+      # `_20_delete_accounting_entry` deletes the move).
+      - step: "MA1: capture the deduction's own Receivable journal item"
+        action: "search"
+        model: "account.move.line"
+        domain: [["id", "=", "REC: ma1_deduction.receivable_move_line_id.id"]]
+        save_as: "ma1_deduction_receivable_line"
+        expect_count: 1
+
+      - step: "MA1: cancel the deduction document via the wizard"
+        action: "wizard"
+        model: "base.select_cancel_reason"
+        target: "ma1_deduction"
+        as_user: "base.user_admin"
+        values:
+          cancel_reason_id: "REC: ma1_cancel_reason"
+        method: "action_confirm"
+        asserts:
+          state:
+            type: "value"
+            expected: "cancel"
+
+      - step: "MA1: Invoice A's residual is restored"
+        action: "assert"
+        target: "ma1_invoice_a"
+        asserts:
+          amount_residual:
+            type: "value"
+            expected: 1000000.0
+          state:
+            type: "value"
+            expected: "open"
+
+      - step: "MA1: Invoice B's residual is restored"
+        action: "assert"
+        target: "ma1_invoice_b"
+        asserts:
+          amount_residual:
+            type: "value"
+            expected: 200000.0
+          state:
+            type: "value"
+            expected: "open"
+
+      - step: "MA1: both manually-created partials are gone after cancel"
+        action: "search"
+        model: "account.partial.reconcile"
+        domain: [["credit_move_id", "=", "REC: ma1_deduction_receivable_line.id"]]
+        save_as: "ma1_partials_gone"
+        expect_count: 0
+
+      # ══ MA2 -- NEGATIVE: a customer payment shrinks Invoice A's residual
+      # below its own Allocation's Amount AFTER confirm; approving is
+      # rejected by `_06_check_allocation_residual`, before any
+      # `account.move` is created. Its own waiver/terms/invoices, so the
+      # payment/reconcile steps here cannot disturb MA1's own assertions
+      # above. ═════════════════════════════════════════════════════════
+      - step: "MA2: create the student contact"
+        action: "create"
+        model: "res.partner"
+        save_as: "ma2_contact"
+        values:
+          name: "MA2 Contact"
+
+      - step: "MA2: create the student"
+        action: "create"
+        model: "school_student"
+        save_as: "ma2_student"
+        values:
+          name: "MA2 Student"
+          code: "MA2ST"
+          contact_id: "REC: ma2_contact.id"
+          school_id: "REC: ma_school.id"
+
+      - step: "MA2: create the enrollment"
+        action: "create"
+        model: "school_enrollment"
+        save_as: "ma2_enrollment"
+        values:
+          academic_year_id: "REC: ma_academic_year.id"
+          academic_term_id: "REC: ma_academic_term.id"
+          school_id: "REC: ma_school.id"
+          grade_id: "REC: ma_grade.id"
+          grade_class_id: "REC: ma_grade_class.id"
+          student_id: "REC: ma2_student.id"
+
+      - step: "MA2: create Payment Term 1 (300,000 -- the partial Allocation)"
+        action: "create"
+        model: "school_enrollment_payment_term"
+        save_as: "ma2_term1"
+        values:
+          enrollment_id: "REC: ma2_enrollment.id"
+          name: "MA2 Term 1"
+          date_due: 2026-08-15
+          detail_ids:
+            - - 0
+              - 0
+              - product_id: "REC: ma_product.id"
+                name: "MA2 Term 1 Fee"
+                account_id: "REC: ma_income_account.id"
+                uom_quantity: 1.0
+                uom_id: "REF: uom.product_uom_unit"
+                price_unit: 300000.0
+
+      - step: "MA2: create Payment Term 2 (200,000 -- the full Allocation)"
+        action: "create"
+        model: "school_enrollment_payment_term"
+        save_as: "ma2_term2"
+        values:
+          enrollment_id: "REC: ma2_enrollment.id"
+          name: "MA2 Term 2"
+          date_due: 2026-09-15
+          detail_ids:
+            - - 0
+              - 0
+              - product_id: "REC: ma_product.id"
+                name: "MA2 Term 2 Fee"
+                account_id: "REC: ma_income_account.id"
+                uom_quantity: 1.0
+                uom_id: "REF: uom.product_uom_unit"
+                price_unit: 200000.0
+
+      - step: "MA2: create the fee waiver document (Multiple Payment Terms)"
+        action: "create"
+        model: "school_fee_waiver"
+        save_as: "ma2_waiver"
+        values:
+          type_id: "REC: ma_type.id"
+          reason_id: "REC: ma_reason.id"
+          student_id: "REC: ma2_student.id"
+          enrollment_id: "REC: ma2_enrollment.id"
+          coverage: "multi_term"
+          date_start: 2026-07-01
+          date_end: 2026-12-31
+          user_id: "REF: base.user_admin"
+          line_ids:
+            - - 0
+              - 0
+              - product_id: "REC: ma_product.id"
+                computation: "full"
+
+      - step: "MA2: confirm the fee waiver"
+        action: "call"
+        target: "ma2_waiver"
+        method: "action_confirm"
+        as_user: "base.user_admin"
+        asserts:
+          state:
+            type: "value"
+            expected: "confirm"
+
+      - step: "MA2: approve the fee waiver"
+        action: "call"
+        target: "ma2_waiver"
+        method: "action_approve_approval"
+        as_user: "base.user_admin"
+        asserts:
+          state:
+            type: "value"
+            expected: "open"
+
+      - step: "MA2: find the Term 1 Schedule line"
+        action: "search"
+        model: "school_fee_waiver_schedule"
+        domain:
+          [
+            ["waiver_id", "=", "REC: ma2_waiver.id"],
+            ["payment_term_id", "=", "REC: ma2_term1.id"],
+          ]
+        save_as: "ma2_sched1"
+        limit: 1
+
+      - step: "MA2: find the Term 2 Schedule line"
+        action: "search"
+        model: "school_fee_waiver_schedule"
+        domain:
+          [
+            ["waiver_id", "=", "REC: ma2_waiver.id"],
+            ["payment_term_id", "=", "REC: ma2_term2.id"],
+          ]
+        save_as: "ma2_sched2"
+        limit: 1
+
+      - step: "MA2: create Invoice A (billed 1,000,000 -- the partial target)"
+        action: "create"
+        model: "customer_invoice"
+        save_as: "ma2_invoice_a"
+        values:
+          type_id: "REC: ma_invoice_type.id"
+          partner_id: "REC: ma2_contact.id"
+          date: 2026-08-20
+          date_due: 2026-09-20
+          currency_id: "REC: company.currency_id.id"
+          journal_id: "REC: ma_sale_journal.id"
+          receivable_account_id: "REC: ma_receivable_account.id"
+
+      - step: "MA2: add a detail line to Invoice A"
+        action: "create"
+        model: "customer_invoice.line"
+        save_as: "ma2_invoice_a_line"
+        values:
+          customer_invoice_id: "REC: ma2_invoice_a.id"
+          name: "Line"
+          account_id: "REC: ma_income_account.id"
+          uom_quantity: 1
+          price_unit: 1000000.0
+
+      - step: "MA2: confirm Invoice A"
+        action: "call"
+        target: "ma2_invoice_a"
+        method: "action_confirm"
+        as_user: "base.user_admin"
+        asserts:
+          state:
+            type: "value"
+            expected: "confirm"
+
+      - step: "MA2: approve Invoice A"
+        action: "call"
+        target: "ma2_invoice_a"
+        method: "action_approve_approval"
+        as_user: "base.user_admin"
+        asserts:
+          state:
+            type: "value"
+            expected: "open"
+          amount_residual:
+            type: "value"
+            expected: 1000000.0
+
+      - step: "MA2: create Invoice B (billed 200,000 -- the full target)"
+        action: "create"
+        model: "customer_invoice"
+        save_as: "ma2_invoice_b"
+        values:
+          type_id: "REC: ma_invoice_type.id"
+          partner_id: "REC: ma2_contact.id"
+          date: 2026-08-20
+          date_due: 2026-09-20
+          currency_id: "REC: company.currency_id.id"
+          journal_id: "REC: ma_sale_journal.id"
+          receivable_account_id: "REC: ma_receivable_account.id"
+
+      - step: "MA2: add a detail line to Invoice B"
+        action: "create"
+        model: "customer_invoice.line"
+        save_as: "ma2_invoice_b_line"
+        values:
+          customer_invoice_id: "REC: ma2_invoice_b.id"
+          name: "Line"
+          account_id: "REC: ma_income_account.id"
+          uom_quantity: 1
+          price_unit: 200000.0
+
+      - step: "MA2: confirm Invoice B"
+        action: "call"
+        target: "ma2_invoice_b"
+        method: "action_confirm"
+        as_user: "base.user_admin"
+        asserts:
+          state:
+            type: "value"
+            expected: "confirm"
+
+      - step: "MA2: approve Invoice B"
+        action: "call"
+        target: "ma2_invoice_b"
+        method: "action_approve_approval"
+        as_user: "base.user_admin"
+        asserts:
+          state:
+            type: "value"
+            expected: "open"
+          amount_residual:
+            type: "value"
+            expected: 200000.0
+
+      - step: "MA2: create the fee waiver deduction document"
+        action: "create"
+        model: "school_fee_waiver_deduction"
+        save_as: "ma2_deduction"
+        values:
+          waiver_id: "REC: ma2_waiver.id"
+          journal_id: "REC: ma_deduction_journal.id"
+          receivable_account_id: "REC: ma_receivable_account.id"
+          date: 2026-08-25
+
+      - step: "MA2: add Line 1 (Term 1 Schedule, 300,000)"
+        action: "create"
+        model: "school_fee_waiver_deduction_line"
+        save_as: "ma2_line1"
+        values:
+          deduction_id: "REC: ma2_deduction.id"
+          schedule_id: "REC: ma2_sched1.id"
+          account_id: "REC: ma_discount_account.id"
+          amount: 300000.0
+
+      - step: "MA2: add Line 2 (Term 2 Schedule, 200,000)"
+        action: "create"
+        model: "school_fee_waiver_deduction_line"
+        save_as: "ma2_line2"
+        values:
+          deduction_id: "REC: ma2_deduction.id"
+          schedule_id: "REC: ma2_sched2.id"
+          account_id: "REC: ma_discount_account.id"
+          amount: 200000.0
+
+      - step: "MA2: add Allocation 1 (Invoice A, PARTIAL -- 300,000 of 1,000,000)"
+        action: "create"
+        model: "school_fee_waiver_deduction_allocation"
+        save_as: "ma2_alloc1"
+        values:
+          deduction_id: "REC: ma2_deduction.id"
+          customer_invoice_id: "REC: ma2_invoice_a.id"
+          amount: 300000.0
+
+      - step: "MA2: add Allocation 2 (Invoice B, FULL -- 200,000 of 200,000)"
+        action: "create"
+        model: "school_fee_waiver_deduction_allocation"
+        save_as: "ma2_alloc2"
+        values:
+          deduction_id: "REC: ma2_deduction.id"
+          customer_invoice_id: "REC: ma2_invoice_b.id"
+          amount: 200000.0
+
+      - step: "MA2: confirm the deduction document"
+        action: "call"
+        target: "ma2_deduction"
+        method: "action_confirm"
+        as_user: "base.user_admin"
+        asserts:
+          state:
+            type: "value"
+            expected: "confirm"
+
+      # ── A customer payment now partially pays Invoice A, AFTER confirm
+      # but BEFORE approve, shrinking its residual from 1,000,000 to
+      # 200,000 -- below Allocation 1's own 300,000. ────────────────────
+      - step: "MA2: create the customer payment as a plain, posted journal entry"
+        action: "create"
+        model: "account.move"
+        save_as: "ma2_payment_move"
+        values:
+          journal_id: "REC: ma_payment_journal.id"
+          date: 2026-08-28
+          ref: "MA2 Customer Payment"
+          line_ids:
+            - - 0
+              - 0
+              - name: "MA2 Customer Payment - Liquidity"
+                account_id: "REC: ma_liquidity_account.id"
+                partner_id: "REC: ma2_contact.id"
+                debit: 800000.0
+                credit: 0.0
+            - - 0
+              - 0
+              - name: "MA2 Customer Payment - Receivable"
+                account_id: "REC: ma_receivable_account.id"
+                partner_id: "REC: ma2_contact.id"
+                debit: 0.0
+                credit: 800000.0
+
+      - step: "MA2: post the customer payment"
+        action: "call"
+        target: "ma2_payment_move"
+        method: "action_post"
+        asserts:
+          state:
+            type: "value"
+            expected: "posted"
+
+      - step: "MA2: find the payment's own Receivable journal item"
+        action: "search"
+        model: "account.move.line"
+        domain:
+          [
+            ["move_id", "=", "REC: ma2_payment_move.id"],
+            ["account_id", "=", "REC: ma_receivable_account.id"],
+          ]
+        save_as: "ma2_payment_receivable_line"
+        expect_count: 1
+
+      - step: "MA2: find both Receivable journal items (payment + Invoice A)"
+        action: "search"
+        model: "account.move.line"
+        domain:
+          [
+            [
+              "id",
+              "in",
+              [
+                "REC: ma2_payment_receivable_line.id",
+                "REC: ma2_invoice_a.receivable_move_line_id.id",
+              ],
+            ],
+          ]
+        save_as: "ma2_payment_reconcile_lines"
+        expect_count: 2
+
+      - step: "MA2: reconcile the payment against Invoice A (partial)"
+        action: "call"
+        target: "ma2_payment_reconcile_lines"
+        method: "reconcile"
+
+      - step: "MA2: Invoice A's residual dropped below Allocation 1's Amount"
+        action: "assert"
+        target: "ma2_invoice_a"
+        asserts:
+          amount_residual:
+            type: "value"
+            expected: 200000.0
+          state:
+            type: "value"
+            expected: "open"
+
+      - step: "MA2: force a refresh before reading approve_ok (T-04)"
+        action: "assert"
+        target: "ma2_deduction"
+        asserts:
+          state:
+            type: "value"
+            expected: "confirm"
+
+      - step: "MA2: approving is rejected -- Allocation 1 now exceeds residual"
+        action: "call"
+        target: "ma2_deduction"
+        method: "action_approve_approval"
+        as_user: "base.user_admin"
+        expect_error:
+          type: "UserError"
+          message_contains: "current residual"
+
+      - step: "MA2: the deduction document stayed in Confirm"
+        action: "assert"
+        target: "ma2_deduction"
+        asserts:
+          state:
+            type: "value"
+            expected: "confirm"
+          move_id:
+            type: "value"
+            operator: "is_falsy"

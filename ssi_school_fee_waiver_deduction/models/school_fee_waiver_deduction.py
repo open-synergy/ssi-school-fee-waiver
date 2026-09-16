@@ -6,7 +6,7 @@ from datetime import date as datetime_date
 
 from odoo import _, api, fields, models
 from odoo.exceptions import UserError, ValidationError
-from odoo.tools.float_utils import float_is_zero
+from odoo.tools.float_utils import float_compare, float_is_zero
 
 from odoo.addons.ssi_decorator import ssi_decorator
 
@@ -377,6 +377,52 @@ Solution: Allocate the full Amount Total across the Allocation lines
             )
             raise UserError(_(error_message))
 
+    @ssi_decorator.pre_open_action()
+    def _06_check_allocation_residual(self):
+        """Reject opening when an Allocation exceeds its invoice's residual.
+
+        ``_check_amount_not_exceed_residual`` on the Allocation model
+        (``@api.constrains``) only runs when the Allocation itself is
+        written, so a customer payment reconciled against an
+        allocated invoice between confirm and open can shrink that
+        invoice's own ``amount_residual`` below the Allocation's own
+        ``amount`` without ever touching the Allocation record. Core's
+        ``reconcile()`` used to silently cap the matched amount at
+        whatever residual remained; ``_20_reconcile`` no longer does
+        that for a non-last Allocation (it always matches exactly
+        ``amount``), so this gate catches the shortfall explicitly,
+        before any ``account.move`` is created.
+
+        :raises UserError: when an Allocation's ``amount`` exceeds its
+            own invoice's current ``amount_residual``.
+        """
+        self.ensure_one()
+        precision = self.company_currency_id.decimal_places
+        for allocation in self.allocation_ids:
+            if (
+                float_compare(
+                    allocation.amount,
+                    allocation.customer_invoice_id.amount_residual,
+                    precision_digits=precision,
+                )
+                > 0
+            ):
+                error_message = """
+Document Type: %s
+Context: Open deduction
+Database ID: %s
+Problem: Allocation Amount %s now exceeds invoice '%s' current residual %s
+Solution: Lower the Allocation Amount to the invoice's current residual, or
+cancel this document and re-create the Allocation against it
+""" % (
+                    self._description,
+                    self.id,
+                    allocation.amount,
+                    allocation.customer_invoice_id.display_name,
+                    allocation.customer_invoice_id.amount_residual,
+                )
+                raise UserError(_(error_message))
+
     @ssi_decorator.post_open_action()
     def _10_create_accounting_entry(self):
         """Create and post this document's ``account.move``.
@@ -413,19 +459,48 @@ Solution: Allocate the full Amount Total across the Allocation lines
     def _20_reconcile(self):
         """Reconcile the receivable line against every allocated invoice.
 
-        Every allocation reaching this hook already cleared the
-        allocation-level constraints, so ``lines`` below is never
-        empty and ``reconcile()`` always has a genuine, unreconciled
-        amount on both sides to match.
+        Every allocation but the last (in ``allocation_ids``' own
+        order, ``deduction_id, id``) is settled by an
+        ``account.partial.reconcile`` created directly for exactly
+        that allocation's own ``amount`` -- core's ``reconcile()``
+        instead always matches ``min(residual of both lines)``, which
+        would dump this document's entire credit onto the first
+        allocated invoice whenever that allocation is a partial one
+        (``amount`` below the invoice's own residual). The last
+        allocation still goes through ``reconcile()``:
+        ``_05_check_amount_unallocated`` guarantees every allocation's
+        own ``amount`` sums to ``amount_total``, so by the time this
+        loop reaches the last one the header's own residual is
+        exactly that allocation's ``amount`` -- and it is core's
+        ``reconcile()``, not this method, that must decide whether an
+        ``account.full.reconcile`` closes the header and every
+        allocated invoice together. This document only ever supports
+        the Company Currency (see ``currency_id``'s own ``help``), so
+        the manually created partial's ``amount``,
+        ``debit_amount_currency`` and ``credit_amount_currency`` are
+        all the same value.
 
         :return: nothing; assigns ``move_line_id`` on each Allocation
             line
         """
         self.ensure_one()
-        for allocation in self.allocation_ids:
+        allocations = self.allocation_ids
+        last_index = len(allocations) - 1
+        for index, allocation in enumerate(allocations):
             invoice_ml = allocation.customer_invoice_id.receivable_move_line_id
-            lines = self.receivable_move_line_id + invoice_ml
-            lines.reconcile()
+            if index == last_index:
+                lines = self.receivable_move_line_id + invoice_ml
+                lines.reconcile()
+            else:
+                self.env["account.partial.reconcile"].create(
+                    {
+                        "debit_move_id": invoice_ml.id,
+                        "credit_move_id": self.receivable_move_line_id.id,
+                        "amount": allocation.amount,
+                        "debit_amount_currency": allocation.amount,
+                        "credit_amount_currency": allocation.amount,
+                    }
+                )
             allocation.write(
                 {
                     "move_line_id": invoice_ml.id,
