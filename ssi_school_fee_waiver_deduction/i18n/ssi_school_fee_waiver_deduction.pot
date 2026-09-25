@@ -14,6 +14,17 @@ msgstr ""
 "Plural-Forms: \n"
 
 #. module: ssi_school_fee_waiver_deduction
+#: code:addons/ssi_school_fee_waiver_deduction/models/school_enrollment.py:0
+#, python-format
+msgid ""
+"\n"
+"Context: Finish enrollment\n"
+"Database ID: %s\n"
+"Problem: Fee waiver deduction '%s' allocated to this enrollment's own invoice is still Draft/Waiting for Approval\n"
+"Solution: Confirm and open that deduction before finishing this enrollment\n"
+msgstr ""
+
+#. module: ssi_school_fee_waiver_deduction
 #: model:ir.model.fields,field_description:ssi_school_fee_waiver_deduction.field_school_fee_waiver_deduction_allocation__deduction_id
 #: model:ir.model.fields,field_description:ssi_school_fee_waiver_deduction.field_school_fee_waiver_deduction_line__deduction_id
 msgid "# Deduction"
@@ -365,6 +376,11 @@ msgid ""
 msgstr ""
 
 #. module: ssi_school_fee_waiver_deduction
+#: model:ir.model.fields,field_description:ssi_school_fee_waiver_deduction.field_school_fee_waiver_type__deferred_discount_account_id
+msgid "Deferred Discount Account"
+msgstr ""
+
+#. module: ssi_school_fee_waiver_deduction
 #: model:ir.model.fields,field_description:ssi_school_fee_waiver_deduction.field_school_fee_waiver_type__discount_account_id
 msgid "Discount Account"
 msgstr ""
@@ -380,10 +396,23 @@ msgstr ""
 #: model:ir.model.fields,help:ssi_school_fee_waiver_deduction.field_school_fee_waiver_deduction_line__account_id
 msgid ""
 "Discount/contra-revenue account this line debits. Defaulted from the "
-"Schedule's own Waiver Type."
+"Schedule's own Waiver Type. Temporarily replaced by the Waiver Type's own "
+"Deferred Discount Account while this line's parent document is opened under "
+"``recognition_method`` ``enrollment``."
 msgstr ""
 
 #. module: ssi_school_fee_waiver_deduction
+#: model:ir.model.fields,help:ssi_school_fee_waiver_deduction.field_school_fee_waiver_deduction_line__final_account_id
+msgid ""
+"Discount/contra-revenue account this line's amount is ultimately recognized "
+"against. Defaulted together with ``account_id`` and left untouched "
+"afterwards, so it still names the original account once ``account_id`` "
+"itself is temporarily replaced by the Deferred Discount Account."
+msgstr ""
+
+#. module: ssi_school_fee_waiver_deduction
+#: model:ir.model.fields,field_description:ssi_school_fee_waiver_deduction.field_school_enrollment__display_name
+#: model:ir.model.fields,field_description:ssi_school_fee_waiver_deduction.field_school_enrollment_revenue_recognition_line__display_name
 #: model:ir.model.fields,field_description:ssi_school_fee_waiver_deduction.field_school_fee_waiver__display_name
 #: model:ir.model.fields,field_description:ssi_school_fee_waiver_deduction.field_school_fee_waiver_deduction__display_name
 #: model:ir.model.fields,field_description:ssi_school_fee_waiver_deduction.field_school_fee_waiver_deduction_allocation__display_name
@@ -402,14 +431,37 @@ msgid ""
 msgstr ""
 
 #. module: ssi_school_fee_waiver_deduction
+#: model:ir.model.fields.selection,name:ssi_school_fee_waiver_deduction.selection__school_fee_waiver_deduction__recognition_method__enrollment
+msgid "Enrollment"
+msgstr ""
+
+#. module: ssi_school_fee_waiver_deduction
+#: model:ir.model.fields,field_description:ssi_school_fee_waiver_deduction.field_school_enrollment_revenue_recognition_line__fee_waiver_deduction_line_id
+msgid "Fee Waiver Deduction Line"
+msgstr ""
+
+#. module: ssi_school_fee_waiver_deduction
 #: model:ir.actions.act_window,name:ssi_school_fee_waiver_deduction.school_fee_waiver_deduction_action
 #: model:ir.ui.menu,name:ssi_school_fee_waiver_deduction.school_fee_waiver_deduction_menu
 msgid "Fee Waiver Deductions"
 msgstr ""
 
 #. module: ssi_school_fee_waiver_deduction
+#: model:ir.model.fields,help:ssi_school_fee_waiver_deduction.field_school_enrollment_revenue_recognition_line__fee_waiver_deduction_line_id
+msgid ""
+"Fee waiver deduction Line this Recognition Line reclasses from its Deferred "
+"Discount Account to its own Final Account. Empty for a Recognition Line "
+"originating from an invoiced payment term detail instead."
+msgstr ""
+
+#. module: ssi_school_fee_waiver_deduction
 #: model:ir.model.fields,help:ssi_school_fee_waiver_deduction.field_school_fee_waiver_deduction__waiver_id
 msgid "Fee waiver document this deduction realizes."
+msgstr ""
+
+#. module: ssi_school_fee_waiver_deduction
+#: model:ir.model.fields,field_description:ssi_school_fee_waiver_deduction.field_school_fee_waiver_deduction_line__final_account_id
+msgid "Final Account"
 msgstr ""
 
 #. module: ssi_school_fee_waiver_deduction
@@ -438,6 +490,17 @@ msgid "Group By"
 msgstr ""
 
 #. module: ssi_school_fee_waiver_deduction
+#: model:ir.model.fields,help:ssi_school_fee_waiver_deduction.field_school_fee_waiver_type__deferred_discount_account_id
+msgid ""
+"Holding account a deduction line of this fee waiver type is booked to "
+"instead of its own Discount Account, while the deduction's allocated invoice"
+" belongs to an enrollment whose Revenue Recognition is still pending. Left "
+"empty, a deduction of this type is never deferred."
+msgstr ""
+
+#. module: ssi_school_fee_waiver_deduction
+#: model:ir.model.fields,field_description:ssi_school_fee_waiver_deduction.field_school_enrollment__id
+#: model:ir.model.fields,field_description:ssi_school_fee_waiver_deduction.field_school_enrollment_revenue_recognition_line__id
 #: model:ir.model.fields,field_description:ssi_school_fee_waiver_deduction.field_school_fee_waiver__id
 #: model:ir.model.fields,field_description:ssi_school_fee_waiver_deduction.field_school_fee_waiver_deduction__id
 #: model:ir.model.fields,field_description:ssi_school_fee_waiver_deduction.field_school_fee_waiver_deduction_allocation__id
@@ -466,6 +529,11 @@ msgstr ""
 #. module: ssi_school_fee_waiver_deduction
 #: model:ir.model.fields,help:ssi_school_fee_waiver_deduction.field_school_fee_waiver_deduction__message_has_error
 msgid "If checked, some messages have a delivery error."
+msgstr ""
+
+#. module: ssi_school_fee_waiver_deduction
+#: model:ir.model.fields.selection,name:ssi_school_fee_waiver_deduction.selection__school_fee_waiver_deduction__recognition_method__immediate
+msgid "Immediate"
 msgstr ""
 
 #. module: ssi_school_fee_waiver_deduction
@@ -508,6 +576,8 @@ msgid ""
 msgstr ""
 
 #. module: ssi_school_fee_waiver_deduction
+#: model:ir.model.fields,field_description:ssi_school_fee_waiver_deduction.field_school_enrollment____last_update
+#: model:ir.model.fields,field_description:ssi_school_fee_waiver_deduction.field_school_enrollment_revenue_recognition_line____last_update
 #: model:ir.model.fields,field_description:ssi_school_fee_waiver_deduction.field_school_fee_waiver____last_update
 #: model:ir.model.fields,field_description:ssi_school_fee_waiver_deduction.field_school_fee_waiver_deduction____last_update
 #: model:ir.model.fields,field_description:ssi_school_fee_waiver_deduction.field_school_fee_waiver_deduction_allocation____last_update
@@ -690,6 +760,11 @@ msgid ""
 msgstr ""
 
 #. module: ssi_school_fee_waiver_deduction
+#: model:ir.model.fields,field_description:ssi_school_fee_waiver_deduction.field_school_fee_waiver_deduction__recognition_method
+msgid "Recognition Method"
+msgstr ""
+
+#. module: ssi_school_fee_waiver_deduction
 #: model:ir.model.fields,field_description:ssi_school_fee_waiver_deduction.field_school_fee_waiver_deduction__reconciled
 msgid "Reconciled"
 msgstr ""
@@ -747,6 +822,16 @@ msgstr ""
 #: model:ir.module.category,name:ssi_school_fee_waiver_deduction.school_fee_waiver_deduction_data_ownership_module_category
 #: model:ir.module.category,name:ssi_school_fee_waiver_deduction.school_fee_waiver_deduction_workflow_module_category
 msgid "School - Fee Waiver - Deduction"
+msgstr ""
+
+#. module: ssi_school_fee_waiver_deduction
+#: model:ir.model,name:ssi_school_fee_waiver_deduction.model_school_enrollment
+msgid "School Enrollment"
+msgstr ""
+
+#. module: ssi_school_fee_waiver_deduction
+#: model:ir.model,name:ssi_school_fee_waiver_deduction.model_school_enrollment_revenue_recognition_line
+msgid "School Enrollment Revenue Recognition - Line"
 msgstr ""
 
 #. module: ssi_school_fee_waiver_deduction
@@ -929,4 +1014,14 @@ msgstr ""
 #. module: ssi_school_fee_waiver_deduction
 #: model:ir.model.fields,help:ssi_school_fee_waiver_deduction.field_school_fee_waiver_deduction__website_message_ids
 msgid "Website communication history"
+msgstr ""
+
+#. module: ssi_school_fee_waiver_deduction
+#: model:ir.model.fields,help:ssi_school_fee_waiver_deduction.field_school_fee_waiver_deduction__recognition_method
+msgid ""
+"``immediate`` books every Line straight to its own Account when this "
+"document opens. ``enrollment`` instead books every Line to the Waiver Type's"
+" own Deferred Discount Account, deferring recognition to the enrollment's "
+"own Revenue Recognition entry. Set by ``_03_apply_enrollment_recognition`` "
+"when this document opens; never set by the user."
 msgstr ""
