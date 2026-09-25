@@ -8,3 +8,5 @@ from . import school_fee_waiver_schedule  # noqa: F401
 from . import school_fee_waiver_deduction  # noqa: F401
 from . import school_fee_waiver_deduction_line  # noqa: F401
 from . import school_fee_waiver_deduction_allocation  # noqa: F401
+from . import school_enrollment  # noqa: F401
+from . import school_enrollment_revenue_recognition_line  # noqa: F401

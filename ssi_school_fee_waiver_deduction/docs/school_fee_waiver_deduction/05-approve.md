@@ -27,7 +27,12 @@
 
 - If all approval levels are fulfilled, status changes automatically to **On Progress**,
   shown on the statusbar, and the record's **# Document** number is assigned from the
-  `FWD/` sequence (no longer showing `/`). See `08-auto-open` for what happens next.
+  `FWD/` sequence (no longer showing `/`). See `08-auto-open` for what happens next --
+  **if** every enrollment behind this document's allocated invoices still has Revenue
+  Recognition pending and this document's own Fee Waiver Type has a Deferred Discount
+  Account configured, every Line is booked to that Deferred Discount Account instead of
+  its own usual Discount Account, to be reclassed later by that enrollment's own Revenue
+  Recognition entry.
 - If there are still pending approval levels, status remains **Waiting for Approval**
   and the next level becomes pending.
 

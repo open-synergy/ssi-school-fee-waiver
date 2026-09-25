@@ -10,6 +10,8 @@
 ## Pre-Condition
 
 - **Record:** Status is **Draft**, **Waiting for Approval**, or **On Progress**.
+- **Record:** No Line of this document has already been reclassed by an enrollment's own
+  Revenue Recognition entry -- otherwise cancelling is rejected with an error.
 - **Config:** An active `policy.template` grants `cancel_ok` for that state to the
   actor's group.
 - **Access:** User is in group `Validator`.
@@ -31,3 +33,6 @@
   before), the journal entry is deleted, and every realized Schedule line returns to
   **Scheduled** with its own Amount Realized reset to zero and its own Deduction
   cleared.
+- If Recognition Method was **Enrollment** (see `08-auto-open`): every Line's own
+  Account returns to its own Final Account, and Recognition Method resets to
+  **Immediate**.

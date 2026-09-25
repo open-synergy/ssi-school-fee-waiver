@@ -16,6 +16,7 @@
             <xpath expr="//field[@name='sequence']" position="after">
                 <field name="deduction_journal_id" />
                 <field name="discount_account_id" />
+                <field name="deferred_discount_account_id" />
             </xpath>
         </data>
     </field>

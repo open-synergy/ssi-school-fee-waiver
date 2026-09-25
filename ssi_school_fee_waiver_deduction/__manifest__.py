@@ -15,6 +15,7 @@
     "installable": True,
     "application": False,
     "depends": [
+        "ssi_school",
         "ssi_school_fee_waiver",
         "ssi_customer_invoice",
         "ssi_accounting_entry_mixin",

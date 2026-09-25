@@ -1,0 +1,1393 @@
+# Copyright 2026 OpenSynergy Indonesia
+# Copyright 2026 PT. Simetri Sinergi Indonesia
+# License AGPL-3.0 or later (http://www.gnu.org/licenses/agpl).
+#
+# T-01 (odoo-development-unit-test/test-traps.md): scenarios in one YAML file
+# share a single, un-rolled-back DB transaction, and a top-level `setup:`
+# block is replayed before EVERY scenario in the file. This file therefore
+# uses exactly ONE scenario with no `setup:` block at all.
+#
+# Preseding pattern for `action_done` needing TWO academic terms:
+# ssi_school/tests/test_data_enrollment_revenue_recognition.yaml:375-397 --
+# a single-academic-term enrollment is its own last term, and `done_ok`
+# rejects finishing the last term through this document.
+options:
+  auto_refresh: true
+scenarios:
+  - name: "Deduction - Enrollment Revenue Recognition deferral"
+    steps:
+      # ── Shared setup: accounts, journals, school, two academic terms ────
+      - step: "Setup - get receivable account type"
+        action: "ref"
+        xml_id: "account.data_account_type_receivable"
+        save_as: "rr_receivable_type"
+
+      - step: "Setup - get revenue account type"
+        action: "ref"
+        xml_id: "account.data_account_type_revenue"
+        save_as: "rr_revenue_type"
+
+      - step: "Setup - get expense account type"
+        action: "ref"
+        xml_id: "account.data_account_type_expenses"
+        save_as: "rr_expense_type"
+
+      - step: "Setup - create the receivable account"
+        action: "create"
+        model: "account.account"
+        save_as: "rr_receivable_account"
+        values:
+          name: "RR Receivable Account"
+          code: "RRRA"
+          user_type_id: "REC: rr_receivable_type.id"
+          reconcile: true
+
+      - step: "Setup - create the income account (invoiced payment terms)"
+        action: "create"
+        model: "account.account"
+        save_as: "rr_income_account"
+        values:
+          name: "RR Income Account"
+          code: "RRIA"
+          user_type_id: "REC: rr_revenue_type.id"
+
+      - step: "Setup - create the discount (Final) account"
+        action: "create"
+        model: "account.account"
+        save_as: "rr_discount_account"
+        values:
+          name: "RR Discount Account"
+          code: "RRDA"
+          user_type_id: "REC: rr_expense_type.id"
+
+      - step: "Setup - create the Deferred Discount (holding) account"
+        action: "create"
+        model: "account.account"
+        save_as: "rr_deferred_account"
+        values:
+          name: "RR Deferred Discount Account"
+          code: "RRDDA"
+          user_type_id: "REC: rr_expense_type.id"
+
+      - step: "Setup - create the sale journal"
+        action: "create"
+        model: "account.journal"
+        save_as: "rr_sale_journal"
+        values:
+          name: "RR Sale Journal"
+          code: "RRSJ"
+          type: "sale"
+
+      - step: "Setup - create the deduction journal"
+        action: "create"
+        model: "account.journal"
+        save_as: "rr_deduction_journal"
+        values:
+          name: "RR Deduction Journal"
+          code: "RRDJ"
+          type: "general"
+
+      - step: "Setup - create the customer invoice type"
+        action: "create"
+        model: "customer_invoice_type"
+        save_as: "rr_ci_type"
+        values:
+          name: "RR Invoice Type"
+          code: "/"
+          journal_id: "REC: rr_sale_journal.id"
+          receivable_account_id: "REC: rr_receivable_account.id"
+
+      - step: "Setup - create the product"
+        action: "create"
+        model: "product.product"
+        save_as: "rr_product"
+        values:
+          name: "RR Product"
+          type: "service"
+
+      - step: "Setup - create the grade type"
+        action: "create"
+        model: "school_grade_type"
+        save_as: "rr_grade_type"
+        values:
+          name: "RR Grade Type"
+          code: "RRGT"
+
+      - step: "Setup - create the school"
+        action: "create"
+        model: "school"
+        save_as: "rr_school"
+        values:
+          name: "RR School"
+          code: "RRSC"
+          grade_type_id: "REC: rr_grade_type.id"
+
+      - step: "Setup - create the academic year"
+        action: "create"
+        model: "school_academic_year"
+        save_as: "rr_academic_year"
+        values:
+          name: "RR Academic Year"
+          code: "RRAY"
+          date_start: 2026-07-01
+          date_end: 2027-06-30
+
+      - step: "Setup - create academic term 1 (enrollment open, not last)"
+        action: "create"
+        model: "school_academic_term"
+        save_as: "rr_term_1"
+        values:
+          name: "RR Semester 1"
+          code: "RRTM1"
+          date_start: 2026-07-01
+          date_end: 2026-12-31
+          year_id: "REC: rr_academic_year.id"
+          enrollment_state: "open"
+
+      - step: "Setup - create academic term 2 (last term, unused)"
+        action: "create"
+        model: "school_academic_term"
+        save_as: "rr_term_2"
+        values:
+          name: "RR Semester 2"
+          code: "RRTM2"
+          date_start: 2027-01-01
+          date_end: 2027-06-30
+          year_id: "REC: rr_academic_year.id"
+          enrollment_state: "close"
+
+      - step: "Setup - create the grade"
+        action: "create"
+        model: "school_grade"
+        save_as: "rr_grade"
+        values:
+          name: "RR Grade"
+          code: "RRGR"
+          type_id: "REC: rr_grade_type.id"
+
+      - step: "Setup - create the grade class"
+        action: "create"
+        model: "school_grade_class"
+        save_as: "rr_grade_class"
+        values:
+          name: "RR Class"
+          code: "RRCL"
+          school_id: "REC: rr_school.id"
+          grade_id: "REC: rr_grade.id"
+
+      - step: "Setup - create the fee waiver reason"
+        action: "create"
+        model: "school_fee_waiver_reason"
+        save_as: "rr_reason"
+        values:
+          name: "RR Reason"
+          code: "RRRS"
+
+      - step: "Setup - create the fee waiver type WITH a Deferred Discount Account"
+        action: "create"
+        model: "school_fee_waiver_type"
+        save_as: "rr_type_deferred"
+        values:
+          name: "RR Type Deferred"
+          code: "RRTYD"
+          deduction_journal_id: "REC: rr_deduction_journal.id"
+          discount_account_id: "REC: rr_discount_account.id"
+          deferred_discount_account_id: "REC: rr_deferred_account.id"
+
+      - step: "Setup - create the fee waiver type WITHOUT a Deferred Discount Account"
+        action: "create"
+        model: "school_fee_waiver_type"
+        save_as: "rr_type_no_deferred"
+        values:
+          name: "RR Type No Deferred"
+          code: "RRTYND"
+          deduction_journal_id: "REC: rr_deduction_journal.id"
+          discount_account_id: "REC: rr_discount_account.id"
+
+      # ══════════════════════════════════════════════════════════════════
+      # Enrollment B -- full positive path: open under `enrollment` mode,
+      # finish the enrollment (Revenue Recognition posts, reclassing this
+      # deduction's own Line), then a same-type deduction created AFTER
+      # done stays `immediate`, and finally cancelling the now-recognized
+      # deduction is rejected.
+      # ══════════════════════════════════════════════════════════════════
+      - step: "Setup - create student contact B"
+        action: "create"
+        model: "res.partner"
+        save_as: "rr_b_contact"
+        values:
+          name: "RR B Contact"
+
+      - step: "Setup - create student B"
+        action: "create"
+        model: "school_student"
+        save_as: "rr_b_student"
+        values:
+          name: "RR B Student"
+          code: "RRBST"
+          contact_id: "REC: rr_b_contact.id"
+          school_id: "REC: rr_school.id"
+
+      - step: "Create enrollment B with Revenue Recognition enabled"
+        action: "create"
+        model: "school_enrollment"
+        save_as: "rr_b_enrollment"
+        values:
+          academic_year_id: "REC: rr_academic_year.id"
+          academic_term_id: "REC: rr_term_1.id"
+          school_id: "REC: rr_school.id"
+          grade_id: "REC: rr_grade.id"
+          grade_class_id: "REC: rr_grade_class.id"
+          student_id: "REC: rr_b_student.id"
+          currency_id: "REC: company.currency_id.id"
+          receivable_journal_id: "REC: rr_sale_journal.id"
+          receivable_account_id: "REC: rr_receivable_account.id"
+          customer_invoice_type_id: "REC: rr_ci_type.id"
+          revenue_recognition: true
+          recognition_journal_id: "REC: rr_sale_journal.id"
+
+      - step: "Create enrollment B's term 1 (invoiced now)"
+        action: "create"
+        model: "school_enrollment_payment_term"
+        save_as: "rr_b_term1"
+        values:
+          enrollment_id: "REC: rr_b_enrollment.id"
+          name: "RR B Term 1"
+          sequence: 10
+          date_invoice: 2026-07-05
+          date_due: 2026-07-20
+          detail_ids:
+            - - 0
+              - 0
+              - product_id: "REC: rr_product.id"
+                name: "RR B Term 1 Fee"
+                account_id: "REC: rr_income_account.id"
+                uom_quantity: 1.0
+                uom_id: "REF: uom.product_uom_unit"
+                price_unit: 1000000.0
+
+      - step: "Create enrollment B's term 2 (invoiced after B reaches Done)"
+        action: "create"
+        model: "school_enrollment_payment_term"
+        save_as: "rr_b_term2"
+        values:
+          enrollment_id: "REC: rr_b_enrollment.id"
+          name: "RR B Term 2"
+          sequence: 20
+          date_invoice: 2026-08-05
+          date_due: 2026-08-20
+          detail_ids:
+            - - 0
+              - 0
+              - product_id: "REC: rr_product.id"
+                name: "RR B Term 2 Fee"
+                account_id: "REC: rr_income_account.id"
+                uom_quantity: 1.0
+                uom_id: "REF: uom.product_uom_unit"
+                price_unit: 500000.0
+
+      - step: "Confirm enrollment B"
+        action: "call"
+        target: "rr_b_enrollment"
+        method: "action_confirm"
+        as_user: "base.user_admin"
+
+      - step: "Force a refresh before reading approve_ok (T-04)"
+        action: "assert"
+        target: "rr_b_enrollment"
+        asserts:
+          state:
+            type: "value"
+            expected: "confirm"
+
+      - step: "Approve enrollment B"
+        action: "call"
+        target: "rr_b_enrollment"
+        method: "action_approve_approval"
+        as_user: "base.user_admin"
+        asserts:
+          state:
+            type: "value"
+            expected: "open"
+
+      - step: "Invoice enrollment B's term 1"
+        action: "call"
+        target: "rr_b_term1"
+        method: "action_create_invoice"
+        as_user: "base.user_admin"
+
+      - step: "Get term 1's generated invoice"
+        action: "search"
+        model: "customer_invoice"
+        domain: [["id", "=", "REC: rr_b_term1.customer_invoice_id.id"]]
+        save_as: "rr_b_invoice1"
+        expect_count: 1
+
+      - step: "Confirm term 1's invoice"
+        action: "call"
+        target: "rr_b_invoice1"
+        method: "action_confirm"
+        as_user: "base.user_admin"
+
+      - step: "Force a refresh before reading approve_ok (T-04)"
+        action: "assert"
+        target: "rr_b_invoice1"
+        asserts:
+          state:
+            type: "value"
+            expected: "confirm"
+
+      - step: "Open term 1's invoice"
+        action: "call"
+        target: "rr_b_invoice1"
+        method: "action_approve_approval"
+        as_user: "base.user_admin"
+        asserts:
+          state:
+            type: "value"
+            expected: "open"
+
+      - step: "Create waiver B (Deferred type, covering term 1's date only)"
+        action: "create"
+        model: "school_fee_waiver"
+        save_as: "rr_b_waiver"
+        values:
+          type_id: "REC: rr_type_deferred.id"
+          reason_id: "REC: rr_reason.id"
+          student_id: "REC: rr_b_student.id"
+          enrollment_id: "REC: rr_b_enrollment.id"
+          coverage: "multi_term"
+          date_start: 2026-07-01
+          date_end: 2026-07-31
+          user_id: "REF: base.user_admin"
+          line_ids:
+            - - 0
+              - 0
+              - product_id: "REC: rr_product.id"
+                computation: "full"
+
+      - step: "Confirm waiver B"
+        action: "call"
+        target: "rr_b_waiver"
+        method: "action_confirm"
+        as_user: "base.user_admin"
+        asserts:
+          state:
+            type: "value"
+            expected: "confirm"
+
+      - step: "Approve waiver B"
+        action: "call"
+        target: "rr_b_waiver"
+        method: "action_approve_approval"
+        as_user: "base.user_admin"
+        asserts:
+          state:
+            type: "value"
+            expected: "open"
+
+      - step: "Waiver B's Schedule covers exactly term 1"
+        action: "assert"
+        target: "rr_b_waiver"
+        asserts:
+          schedule_ids:
+            type: "o2m"
+            check: "count"
+            expected_count: 1
+
+      - step: "Find waiver B's Schedule line"
+        action: "search"
+        model: "school_fee_waiver_schedule"
+        domain:
+          [
+            ["waiver_id", "=", "REC: rr_b_waiver.id"],
+            ["payment_term_id", "=", "REC: rr_b_term1.id"],
+          ]
+        save_as: "rr_b_sched1"
+        limit: 1
+
+      - step: "Create deduction B (Waiver B, full amount)"
+        action: "create"
+        model: "school_fee_waiver_deduction"
+        save_as: "rr_b_deduction"
+        values:
+          waiver_id: "REC: rr_b_waiver.id"
+          journal_id: "REC: rr_deduction_journal.id"
+          receivable_account_id: "REC: rr_receivable_account.id"
+          date: 2026-07-10
+
+      - step: "Add deduction B's Line"
+        action: "create"
+        model: "school_fee_waiver_deduction_line"
+        save_as: "rr_b_line1"
+        values:
+          deduction_id: "REC: rr_b_deduction.id"
+          schedule_id: "REC: rr_b_sched1.id"
+          account_id: "REC: rr_discount_account.id"
+          amount: 1000000.0
+
+      - step: "Allocate deduction B fully to term 1's invoice"
+        action: "create"
+        model: "school_fee_waiver_deduction_allocation"
+        save_as: "rr_b_alloc1"
+        values:
+          deduction_id: "REC: rr_b_deduction.id"
+          customer_invoice_id: "REC: rr_b_invoice1.id"
+          amount: 1000000.0
+
+      - step: "Confirm deduction B"
+        action: "call"
+        target: "rr_b_deduction"
+        method: "action_confirm"
+        as_user: "base.user_admin"
+        asserts:
+          state:
+            type: "value"
+            expected: "confirm"
+
+      - step: "Force a refresh before reading approve_ok (T-04)"
+        action: "assert"
+        target: "rr_b_deduction"
+        asserts:
+          state:
+            type: "value"
+            expected: "confirm"
+
+      # ── Positive (Scenario 1): open under `enrollment` mode ──────────────
+      - step: "Approve deduction B -- auto-opens under `enrollment` mode"
+        action: "call"
+        target: "rr_b_deduction"
+        method: "action_approve_approval"
+        as_user: "base.user_admin"
+        asserts:
+          state:
+            type: "value"
+            expected: "open"
+          recognition_method:
+            type: "value"
+            expected: "enrollment"
+
+      - step: "Deduction B's Line was deferred to the holding account"
+        action: "assert"
+        target: "rr_b_line1"
+        asserts:
+          account_id:
+            type: "m2o"
+            expected: "REC: rr_deferred_account"
+          final_account_id:
+            type: "m2o"
+            expected: "REC: rr_discount_account"
+
+      - step: "Term 1 Schedule line is Realized"
+        action: "assert"
+        target: "rr_b_sched1"
+        asserts:
+          state:
+            type: "value"
+            expected: "realized"
+
+      # ── Positive (Scenario 2): finish enrollment B, Recognition posts ────
+      - step: "Assert enrollment B's term is not the last term (done is allowed)"
+        action: "assert"
+        target: "rr_b_enrollment"
+        asserts:
+          academic_term_id.last_term:
+            type: "value"
+            expected: false
+
+      - step: "Finish enrollment B"
+        action: "call"
+        target: "rr_b_enrollment"
+        method: "action_done"
+        as_user: "base.user_admin"
+        asserts:
+          state:
+            type: "value"
+            expected: "done"
+
+      - step: "A Revenue Recognition move was posted for enrollment B"
+        action: "assert"
+        target: "rr_b_enrollment"
+        asserts:
+          recognition_move_id:
+            type: "value"
+            operator: "is_truthy"
+          recognition_move_id.state:
+            type: "value"
+            expected: "posted"
+
+      - step: "Exactly one Recognition Line traces back to deduction B's Line"
+        action: "search"
+        model: "school_enrollment_revenue_recognition_line"
+        domain: [["fee_waiver_deduction_line_id", "=", "REC: rr_b_line1.id"]]
+        save_as: "rr_b_recognition_line"
+        expect_count: 1
+
+      - step:
+          "The Recognition Line reclasses the holding account to the Final Account,
+          negated (mixin swap: Dr Final, Cr holding)"
+        action: "assert"
+        target: "rr_b_recognition_line"
+        asserts:
+          enrollment_id:
+            type: "m2o"
+            expected: "REC: rr_b_enrollment"
+          debit_account_id:
+            type: "m2o"
+            expected: "REC: rr_deferred_account"
+          credit_account_id:
+            type: "m2o"
+            expected: "REC: rr_discount_account"
+          amount:
+            type: "value"
+            expected: -1000000.0
+
+      # ── Positive (Scenario 4): a same-type deduction opened AFTER Done
+      # stays `immediate` -- there is no later Revenue Recognition entry
+      # left for it to be reclassed by. ─────────────────────────────────
+      - step: "Invoice enrollment B's term 2 (created after B is Done)"
+        action: "call"
+        target: "rr_b_term2"
+        method: "action_create_invoice"
+        as_user: "base.user_admin"
+
+      - step: "Get term 2's generated invoice"
+        action: "search"
+        model: "customer_invoice"
+        domain: [["id", "=", "REC: rr_b_term2.customer_invoice_id.id"]]
+        save_as: "rr_b_invoice2"
+        expect_count: 1
+
+      - step: "Confirm term 2's invoice"
+        action: "call"
+        target: "rr_b_invoice2"
+        method: "action_confirm"
+        as_user: "base.user_admin"
+
+      - step: "Force a refresh before reading approve_ok (T-04)"
+        action: "assert"
+        target: "rr_b_invoice2"
+        asserts:
+          state:
+            type: "value"
+            expected: "confirm"
+
+      - step: "Open term 2's invoice"
+        action: "call"
+        target: "rr_b_invoice2"
+        method: "action_approve_approval"
+        as_user: "base.user_admin"
+        asserts:
+          state:
+            type: "value"
+            expected: "open"
+
+      - step: "Create waiver B2 (Deferred type, covering term 2's date only)"
+        action: "create"
+        model: "school_fee_waiver"
+        save_as: "rr_b2_waiver"
+        values:
+          type_id: "REC: rr_type_deferred.id"
+          reason_id: "REC: rr_reason.id"
+          student_id: "REC: rr_b_student.id"
+          enrollment_id: "REC: rr_b_enrollment.id"
+          coverage: "multi_term"
+          date_start: 2026-08-01
+          date_end: 2026-08-31
+          user_id: "REF: base.user_admin"
+          line_ids:
+            - - 0
+              - 0
+              - product_id: "REC: rr_product.id"
+                computation: "full"
+
+      - step: "Confirm waiver B2"
+        action: "call"
+        target: "rr_b2_waiver"
+        method: "action_confirm"
+        as_user: "base.user_admin"
+
+      - step: "Force a refresh before reading approve_ok (T-04)"
+        action: "assert"
+        target: "rr_b2_waiver"
+        asserts:
+          state:
+            type: "value"
+            expected: "confirm"
+
+      - step: "Approve waiver B2"
+        action: "call"
+        target: "rr_b2_waiver"
+        method: "action_approve_approval"
+        as_user: "base.user_admin"
+        asserts:
+          state:
+            type: "value"
+            expected: "open"
+
+      - step: "Find waiver B2's Schedule line"
+        action: "search"
+        model: "school_fee_waiver_schedule"
+        domain:
+          [
+            ["waiver_id", "=", "REC: rr_b2_waiver.id"],
+            ["payment_term_id", "=", "REC: rr_b_term2.id"],
+          ]
+        save_as: "rr_b2_sched1"
+        limit: 1
+
+      - step: "Create deduction B2 (Waiver B2, full amount)"
+        action: "create"
+        model: "school_fee_waiver_deduction"
+        save_as: "rr_b2_deduction"
+        values:
+          waiver_id: "REC: rr_b2_waiver.id"
+          journal_id: "REC: rr_deduction_journal.id"
+          receivable_account_id: "REC: rr_receivable_account.id"
+          date: 2026-08-10
+
+      - step: "Add deduction B2's Line"
+        action: "create"
+        model: "school_fee_waiver_deduction_line"
+        save_as: "rr_b2_line1"
+        values:
+          deduction_id: "REC: rr_b2_deduction.id"
+          schedule_id: "REC: rr_b2_sched1.id"
+          account_id: "REC: rr_discount_account.id"
+          amount: 500000.0
+
+      - step: "Allocate deduction B2 fully to term 2's invoice"
+        action: "create"
+        model: "school_fee_waiver_deduction_allocation"
+        save_as: "rr_b2_alloc1"
+        values:
+          deduction_id: "REC: rr_b2_deduction.id"
+          customer_invoice_id: "REC: rr_b_invoice2.id"
+          amount: 500000.0
+
+      - step: "Confirm deduction B2"
+        action: "call"
+        target: "rr_b2_deduction"
+        method: "action_confirm"
+        as_user: "base.user_admin"
+
+      - step: "Force a refresh before reading approve_ok (T-04)"
+        action: "assert"
+        target: "rr_b2_deduction"
+        asserts:
+          state:
+            type: "value"
+            expected: "confirm"
+
+      - step: "Approve deduction B2 -- stays `immediate`, enrollment B already Done"
+        action: "call"
+        target: "rr_b2_deduction"
+        method: "action_approve_approval"
+        as_user: "base.user_admin"
+        asserts:
+          state:
+            type: "value"
+            expected: "open"
+          recognition_method:
+            type: "value"
+            expected: "immediate"
+
+      - step: "Deduction B2's Line kept its own Discount Account"
+        action: "assert"
+        target: "rr_b2_line1"
+        asserts:
+          account_id:
+            type: "m2o"
+            expected: "REC: rr_discount_account"
+
+      # ── Negative (Scenario 7): cancelling an already-recognized
+      # deduction is rejected. ──────────────────────────────────────────
+      - step: "Create the cancellation reason"
+        action: "create"
+        model: "base.cancel_reason"
+        save_as: "rr_cancel_reason"
+        values:
+          name: "RR Cancel Reason"
+          code: "RRCR"
+          global_use: true
+
+      - step: "Cancelling deduction B (already recognized) is rejected"
+        action: "wizard"
+        model: "base.select_cancel_reason"
+        target: "rr_b_deduction"
+        as_user: "base.user_admin"
+        values:
+          cancel_reason_id: "REC: rr_cancel_reason"
+        method: "action_confirm"
+        expect_error:
+          type: "UserError"
+          message_contains: "already recognized by an enrollment's own"
+
+      # ══════════════════════════════════════════════════════════════════
+      # Enrollment C -- cancel a deferred deduction BEFORE the enrollment
+      # reaches Done: the deferral is reverted, not left dangling.
+      # ══════════════════════════════════════════════════════════════════
+      - step: "Setup - create student contact C"
+        action: "create"
+        model: "res.partner"
+        save_as: "rr_c_contact"
+        values:
+          name: "RR C Contact"
+
+      - step: "Setup - create student C"
+        action: "create"
+        model: "school_student"
+        save_as: "rr_c_student"
+        values:
+          name: "RR C Student"
+          code: "RRCST"
+          contact_id: "REC: rr_c_contact.id"
+          school_id: "REC: rr_school.id"
+
+      - step: "Create enrollment C with Revenue Recognition enabled"
+        action: "create"
+        model: "school_enrollment"
+        save_as: "rr_c_enrollment"
+        values:
+          academic_year_id: "REC: rr_academic_year.id"
+          academic_term_id: "REC: rr_term_1.id"
+          school_id: "REC: rr_school.id"
+          grade_id: "REC: rr_grade.id"
+          grade_class_id: "REC: rr_grade_class.id"
+          student_id: "REC: rr_c_student.id"
+          currency_id: "REC: company.currency_id.id"
+          receivable_journal_id: "REC: rr_sale_journal.id"
+          receivable_account_id: "REC: rr_receivable_account.id"
+          customer_invoice_type_id: "REC: rr_ci_type.id"
+          revenue_recognition: true
+          recognition_journal_id: "REC: rr_sale_journal.id"
+
+      - step: "Create enrollment C's term 1"
+        action: "create"
+        model: "school_enrollment_payment_term"
+        save_as: "rr_c_term1"
+        values:
+          enrollment_id: "REC: rr_c_enrollment.id"
+          name: "RR C Term 1"
+          sequence: 10
+          date_invoice: 2026-07-05
+          date_due: 2026-07-20
+          detail_ids:
+            - - 0
+              - 0
+              - product_id: "REC: rr_product.id"
+                name: "RR C Term 1 Fee"
+                account_id: "REC: rr_income_account.id"
+                uom_quantity: 1.0
+                uom_id: "REF: uom.product_uom_unit"
+                price_unit: 800000.0
+
+      - step: "Confirm enrollment C"
+        action: "call"
+        target: "rr_c_enrollment"
+        method: "action_confirm"
+        as_user: "base.user_admin"
+
+      - step: "Force a refresh before reading approve_ok (T-04)"
+        action: "assert"
+        target: "rr_c_enrollment"
+        asserts:
+          state:
+            type: "value"
+            expected: "confirm"
+
+      - step: "Approve enrollment C"
+        action: "call"
+        target: "rr_c_enrollment"
+        method: "action_approve_approval"
+        as_user: "base.user_admin"
+        asserts:
+          state:
+            type: "value"
+            expected: "open"
+
+      - step: "Invoice enrollment C's term 1"
+        action: "call"
+        target: "rr_c_term1"
+        method: "action_create_invoice"
+        as_user: "base.user_admin"
+
+      - step: "Get term 1's generated invoice"
+        action: "search"
+        model: "customer_invoice"
+        domain: [["id", "=", "REC: rr_c_term1.customer_invoice_id.id"]]
+        save_as: "rr_c_invoice1"
+        expect_count: 1
+
+      - step: "Confirm term 1's invoice"
+        action: "call"
+        target: "rr_c_invoice1"
+        method: "action_confirm"
+        as_user: "base.user_admin"
+
+      - step: "Force a refresh before reading approve_ok (T-04)"
+        action: "assert"
+        target: "rr_c_invoice1"
+        asserts:
+          state:
+            type: "value"
+            expected: "confirm"
+
+      - step: "Open term 1's invoice"
+        action: "call"
+        target: "rr_c_invoice1"
+        method: "action_approve_approval"
+        as_user: "base.user_admin"
+        asserts:
+          state:
+            type: "value"
+            expected: "open"
+
+      - step: "Create waiver C (Deferred type)"
+        action: "create"
+        model: "school_fee_waiver"
+        save_as: "rr_c_waiver"
+        values:
+          type_id: "REC: rr_type_deferred.id"
+          reason_id: "REC: rr_reason.id"
+          student_id: "REC: rr_c_student.id"
+          enrollment_id: "REC: rr_c_enrollment.id"
+          coverage: "multi_term"
+          date_start: 2026-07-01
+          date_end: 2026-07-31
+          user_id: "REF: base.user_admin"
+          line_ids:
+            - - 0
+              - 0
+              - product_id: "REC: rr_product.id"
+                computation: "full"
+
+      - step: "Confirm waiver C"
+        action: "call"
+        target: "rr_c_waiver"
+        method: "action_confirm"
+        as_user: "base.user_admin"
+
+      - step: "Force a refresh before reading approve_ok (T-04)"
+        action: "assert"
+        target: "rr_c_waiver"
+        asserts:
+          state:
+            type: "value"
+            expected: "confirm"
+
+      - step: "Approve waiver C"
+        action: "call"
+        target: "rr_c_waiver"
+        method: "action_approve_approval"
+        as_user: "base.user_admin"
+        asserts:
+          state:
+            type: "value"
+            expected: "open"
+
+      - step: "Find waiver C's Schedule line"
+        action: "search"
+        model: "school_fee_waiver_schedule"
+        domain:
+          [
+            ["waiver_id", "=", "REC: rr_c_waiver.id"],
+            ["payment_term_id", "=", "REC: rr_c_term1.id"],
+          ]
+        save_as: "rr_c_sched1"
+        limit: 1
+
+      - step: "Create deduction C (Waiver C, full amount)"
+        action: "create"
+        model: "school_fee_waiver_deduction"
+        save_as: "rr_c_deduction"
+        values:
+          waiver_id: "REC: rr_c_waiver.id"
+          journal_id: "REC: rr_deduction_journal.id"
+          receivable_account_id: "REC: rr_receivable_account.id"
+          date: 2026-07-10
+
+      - step: "Add deduction C's Line"
+        action: "create"
+        model: "school_fee_waiver_deduction_line"
+        save_as: "rr_c_line1"
+        values:
+          deduction_id: "REC: rr_c_deduction.id"
+          schedule_id: "REC: rr_c_sched1.id"
+          account_id: "REC: rr_discount_account.id"
+          amount: 800000.0
+
+      - step: "Allocate deduction C fully to term 1's invoice"
+        action: "create"
+        model: "school_fee_waiver_deduction_allocation"
+        save_as: "rr_c_alloc1"
+        values:
+          deduction_id: "REC: rr_c_deduction.id"
+          customer_invoice_id: "REC: rr_c_invoice1.id"
+          amount: 800000.0
+
+      - step: "Confirm deduction C"
+        action: "call"
+        target: "rr_c_deduction"
+        method: "action_confirm"
+        as_user: "base.user_admin"
+
+      - step: "Force a refresh before reading approve_ok (T-04)"
+        action: "assert"
+        target: "rr_c_deduction"
+        asserts:
+          state:
+            type: "value"
+            expected: "confirm"
+
+      - step: "Approve deduction C -- auto-opens under `enrollment` mode"
+        action: "call"
+        target: "rr_c_deduction"
+        method: "action_approve_approval"
+        as_user: "base.user_admin"
+        asserts:
+          state:
+            type: "value"
+            expected: "open"
+          recognition_method:
+            type: "value"
+            expected: "enrollment"
+
+      # ── Positive (Scenario 5): cancel BEFORE enrollment C is Done ────────
+      - step: "Cancel deduction C via the wizard (enrollment C not Done yet)"
+        action: "wizard"
+        model: "base.select_cancel_reason"
+        target: "rr_c_deduction"
+        as_user: "base.user_admin"
+        values:
+          cancel_reason_id: "REC: rr_cancel_reason"
+        method: "action_confirm"
+        asserts:
+          state:
+            type: "value"
+            expected: "cancel"
+          recognition_method:
+            type: "value"
+            expected: "immediate"
+
+      - step: "Deduction C's Line reverted to its own Final Account"
+        action: "assert"
+        target: "rr_c_line1"
+        asserts:
+          account_id:
+            type: "m2o"
+            expected: "REC: rr_discount_account"
+          final_account_id:
+            type: "m2o"
+            expected: "REC: rr_discount_account"
+
+      # ══════════════════════════════════════════════════════════════════
+      # Enrollment A -- a Draft/Waiting deduction allocated to one of its
+      # own invoices blocks `action_done` outright.
+      # ══════════════════════════════════════════════════════════════════
+      - step: "Setup - create student contact A"
+        action: "create"
+        model: "res.partner"
+        save_as: "rr_a_contact"
+        values:
+          name: "RR A Contact"
+
+      - step: "Setup - create student A"
+        action: "create"
+        model: "school_student"
+        save_as: "rr_a_student"
+        values:
+          name: "RR A Student"
+          code: "RRAST"
+          contact_id: "REC: rr_a_contact.id"
+          school_id: "REC: rr_school.id"
+
+      - step: "Create enrollment A with Revenue Recognition enabled"
+        action: "create"
+        model: "school_enrollment"
+        save_as: "rr_a_enrollment"
+        values:
+          academic_year_id: "REC: rr_academic_year.id"
+          academic_term_id: "REC: rr_term_1.id"
+          school_id: "REC: rr_school.id"
+          grade_id: "REC: rr_grade.id"
+          grade_class_id: "REC: rr_grade_class.id"
+          student_id: "REC: rr_a_student.id"
+          currency_id: "REC: company.currency_id.id"
+          receivable_journal_id: "REC: rr_sale_journal.id"
+          receivable_account_id: "REC: rr_receivable_account.id"
+          customer_invoice_type_id: "REC: rr_ci_type.id"
+          revenue_recognition: true
+          recognition_journal_id: "REC: rr_sale_journal.id"
+
+      - step: "Create enrollment A's term 1"
+        action: "create"
+        model: "school_enrollment_payment_term"
+        save_as: "rr_a_term1"
+        values:
+          enrollment_id: "REC: rr_a_enrollment.id"
+          name: "RR A Term 1"
+          sequence: 10
+          date_invoice: 2026-07-05
+          date_due: 2026-07-20
+          detail_ids:
+            - - 0
+              - 0
+              - product_id: "REC: rr_product.id"
+                name: "RR A Term 1 Fee"
+                account_id: "REC: rr_income_account.id"
+                uom_quantity: 1.0
+                uom_id: "REF: uom.product_uom_unit"
+                price_unit: 600000.0
+
+      - step: "Confirm enrollment A"
+        action: "call"
+        target: "rr_a_enrollment"
+        method: "action_confirm"
+        as_user: "base.user_admin"
+
+      - step: "Force a refresh before reading approve_ok (T-04)"
+        action: "assert"
+        target: "rr_a_enrollment"
+        asserts:
+          state:
+            type: "value"
+            expected: "confirm"
+
+      - step: "Approve enrollment A"
+        action: "call"
+        target: "rr_a_enrollment"
+        method: "action_approve_approval"
+        as_user: "base.user_admin"
+        asserts:
+          state:
+            type: "value"
+            expected: "open"
+
+      - step: "Invoice enrollment A's term 1"
+        action: "call"
+        target: "rr_a_term1"
+        method: "action_create_invoice"
+        as_user: "base.user_admin"
+
+      - step: "Get term 1's generated invoice"
+        action: "search"
+        model: "customer_invoice"
+        domain: [["id", "=", "REC: rr_a_term1.customer_invoice_id.id"]]
+        save_as: "rr_a_invoice1"
+        expect_count: 1
+
+      - step: "Confirm term 1's invoice"
+        action: "call"
+        target: "rr_a_invoice1"
+        method: "action_confirm"
+        as_user: "base.user_admin"
+
+      - step: "Force a refresh before reading approve_ok (T-04)"
+        action: "assert"
+        target: "rr_a_invoice1"
+        asserts:
+          state:
+            type: "value"
+            expected: "confirm"
+
+      - step: "Open term 1's invoice"
+        action: "call"
+        target: "rr_a_invoice1"
+        method: "action_approve_approval"
+        as_user: "base.user_admin"
+        asserts:
+          state:
+            type: "value"
+            expected: "open"
+
+      - step: "Create waiver A (Deferred type)"
+        action: "create"
+        model: "school_fee_waiver"
+        save_as: "rr_a_waiver"
+        values:
+          type_id: "REC: rr_type_deferred.id"
+          reason_id: "REC: rr_reason.id"
+          student_id: "REC: rr_a_student.id"
+          enrollment_id: "REC: rr_a_enrollment.id"
+          coverage: "multi_term"
+          date_start: 2026-07-01
+          date_end: 2026-07-31
+          user_id: "REF: base.user_admin"
+          line_ids:
+            - - 0
+              - 0
+              - product_id: "REC: rr_product.id"
+                computation: "full"
+
+      - step: "Confirm waiver A"
+        action: "call"
+        target: "rr_a_waiver"
+        method: "action_confirm"
+        as_user: "base.user_admin"
+
+      - step: "Force a refresh before reading approve_ok (T-04)"
+        action: "assert"
+        target: "rr_a_waiver"
+        asserts:
+          state:
+            type: "value"
+            expected: "confirm"
+
+      - step: "Approve waiver A"
+        action: "call"
+        target: "rr_a_waiver"
+        method: "action_approve_approval"
+        as_user: "base.user_admin"
+        asserts:
+          state:
+            type: "value"
+            expected: "open"
+
+      - step: "Find waiver A's Schedule line"
+        action: "search"
+        model: "school_fee_waiver_schedule"
+        domain:
+          [
+            ["waiver_id", "=", "REC: rr_a_waiver.id"],
+            ["payment_term_id", "=", "REC: rr_a_term1.id"],
+          ]
+        save_as: "rr_a_sched1"
+        limit: 1
+
+      - step: "Create deduction A (Waiver A, full amount) -- left Draft"
+        action: "create"
+        model: "school_fee_waiver_deduction"
+        save_as: "rr_a_deduction"
+        values:
+          waiver_id: "REC: rr_a_waiver.id"
+          journal_id: "REC: rr_deduction_journal.id"
+          receivable_account_id: "REC: rr_receivable_account.id"
+          date: 2026-07-10
+
+      - step: "Add deduction A's Line"
+        action: "create"
+        model: "school_fee_waiver_deduction_line"
+        values:
+          deduction_id: "REC: rr_a_deduction.id"
+          schedule_id: "REC: rr_a_sched1.id"
+          account_id: "REC: rr_discount_account.id"
+          amount: 600000.0
+
+      - step: "Allocate deduction A fully to term 1's invoice"
+        action: "create"
+        model: "school_fee_waiver_deduction_allocation"
+        values:
+          deduction_id: "REC: rr_a_deduction.id"
+          customer_invoice_id: "REC: rr_a_invoice1.id"
+          amount: 600000.0
+
+      - step: "Confirm deduction A (left Waiting for Approval, never opened)"
+        action: "call"
+        target: "rr_a_deduction"
+        method: "action_confirm"
+        as_user: "base.user_admin"
+        asserts:
+          state:
+            type: "value"
+            expected: "confirm"
+
+      # ── Negative (Scenario 6): pending deduction blocks `action_done` ────
+      - step: "Assert enrollment A's term is not the last term"
+        action: "assert"
+        target: "rr_a_enrollment"
+        asserts:
+          academic_term_id.last_term:
+            type: "value"
+            expected: false
+
+      - step:
+          "Finishing enrollment A is rejected while deduction A is still Waiting for
+          Approval"
+        action: "call"
+        target: "rr_a_enrollment"
+        method: "action_done"
+        as_user: "base.user_admin"
+        expect_error:
+          type: "UserError"
+          message_contains: "still Draft/Waiting for Approval"
+
+      # ══════════════════════════════════════════════════════════════════
+      # Positive (Scenario 3): a fee waiver type with NO Deferred Discount
+      # Account never defers, regardless of the enrollment's own state --
+      # reuses enrollment A's own second term, allocated to a fresh
+      # invoice so residuals stay independent of deduction A above.
+      # ══════════════════════════════════════════════════════════════════
+      - step: "Create enrollment A's term 2 (No-Deferred type target)"
+        action: "create"
+        model: "school_enrollment_payment_term"
+        save_as: "rr_a_term2"
+        values:
+          enrollment_id: "REC: rr_a_enrollment.id"
+          name: "RR A Term 2"
+          sequence: 20
+          date_invoice: 2026-08-05
+          date_due: 2026-08-20
+          detail_ids:
+            - - 0
+              - 0
+              - product_id: "REC: rr_product.id"
+                name: "RR A Term 2 Fee"
+                account_id: "REC: rr_income_account.id"
+                uom_quantity: 1.0
+                uom_id: "REF: uom.product_uom_unit"
+                price_unit: 400000.0
+
+      - step: "Invoice enrollment A's term 2"
+        action: "call"
+        target: "rr_a_term2"
+        method: "action_create_invoice"
+        as_user: "base.user_admin"
+
+      - step: "Get term 2's generated invoice"
+        action: "search"
+        model: "customer_invoice"
+        domain: [["id", "=", "REC: rr_a_term2.customer_invoice_id.id"]]
+        save_as: "rr_a_invoice2"
+        expect_count: 1
+
+      - step: "Confirm term 2's invoice"
+        action: "call"
+        target: "rr_a_invoice2"
+        method: "action_confirm"
+        as_user: "base.user_admin"
+
+      - step: "Force a refresh before reading approve_ok (T-04)"
+        action: "assert"
+        target: "rr_a_invoice2"
+        asserts:
+          state:
+            type: "value"
+            expected: "confirm"
+
+      - step: "Open term 2's invoice"
+        action: "call"
+        target: "rr_a_invoice2"
+        method: "action_approve_approval"
+        as_user: "base.user_admin"
+        asserts:
+          state:
+            type: "value"
+            expected: "open"
+
+      - step: "Create waiver A2 (No-Deferred type, covering term 2's date only)"
+        action: "create"
+        model: "school_fee_waiver"
+        save_as: "rr_a2_waiver"
+        values:
+          type_id: "REC: rr_type_no_deferred.id"
+          reason_id: "REC: rr_reason.id"
+          student_id: "REC: rr_a_student.id"
+          enrollment_id: "REC: rr_a_enrollment.id"
+          coverage: "multi_term"
+          date_start: 2026-08-01
+          date_end: 2026-08-31
+          user_id: "REF: base.user_admin"
+          line_ids:
+            - - 0
+              - 0
+              - product_id: "REC: rr_product.id"
+                computation: "full"
+
+      - step: "Confirm waiver A2"
+        action: "call"
+        target: "rr_a2_waiver"
+        method: "action_confirm"
+        as_user: "base.user_admin"
+
+      - step: "Force a refresh before reading approve_ok (T-04)"
+        action: "assert"
+        target: "rr_a2_waiver"
+        asserts:
+          state:
+            type: "value"
+            expected: "confirm"
+
+      - step: "Approve waiver A2"
+        action: "call"
+        target: "rr_a2_waiver"
+        method: "action_approve_approval"
+        as_user: "base.user_admin"
+        asserts:
+          state:
+            type: "value"
+            expected: "open"
+
+      - step: "Find waiver A2's Schedule line"
+        action: "search"
+        model: "school_fee_waiver_schedule"
+        domain:
+          [
+            ["waiver_id", "=", "REC: rr_a2_waiver.id"],
+            ["payment_term_id", "=", "REC: rr_a_term2.id"],
+          ]
+        save_as: "rr_a2_sched1"
+        limit: 1
+
+      - step: "Create deduction A2 (Waiver A2, full amount)"
+        action: "create"
+        model: "school_fee_waiver_deduction"
+        save_as: "rr_a2_deduction"
+        values:
+          waiver_id: "REC: rr_a2_waiver.id"
+          journal_id: "REC: rr_deduction_journal.id"
+          receivable_account_id: "REC: rr_receivable_account.id"
+          date: 2026-08-10
+
+      - step: "Add deduction A2's Line"
+        action: "create"
+        model: "school_fee_waiver_deduction_line"
+        save_as: "rr_a2_line1"
+        values:
+          deduction_id: "REC: rr_a2_deduction.id"
+          schedule_id: "REC: rr_a2_sched1.id"
+          account_id: "REC: rr_discount_account.id"
+          amount: 400000.0
+
+      - step: "Allocate deduction A2 fully to term 2's invoice"
+        action: "create"
+        model: "school_fee_waiver_deduction_allocation"
+        values:
+          deduction_id: "REC: rr_a2_deduction.id"
+          customer_invoice_id: "REC: rr_a_invoice2.id"
+          amount: 400000.0
+
+      - step: "Confirm deduction A2"
+        action: "call"
+        target: "rr_a2_deduction"
+        method: "action_confirm"
+        as_user: "base.user_admin"
+
+      - step: "Force a refresh before reading approve_ok (T-04)"
+        action: "assert"
+        target: "rr_a2_deduction"
+        asserts:
+          state:
+            type: "value"
+            expected: "confirm"
+
+      - step: "Approve deduction A2 -- No-Deferred type never defers"
+        action: "call"
+        target: "rr_a2_deduction"
+        method: "action_approve_approval"
+        as_user: "base.user_admin"
+        asserts:
+          state:
+            type: "value"
+            expected: "open"
+          recognition_method:
+            type: "value"
+            expected: "immediate"
+
+      - step: "Deduction A2's Line kept its own Discount Account"
+        action: "assert"
+        target: "rr_a2_line1"
+        asserts:
+          account_id:
+            type: "m2o"
+            expected: "REC: rr_discount_account"
