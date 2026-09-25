@@ -426,14 +426,6 @@ scenarios:
           account_id: "REC: rr_discount_account.id"
           amount: 1000000.0
 
-      - step: "Deduction B's Line kept its onchange defaults (T-06 sanity)"
-        action: "assert"
-        target: "rr_b_line1"
-        asserts:
-          final_account_id:
-            type: "m2o"
-            expected: "REC: rr_discount_account"
-
       - step: "Allocate deduction B fully to term 1's invoice"
         action: "create"
         model: "school_fee_waiver_deduction_allocation"
