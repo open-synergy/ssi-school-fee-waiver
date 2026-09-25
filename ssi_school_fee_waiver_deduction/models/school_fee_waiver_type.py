@@ -35,3 +35,13 @@ class SchoolFeeWaiverType(models.Model):
         help="Discount/contra-revenue account a deduction line of "
         "this fee waiver type defaults its own Account from.",
     )
+    deferred_discount_account_id = fields.Many2one(
+        string="Deferred Discount Account",
+        comodel_name="account.account",
+        ondelete="restrict",
+        help="Holding account a deduction line of this fee waiver "
+        "type is booked to instead of its own Discount Account, "
+        "while the deduction's allocated invoice belongs to an "
+        "enrollment whose Revenue Recognition is still pending. "
+        "Left empty, a deduction of this type is never deferred.",
+    )

@@ -93,6 +93,7 @@
                         <field name="move_id" readonly="1" />
                         <field name="receivable_move_line_id" readonly="1" />
                         <field name="reconciled" readonly="1" />
+                        <field name="recognition_method" readonly="1" />
                     </group>
                 </page>
                 <page name="line" string="Lines">
@@ -103,6 +104,7 @@
                                     domain="[('waiver_id', '=', parent.waiver_id)]"
                                 />
                             <field name="account_id" />
+                            <field name="final_account_id" />
                             <field name="analytic_account_id" />
                             <field name="amount" widget="monetary" />
                             <field name="move_line_id" />
@@ -115,6 +117,7 @@
                                         domain="[('waiver_id', '=', parent.waiver_id)]"
                                     />
                                 <field name="account_id" />
+                                <field name="final_account_id" />
                                 <field name="analytic_account_id" />
                                 <field name="amount" widget="monetary" />
                                 <field name="move_line_id" />

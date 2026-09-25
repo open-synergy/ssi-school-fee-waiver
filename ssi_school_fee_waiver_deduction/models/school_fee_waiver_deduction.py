@@ -274,6 +274,23 @@ class SchoolFeeWaiverDeduction(models.Model):
         help="Technical flag mirroring whether the receivable journal "
         "item has been fully reconciled.",
     )
+    recognition_method = fields.Selection(
+        string="Recognition Method",
+        selection=[
+            ("immediate", "Immediate"),
+            ("enrollment", "Enrollment"),
+        ],
+        default="immediate",
+        readonly=True,
+        copy=False,
+        help="``immediate`` books every Line straight to its own "
+        "Account when this document opens. ``enrollment`` instead "
+        "books every Line to the Waiver Type's own Deferred Discount "
+        "Account, deferring recognition to the enrollment's own "
+        "Revenue Recognition entry. Set by "
+        "``_03_apply_enrollment_recognition`` when this document "
+        "opens; never set by the user.",
+    )
 
     @api.depends("waiver_id")
     def _compute_student_id(self):
@@ -354,6 +371,71 @@ Solution: Select a Waiver that has already reached Open or Done
                     record.waiver_id.display_name,
                 )
                 raise ValidationError(_(error_message))
+
+    def _get_revenue_recognition_enrollments(self):
+        """Return the enrollments behind this document's allocated invoices.
+
+        Looked up through ``school_enrollment_payment_term`` rather
+        than through the invoice's own fields, since the invoice
+        itself carries no direct link back to the enrollment: every
+        payment term whose own ``customer_invoice_id`` matches one of
+        this document's allocated invoices contributes its
+        ``enrollment_id``.
+
+        :return: recordset of ``school_enrollment``
+        """
+        self.ensure_one()
+        invoice_ids = self.allocation_ids.mapped("customer_invoice_id").ids
+        if not invoice_ids:
+            return self.env["school_enrollment"]
+        terms = self.env["school_enrollment_payment_term"].search(
+            [("customer_invoice_id", "in", invoice_ids)]
+        )
+        return terms.mapped("enrollment_id")
+
+    @ssi_decorator.pre_open_action()
+    def _03_apply_enrollment_recognition(self):
+        """Defer this document's own Lines to an enrollment's own recognition.
+
+        Pre-open hook, runs before ``_05_check_amount_unallocated``.
+        A no-op unless every enrollment behind this document's
+        allocated invoices (``_get_revenue_recognition_enrollments``)
+        still has ``revenue_recognition`` enabled and has not yet
+        reached ``done``, **and** this document's own Waiver's Type
+        has a Deferred Discount Account configured. Otherwise every
+        Line keeps its default ``immediate`` behaviour -- including a
+        deduction opened after the enrollment already reached
+        ``done``, which simply books straight to its own Discount
+        Account since there is no later Revenue Recognition entry
+        left to reclass it.
+
+        When it does apply: every Line without a Final Account yet
+        gets one, copied from its own current ``account_id``; then
+        every Line's own ``account_id`` is replaced by the Deferred
+        Discount Account, and this document's own
+        ``recognition_method`` is set to ``enrollment``. The
+        enrollment's own ``_prepare_revenue_recognition_line_data``
+        override reclasses these Lines back to their own Final
+        Account once the enrollment reaches ``done``.
+
+        :return: nothing
+        """
+        self.ensure_one()
+        deferred_account = self.waiver_id.type_id.deferred_discount_account_id
+        if not deferred_account:
+            return
+        enrollments = self._get_revenue_recognition_enrollments()
+        if not enrollments:
+            return
+        if not all(enrollments.mapped("revenue_recognition")):
+            return
+        if any(enrollment.state == "done" for enrollment in enrollments):
+            return
+        for line in self.line_ids:
+            if not line.final_account_id:
+                line.final_account_id = line.account_id
+        self.line_ids.write({"account_id": deferred_account.id})
+        self.recognition_method = "enrollment"
 
     @ssi_decorator.pre_open_action()
     def _05_check_amount_unallocated(self):
@@ -529,6 +611,39 @@ cancel this document and re-create the Allocation against it
                 }
             )
 
+    @ssi_decorator.pre_cancel_check()
+    def _05_check_not_recognized(self):
+        """Reject cancelling a document already recognized by an enrollment.
+
+        Once an enrollment's own Revenue Recognition entry has been
+        posted, one ``school_enrollment_revenue_recognition_line`` per
+        Line of this document points back to it
+        (``fee_waiver_deduction_line_id``) -- cancelling this document
+        afterwards would leave that recognition line's own accounting
+        without the deduction it was meant to reclass.
+
+        :raises UserError: when any Line is referenced by an
+            enrollment's own Revenue Recognition Line
+        """
+        self.ensure_one()
+        recognized = self.env[
+            "school_enrollment_revenue_recognition_line"
+        ].search_count([("fee_waiver_deduction_line_id", "in", self.line_ids.ids)])
+        if recognized:
+            error_message = """
+Document Type: %s
+Context: Cancel deduction
+Database ID: %s
+Problem: This document is already recognized by an enrollment's own \
+Revenue Recognition entry
+Solution: Cancel the enrollment's own Revenue Recognition first, or do not \
+cancel this document
+""" % (
+                self._description,
+                self.id,
+            )
+            raise UserError(_(error_message))
+
     @ssi_decorator.post_cancel_action()
     def _10_unreconcile(self):
         """Undo the reconciliation created by ``_20_reconcile``.
@@ -582,6 +697,28 @@ cancel this document and re-create the Allocation against it
                 "amount_realized": 0.0,
             }
         )
+
+    @ssi_decorator.post_cancel_action()
+    def _40_revert_enrollment_recognition(self):
+        """Undo the deferral applied by ``_03_apply_enrollment_recognition``.
+
+        A no-op while ``recognition_method`` is ``immediate``.
+        Otherwise returns each Line's own ``account_id`` to its own
+        Final Account and resets ``recognition_method`` back to
+        ``immediate``. Safe to run unconditionally otherwise:
+        ``_05_check_not_recognized`` (pre-cancel) already rejected
+        cancelling a document whose Lines are referenced by an
+        enrollment's own Revenue Recognition, so no live recognition
+        entry is ever left dangling by this reversal.
+
+        :return: nothing
+        """
+        self.ensure_one()
+        if self.recognition_method != "enrollment":
+            return
+        for line in self.line_ids:
+            line.account_id = line.final_account_id
+        self.recognition_method = "immediate"
 
     @ssi_decorator.insert_on_form_view()
     def _insert_form_element(self, view_arch):

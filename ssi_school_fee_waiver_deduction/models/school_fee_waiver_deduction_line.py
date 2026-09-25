@@ -53,7 +53,20 @@ class SchoolFeeWaiverDeductionLine(models.Model):
         required=True,
         ondelete="restrict",
         help="Discount/contra-revenue account this line debits. "
-        "Defaulted from the Schedule's own Waiver Type.",
+        "Defaulted from the Schedule's own Waiver Type. Temporarily "
+        "replaced by the Waiver Type's own Deferred Discount Account "
+        "while this line's parent document is opened under "
+        "``recognition_method`` ``enrollment``.",
+    )
+    final_account_id = fields.Many2one(
+        string="Final Account",
+        comodel_name="account.account",
+        ondelete="restrict",
+        help="Discount/contra-revenue account this line's amount is "
+        "ultimately recognized against. Defaulted together with "
+        "``account_id`` and left untouched afterwards, so it still "
+        "names the original account once ``account_id`` itself is "
+        "temporarily replaced by the Deferred Discount Account.",
     )
     amount = fields.Monetary(
         string="Amount",
@@ -103,13 +116,23 @@ class SchoolFeeWaiverDeductionLine(models.Model):
 
     @api.onchange("schedule_id")
     def onchange_account_id(self):
-        """Default Account from the Schedule's own Waiver Type.
+        """Default Account and Final Account from the Waiver Type.
+
+        Both fields start out equal: ``account_id`` is later replaced
+        by the Deferred Discount Account when this line's parent
+        document opens under ``recognition_method`` ``enrollment``
+        (see ``_03_apply_enrollment_recognition``), while
+        ``final_account_id`` keeps naming the account the amount is
+        ultimately recognized against.
 
         :return: nothing
         """
         self.account_id = False
+        self.final_account_id = False
         if self.schedule_id:
-            self.account_id = self.schedule_id.waiver_id.type_id.discount_account_id
+            account = self.schedule_id.waiver_id.type_id.discount_account_id
+            self.account_id = account
+            self.final_account_id = account
 
     @api.constrains("schedule_id", "amount")
     def _check_amount_not_exceed_remaining_planned(self):

@@ -37,3 +37,15 @@ is fulfilled, the document moves straight to **On Progress** without a separate 
   invoice whose residual reaches zero moves to **Paid** on its own.
 - Every realized Schedule line (one per Deduction Line) moves to **Realized**, with its
   own Amount Realized filled in and its own Deduction pointing back to this document.
+- **If** every enrollment behind this document's allocated invoices still has Revenue
+  Recognition enabled, has not yet reached **Done**, and this document's own Fee Waiver
+  Type has a Deferred Discount Account configured: Recognition Method is set to
+  **Enrollment**, and every Deduction Line's own Final Account is filled (from its own
+  Account, if still empty) before its own Account is replaced by the Deferred Discount
+  Account -- the journal entry above is posted to that Deferred Discount Account instead
+  of the Line's own usual Discount Account. The enrollment's own Revenue Recognition
+  entry reclasses this amount to the Line's own Final Account once that enrollment
+  reaches **Done**. **Otherwise** (Recognition Method stays **Immediate**): every Line
+  is booked straight to its own Account as described above, unchanged -- including a
+  document approved after the enrollment already reached **Done**, or whose Fee Waiver
+  Type has no Deferred Discount Account configured.
