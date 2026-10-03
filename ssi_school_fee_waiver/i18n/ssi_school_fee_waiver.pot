@@ -384,6 +384,8 @@ msgid ""
 msgstr ""
 
 #. module: ssi_school_fee_waiver
+#: model:ir.model.fields,field_description:ssi_school_fee_waiver.field_school_enrollment__display_name
+#: model:ir.model.fields,field_description:ssi_school_fee_waiver.field_school_enrollment_payment_term__display_name
 #: model:ir.model.fields,field_description:ssi_school_fee_waiver.field_school_fee_waiver__display_name
 #: model:ir.model.fields,field_description:ssi_school_fee_waiver.field_school_fee_waiver_line__display_name
 #: model:ir.model.fields,field_description:ssi_school_fee_waiver.field_school_fee_waiver_reason__display_name
@@ -575,6 +577,8 @@ msgid ""
 msgstr ""
 
 #. module: ssi_school_fee_waiver
+#: model:ir.model.fields,field_description:ssi_school_fee_waiver.field_school_enrollment__id
+#: model:ir.model.fields,field_description:ssi_school_fee_waiver.field_school_enrollment_payment_term__id
 #: model:ir.model.fields,field_description:ssi_school_fee_waiver.field_school_fee_waiver__id
 #: model:ir.model.fields,field_description:ssi_school_fee_waiver.field_school_fee_waiver_line__id
 #: model:ir.model.fields,field_description:ssi_school_fee_waiver.field_school_fee_waiver_reason__id
@@ -622,6 +626,8 @@ msgid "Is Follower"
 msgstr ""
 
 #. module: ssi_school_fee_waiver
+#: model:ir.model.fields,field_description:ssi_school_fee_waiver.field_school_enrollment____last_update
+#: model:ir.model.fields,field_description:ssi_school_fee_waiver.field_school_enrollment_payment_term____last_update
 #: model:ir.model.fields,field_description:ssi_school_fee_waiver.field_school_fee_waiver____last_update
 #: model:ir.model.fields,field_description:ssi_school_fee_waiver.field_school_fee_waiver_line____last_update
 #: model:ir.model.fields,field_description:ssi_school_fee_waiver.field_school_fee_waiver_reason____last_update
@@ -990,6 +996,16 @@ msgstr ""
 #: model:ir.model.fields,field_description:ssi_school_fee_waiver.field_school_fee_waiver__school_id
 #: model_terms:ir.ui.view,arch_db:ssi_school_fee_waiver.school_fee_waiver_view_search
 msgid "School"
+msgstr ""
+
+#. module: ssi_school_fee_waiver
+#: model:ir.model,name:ssi_school_fee_waiver.model_school_enrollment
+msgid "School Enrollment"
+msgstr ""
+
+#. module: ssi_school_fee_waiver
+#: model:ir.model,name:ssi_school_fee_waiver.model_school_enrollment_payment_term
+msgid "School Enrollment Payment Term"
 msgstr ""
 
 #. module: ssi_school_fee_waiver
