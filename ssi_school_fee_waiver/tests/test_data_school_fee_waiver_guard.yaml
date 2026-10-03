@@ -1,0 +1,420 @@
+options:
+  auto_refresh: true
+scenarios:
+  - name: "Fee Waiver Guards - Payment Term Deletion And Enrollment Cancel"
+    steps:
+      # ── Shared fixture chain (suffix FG1) ────────────────────────
+      - step: "Create the grade type"
+        action: "create"
+        model: "school_grade_type"
+        save_as: "fg1_grade_type"
+        values:
+          name: "FG1 Grade Type"
+          code: "FG1GT"
+
+      - step: "Create the school"
+        action: "create"
+        model: "school"
+        save_as: "fg1_school"
+        values:
+          name: "FG1 School"
+          code: "FG1SC"
+          grade_type_id: "REC: fg1_grade_type.id"
+
+      - step: "Create the academic year"
+        action: "create"
+        model: "school_academic_year"
+        save_as: "fg1_academic_year"
+        values:
+          name: "FG1 Academic Year"
+          code: "FG1AY"
+          date_start: 2026-07-01
+          date_end: 2027-06-30
+
+      - step: "Create the academic term"
+        action: "create"
+        model: "school_academic_term"
+        save_as: "fg1_academic_term"
+        values:
+          name: "FG1 Term"
+          code: "FG1TM"
+          date_start: 2026-07-01
+          date_end: 2026-12-31
+          year_id: "REC: fg1_academic_year.id"
+
+      - step: "Create the grade"
+        action: "create"
+        model: "school_grade"
+        save_as: "fg1_grade"
+        values:
+          name: "FG1 Grade"
+          code: "FG1GR"
+          type_id: "REC: fg1_grade_type.id"
+
+      - step: "Create the grade class"
+        action: "create"
+        model: "school_grade_class"
+        save_as: "fg1_grade_class"
+        values:
+          name: "FG1 Class"
+          code: "FG1CL"
+          school_id: "REC: fg1_school.id"
+          grade_id: "REC: fg1_grade.id"
+
+      - step: "Create the student contact"
+        action: "create"
+        model: "res.partner"
+        save_as: "fg1_contact"
+        values:
+          name: "FG1 Contact"
+
+      - step: "Create the student"
+        action: "create"
+        model: "school_student"
+        save_as: "fg1_student"
+        values:
+          name: "FG1 Student"
+          code: "FG1ST"
+          contact_id: "REC: fg1_contact.id"
+          school_id: "REC: fg1_school.id"
+
+      - step: "Create the enrollment"
+        action: "create"
+        model: "school_enrollment"
+        save_as: "fg1_enrollment"
+        values:
+          academic_year_id: "REC: fg1_academic_year.id"
+          academic_term_id: "REC: fg1_academic_term.id"
+          school_id: "REC: fg1_school.id"
+          grade_id: "REC: fg1_grade.id"
+          grade_class_id: "REC: fg1_grade_class.id"
+          student_id: "REC: fg1_student.id"
+
+      - step: "Get the account.account.type Income reference"
+        action: "ref"
+        xml_id: "account.data_account_type_revenue"
+        save_as: "account_type_income"
+
+      - step: "Create the income account used by payment term details"
+        action: "create"
+        model: "account.account"
+        save_as: "fg1_income_account"
+        values:
+          name: "FG1 Income Account"
+          code: "FG1IA"
+          user_type_id: "REC: account_type_income.id"
+          reconcile: false
+
+      - step: "Create the product covered by the waiver line"
+        action: "create"
+        model: "product.product"
+        save_as: "fg1_product"
+        values:
+          name: "FG1 Product"
+          type: "service"
+
+      - step: "Create the fee waiver type"
+        action: "create"
+        model: "school_fee_waiver_type"
+        save_as: "fg1_type"
+        values:
+          name: "FG1 Type"
+          code: "FG1TY"
+
+      - step: "Create the fee waiver reason"
+        action: "create"
+        model: "school_fee_waiver_reason"
+        save_as: "fg1_reason"
+        values:
+          name: "FG1 Reason"
+          code: "FG1RS"
+
+      - step: "Get the sale journal"
+        action: "search"
+        model: "account.journal"
+        domain: [["type", "=", "sale"]]
+        save_as: "fg1_journal"
+        limit: 1
+
+      - step: "Get the receivable account type"
+        action: "ref"
+        xml_id: "account.data_account_type_receivable"
+        save_as: "fg1_receivable_type"
+
+      - step: "Create the receivable account"
+        action: "create"
+        model: "account.account"
+        save_as: "fg1_receivable_account"
+        values:
+          name: "FG1 Receivable Account"
+          code: "FG1RA"
+          user_type_id: "REC: fg1_receivable_type.id"
+          reconcile: true
+
+      - step: "Create the customer invoice type"
+        action: "create"
+        model: "customer_invoice_type"
+        save_as: "fg1_ci_type"
+        values:
+          name: "FG1 Customer Invoice Type"
+          code: "FG1CIT"
+          journal_id: "REC: fg1_journal.id"
+          receivable_account_id: "REC: fg1_receivable_account.id"
+
+      - step: "Create an empty payment template"
+        action: "create"
+        model: "school_enrollment_payment_template"
+        save_as: "fg1_template"
+        values:
+          name: "FG1 Payment Template"
+          code: "FG1PT"
+          school_id: "REC: fg1_school.id"
+          grade_id: "REC: fg1_grade.id"
+          academic_term_id: "REC: fg1_academic_term.id"
+          journal_id: "REC: fg1_journal.id"
+          receivable_account_id: "REC: fg1_receivable_account.id"
+          customer_invoice_type_id: "REC: fg1_ci_type.id"
+
+      - step: "Attach the payment template to the enrollment"
+        action: "write"
+        target: "fg1_enrollment"
+        values:
+          payment_template_id: "REC: fg1_template.id"
+
+      - step: "Create the cancellation reason"
+        action: "create"
+        model: "base.cancel_reason"
+        save_as: "fg1_cancel_reason"
+        values:
+          name: "FG1 Cancel Reason"
+          code: "FG1CR"
+
+      # -- Positive: Multiple Payment Terms waiver without Schedule
+      - step: "Enrollment starts with terms to be recomputed"
+        action: "assert"
+        target: "fg1_enrollment"
+        asserts:
+          payment_term_ids:
+            type: "o2m"
+            check: "count"
+            expected_count: 0
+
+      - step: "Create fee waiver fg1_multi"
+        action: "create"
+        model: "school_fee_waiver"
+        save_as: "fg1_multi"
+        values:
+          type_id: "REC: fg1_type.id"
+          reason_id: "REC: fg1_reason.id"
+          student_id: "REC: fg1_student.id"
+          enrollment_id: "REC: fg1_enrollment.id"
+          coverage: "multi_term"
+          date_start: 2026-09-01
+          date_end: 2026-09-30
+          user_id: "REF: base.user_admin"
+          line_ids:
+            - - 0
+              - 0
+              - product_id: "REC: fg1_product.id"
+                computation: "percentage"
+                percentage: 50.0
+
+      - step: "Compute Payment works: the draft multi-term waiver has no Schedule"
+        action: "call"
+        target: "fg1_enrollment"
+        method: "action_compute_payment"
+        as_user: "base.user_admin"
+
+      - step: "Create Payment Term 1"
+        action: "create"
+        model: "school_enrollment_payment_term"
+        save_as: "fg1_term1"
+        values:
+          enrollment_id: "REC: fg1_enrollment.id"
+          name: "FG1 Term 1"
+          date_due: 2026-08-15
+          detail_ids:
+            - - 0
+              - 0
+              - product_id: "REC: fg1_product.id"
+                name: "FG1 Term 1 Fee"
+                account_id: "REC: fg1_income_account.id"
+                uom_quantity: 1.0
+                uom_id: "REF: uom.product_uom_unit"
+                price_unit: 1000000.0
+
+      - step: "Create Payment Term 2"
+        action: "create"
+        model: "school_enrollment_payment_term"
+        save_as: "fg1_term2"
+        values:
+          enrollment_id: "REC: fg1_enrollment.id"
+          name: "FG1 Term 2"
+          date_due: 2026-09-15
+          detail_ids:
+            - - 0
+              - 0
+              - product_id: "REC: fg1_product.id"
+                name: "FG1 Term 2 Fee"
+                account_id: "REC: fg1_income_account.id"
+                uom_quantity: 1.0
+                uom_id: "REF: uom.product_uom_unit"
+                price_unit: 1000000.0
+
+      - step: "Create fee waiver fg1_single"
+        action: "create"
+        model: "school_fee_waiver"
+        save_as: "fg1_single"
+        values:
+          type_id: "REC: fg1_type.id"
+          reason_id: "REC: fg1_reason.id"
+          student_id: "REC: fg1_student.id"
+          enrollment_id: "REC: fg1_enrollment.id"
+          coverage: "single_term"
+          payment_term_id: "REC: fg1_term1.id"
+          user_id: "REF: base.user_admin"
+          line_ids:
+            - - 0
+              - 0
+              - product_id: "REC: fg1_product.id"
+                computation: "full"
+
+      # -- Negative: deleting a term referred to by a waiver
+      - step: "Deleting a term referred to by a Single Payment Term waiver is rejected"
+        action: "unlink"
+        target: "fg1_term1"
+        expect_error:
+          type: "UserError"
+          message_contains: "is referenced by fee waiver"
+
+      - step: "Confirm the multi-term waiver"
+        action: "call"
+        target: "fg1_multi"
+        method: "action_confirm"
+        as_user: "base.user_admin"
+        asserts:
+          state:
+            type: "value"
+            expected: "confirm"
+      - step: "Approve the multi-term waiver"
+        action: "call"
+        target: "fg1_multi"
+        method: "action_approve_approval"
+        as_user: "base.user_admin"
+        asserts:
+          state:
+            type: "value"
+            expected: "open"
+
+      - step: "Only September got a Schedule line"
+        action: "assert"
+        target: "fg1_multi"
+        asserts:
+          schedule_ids:
+            type: "o2m"
+            check: "count"
+            expected_count: 1
+
+      - step: "Deleting a term pinned by a Schedule line is rejected"
+        action: "unlink"
+        target: "fg1_term2"
+        expect_error:
+          type: "UserError"
+          message_contains: "is referenced by fee waiver"
+
+      - step: "Compute Payment is rejected while waivers refer to the terms"
+        action: "call"
+        target: "fg1_enrollment"
+        method: "action_compute_payment"
+        as_user: "base.user_admin"
+        expect_error:
+          type: "UserError"
+          message_contains: "is referenced by fee waiver"
+
+      # -- Negative: cancelling the enrollment with active waivers
+      - step: "Enrollment starts in Draft"
+        action: "assert"
+        target: "fg1_enrollment"
+        asserts:
+          state:
+            type: "value"
+            expected: "draft"
+
+      - step: "Cancel the enrollment while waivers are active is rejected"
+        action: "wizard"
+        model: "base.select_cancel_reason"
+        target: "fg1_enrollment"
+        as_user: "base.user_admin"
+        values:
+          cancel_reason_id: "REC: fg1_cancel_reason.id"
+        method: "action_confirm"
+        expect_error:
+          type: "UserError"
+          message_contains: "has an active fee waiver"
+
+      - step: "Confirm the single-term waiver so it can be cancelled"
+        action: "call"
+        target: "fg1_single"
+        method: "action_confirm"
+        as_user: "base.user_admin"
+        asserts:
+          state:
+            type: "value"
+            expected: "confirm"
+      - step: "Cancel the single-term waiver"
+        action: "wizard"
+        model: "base.select_cancel_reason"
+        target: "fg1_single"
+        as_user: "base.user_admin"
+        values:
+          cancel_reason_id: "REC: fg1_cancel_reason.id"
+        method: "action_confirm"
+        asserts:
+          state:
+            type: "value"
+            expected: "cancel"
+
+      - step: "One waiver is still active"
+        action: "assert"
+        target: "fg1_multi"
+        asserts:
+          state:
+            type: "value"
+            expected: "open"
+
+      - step: "Cancel the enrollment while one waiver is still active is rejected"
+        action: "wizard"
+        model: "base.select_cancel_reason"
+        target: "fg1_enrollment"
+        as_user: "base.user_admin"
+        values:
+          cancel_reason_id: "REC: fg1_cancel_reason.id"
+        method: "action_confirm"
+        expect_error:
+          type: "UserError"
+          message_contains: "has an active fee waiver"
+      - step: "Cancel the multi-term waiver"
+        action: "wizard"
+        model: "base.select_cancel_reason"
+        target: "fg1_multi"
+        as_user: "base.user_admin"
+        values:
+          cancel_reason_id: "REC: fg1_cancel_reason.id"
+        method: "action_confirm"
+        asserts:
+          state:
+            type: "value"
+            expected: "cancel"
+
+      - step: "Cancel the enrollment once no waiver is active"
+        action: "wizard"
+        model: "base.select_cancel_reason"
+        target: "fg1_enrollment"
+        as_user: "base.user_admin"
+        values:
+          cancel_reason_id: "REC: fg1_cancel_reason.id"
+        method: "action_confirm"
+        asserts:
+          state:
+            type: "value"
+            expected: "cancel"
