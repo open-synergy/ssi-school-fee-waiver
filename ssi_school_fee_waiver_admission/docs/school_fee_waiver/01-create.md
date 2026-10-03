@@ -10,11 +10,12 @@ When this module is installed, **Billing Source** gains a second value:
 - **Billing Source**: now also offers **Admission**, alongside the base module's
   **Enrollment**.
 - **Admission** _(required when Billing Source is Admission)_: Select the admission this
-  waiver is billed against, restricted to admissions already linked to the selected
-  Student's School Student record -- an admission that has not yet reached **Open** has
-  not created one yet, so it cannot be billed against. Hidden when Billing Source is not
-  Admission. Selecting it fills Partner, School, Grade, and Academic Year, the same as
-  Enrollment does.
+  waiver is billed against, restricted to non-cancelled, non-rejected admissions already
+  linked to the selected Student's School Student record. An admission gets that record
+  when you click **Create Student Profile** on it (while it is **Draft** or **Waiting
+  for Approval**) or when it reaches **Open**; an admission without one cannot be billed
+  against. Hidden when Billing Source is not Admission. Selecting it fills Partner,
+  School, Grade, and Academic Year, the same as Enrollment does.
 - **Payment Term** is now also hidden when Billing Source is Admission -- it names an
   Enrollment payment term, which does not apply to an Admission-sourced waiver.
 - **Admission Payment Term** _(required when Billing Source is Admission and Coverage is

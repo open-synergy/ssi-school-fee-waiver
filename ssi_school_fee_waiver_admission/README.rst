@@ -1,3 +1,7 @@
+.. image:: https://odoo-community.org/readme-banner-image
+   :target: https://odoo-community.org/get-involved?utm_source=readme
+   :alt: Odoo Community Association
+
 =============================
 School Fee Waiver - Admission
 =============================
@@ -26,9 +30,12 @@ Glue module that lets a School Fee Waiver be billed against a
 ``school_admission`` instead of only a ``school_enrollment``. Adds
 ``admission`` as a second Billing Source value, and derives the
 waiver's School/Grade/Academic Year/Partner and realization schedule
-from the selected Admission's own payment terms once it has reached
-state Open. Useful for waivers decided during admission, before the
-student's enrollment record exists.
+from the selected Admission's own payment terms once it has a School Student
+profile (created with Create Student Profile, or when it reaches
+state Open). Useful for waivers decided during admission, before the
+student's enrollment record exists. While a fee waiver refers to an
+Admission's payment terms, those terms cannot be deleted, and the
+Admission cannot be cancelled while the waiver is active.
 
 **Table of contents**
 
@@ -46,6 +53,12 @@ Fee Waiver
 
 * `Create Fee Waiver <docs/school_fee_waiver/01-create.html>`_
 * `Generate Fee Waiver Schedule <docs/school_fee_waiver/07-generate-schedule.html>`_
+
+Admission
+^^^^^^^^^
+
+* `Edit Admission <docs/school_admission/02-edit.html>`_
+* `Cancel Admission <docs/school_admission/10-cancel.html>`_
 
 Bug Tracker
 ===========

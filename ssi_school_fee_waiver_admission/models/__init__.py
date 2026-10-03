@@ -3,6 +3,8 @@
 # License AGPL-3.0 or later (http://www.gnu.org/licenses/agpl).
 
 from . import (
+    school_admission,
+    school_admission_payment_term,
     school_fee_waiver,
     school_fee_waiver_schedule,
 )

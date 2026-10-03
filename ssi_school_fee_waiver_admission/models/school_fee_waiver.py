@@ -13,11 +13,11 @@ class SchoolFeeWaiver(models.Model):
     alongside the base module's ``enrollment``, so a fee waiver can
     also be billed against a ``school_admission`` -- for the case
     where a waiver is decided before the student is formally
-    enrolled, once the admission itself has reached state Open (the
-    point at which ``school_admission`` creates its own
-    ``school_student_id``) but before an enrollment necessarily
-    exists. All ``_get_source_*``/schedule hooks fall back to
-    ``super()`` whenever ``source_type`` is not ``admission``, so
+    enrolled, once the admission has a School Student profile (made
+    with Create Student Profile, or when the admission reaches Open)
+    but before an enrollment necessarily exists. All
+    ``_get_source_*``/schedule hooks fall back to ``super()``
+    whenever ``source_type`` is not ``admission``, so
     enrollment-sourced waivers keep working unmodified.
     """
 
@@ -43,9 +43,9 @@ class SchoolFeeWaiver(models.Model):
             ],
         },
         help="Admission this waiver is billed against. Must already "
-        "be linked to the selected Student's School Student record -- "
-        "an admission earlier than Open has not yet created one, so "
-        "it cannot be billed against. Required when Billing Source is "
+        "be linked to the selected Student's School Student record, "
+        "created with Create Student Profile or when the admission "
+        "reaches Open. Required when Billing Source is "
         "Admission -- enforced by ``_check_billing_source``, not by "
         "this field itself, so the base module's own billing source "
         "is not forced to also be a required field.",
@@ -149,8 +149,8 @@ class SchoolFeeWaiver(models.Model):
         Student record this waiver itself is keyed on
         (``school_fee_waiver.student_id``, comodel
         ``school_student``). The comparable field is
-        ``school_admission.school_student_id``, only filled once the
-        admission reaches state Open.
+        ``school_admission.school_student_id``, filled by Create Student
+        Profile or when the admission reaches state Open.
 
         :raises ValidationError: when ``admission_id`` is set and
             either its ``school_student_id`` is empty or differs from
@@ -166,7 +166,7 @@ Document Type: %s
 Context: Select waiver admission
 Database ID: %s
 Problem: Admission '%s' is not yet linked to student data
-Solution: Select an Admission whose School Student has been set (Admission reaches Open)
+Solution: Click Create Student Profile on the Admission, or approve it, then retry
 """ % (
                     record._description,
                     record.id,
