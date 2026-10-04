@@ -65,6 +65,55 @@ msgid "Display Name"
 msgstr ""
 
 #. module: ssi_school_fee_waiver_admission
+#: model_terms:ir.ui.view,arch_db:ssi_school_fee_waiver_admission.school_admission_payment_term_view_form_embedded
+msgid "Fee Waiver"
+msgstr ""
+
+#. module: ssi_school_fee_waiver_admission
+#: model:ir.model.fields,field_description:ssi_school_fee_waiver_admission.field_school_admission_payment_term__fee_waiver_amount
+msgid "Fee Waiver Amount"
+msgstr ""
+
+#. module: ssi_school_fee_waiver_admission
+#: model:ir.model.fields,field_description:ssi_school_fee_waiver_admission.field_school_admission_payment_term__fee_waiver_amount_deducted
+msgid "Fee Waiver Deducted"
+msgstr ""
+
+#. module: ssi_school_fee_waiver_admission
+#: model:ir.model.fields,field_description:ssi_school_fee_waiver_admission.field_school_admission_payment_term__fee_waiver_amount_deducted_planned
+msgid "Fee Waiver Deducted (Planned)"
+msgstr ""
+
+#. module: ssi_school_fee_waiver_admission
+#: model:ir.model.fields,field_description:ssi_school_fee_waiver_admission.field_school_admission_payment_term__fee_waiver_amount_undeducted
+msgid "Fee Waiver Not Yet Deducted"
+msgstr ""
+
+#. module: ssi_school_fee_waiver_admission
+#: model:ir.model.fields,field_description:ssi_school_fee_waiver_admission.field_school_admission_payment_term__fee_waiver_schedule_ids
+msgid "Fee Waiver Schedules"
+msgstr ""
+
+#. module: ssi_school_fee_waiver_admission
+#: model:ir.model.fields,help:ssi_school_fee_waiver_admission.field_school_admission_payment_term__fee_waiver_amount_deducted
+msgid ""
+"Fee waiver already deducted: the sum of Amount Realized of Realized schedule"
+" lines."
+msgstr ""
+
+#. module: ssi_school_fee_waiver_admission
+#: model:ir.model.fields,help:ssi_school_fee_waiver_admission.field_school_admission_payment_term__fee_waiver_schedule_ids
+msgid "Fee waiver schedule lines that target this payment term."
+msgstr ""
+
+#. module: ssi_school_fee_waiver_admission
+#: model:ir.model.fields,help:ssi_school_fee_waiver_admission.field_school_admission_payment_term__fee_waiver_amount_undeducted
+msgid ""
+"Fee waiver still waiting for deduction: the sum of Amount Planned of "
+"Scheduled schedule lines whose waiver is Running or Finished."
+msgstr ""
+
+#. module: ssi_school_fee_waiver_admission
 #: model:ir.model.fields,field_description:ssi_school_fee_waiver_admission.field_school_admission__id
 #: model:ir.model.fields,field_description:ssi_school_fee_waiver_admission.field_school_admission_payment_term__id
 #: model:ir.model.fields,field_description:ssi_school_fee_waiver_admission.field_school_fee_waiver__id
@@ -90,6 +139,14 @@ msgid ""
 msgstr ""
 
 #. module: ssi_school_fee_waiver_admission
+#: model:ir.model.fields,help:ssi_school_fee_waiver_admission.field_school_admission_payment_term__fee_waiver_amount_deducted_planned
+msgid ""
+"Planned amount of the fee waiver already deducted: the sum of Amount Planned"
+" of Realized schedule lines. It can exceed the actual deducted amount on a "
+"partial deduction."
+msgstr ""
+
+#. module: ssi_school_fee_waiver_admission
 #: model:ir.model,name:ssi_school_fee_waiver_admission.model_school_admission
 msgid "School Admission"
 msgstr ""
@@ -107,4 +164,11 @@ msgstr ""
 #. module: ssi_school_fee_waiver_admission
 #: model:ir.model,name:ssi_school_fee_waiver_admission.model_school_fee_waiver_schedule
 msgid "School Fee Waiver Schedule"
+msgstr ""
+
+#. module: ssi_school_fee_waiver_admission
+#: model:ir.model.fields,help:ssi_school_fee_waiver_admission.field_school_admission_payment_term__fee_waiver_amount
+msgid ""
+"Total fee waiver given to this payment term: the sum of Amount Planned of "
+"Scheduled and Realized schedule lines whose waiver is Running or Finished."
 msgstr ""
