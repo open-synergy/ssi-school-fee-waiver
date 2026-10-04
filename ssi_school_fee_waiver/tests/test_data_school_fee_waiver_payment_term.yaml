@@ -1,0 +1,412 @@
+options:
+  auto_refresh: true
+scenarios:
+  - name: "Fee Waiver Payment Term - Amount Summary"
+    steps:
+      # ── Shared fixture chain (suffix FT1) ────────────────────────
+      - step: "Create the grade type"
+        action: "create"
+        model: "school_grade_type"
+        save_as: "ft1_grade_type"
+        values:
+          name: "FT1 Grade Type"
+          code: "FT1GT"
+
+      - step: "Create the school"
+        action: "create"
+        model: "school"
+        save_as: "ft1_school"
+        values:
+          name: "FT1 School"
+          code: "FT1SC"
+          grade_type_id: "REC: ft1_grade_type.id"
+
+      - step: "Create the academic year"
+        action: "create"
+        model: "school_academic_year"
+        save_as: "ft1_academic_year"
+        values:
+          name: "FT1 Academic Year"
+          code: "FT1AY"
+          date_start: 2026-07-01
+          date_end: 2027-06-30
+
+      - step: "Create the academic term"
+        action: "create"
+        model: "school_academic_term"
+        save_as: "ft1_academic_term"
+        values:
+          name: "FT1 Term"
+          code: "FT1TM"
+          date_start: 2026-07-01
+          date_end: 2026-12-31
+          year_id: "REC: ft1_academic_year.id"
+
+      - step: "Create the grade"
+        action: "create"
+        model: "school_grade"
+        save_as: "ft1_grade"
+        values:
+          name: "FT1 Grade"
+          code: "FT1GR"
+          type_id: "REC: ft1_grade_type.id"
+
+      - step: "Create the grade class"
+        action: "create"
+        model: "school_grade_class"
+        save_as: "ft1_grade_class"
+        values:
+          name: "FT1 Class"
+          code: "FT1CL"
+          school_id: "REC: ft1_school.id"
+          grade_id: "REC: ft1_grade.id"
+
+      - step: "Create the student contact"
+        action: "create"
+        model: "res.partner"
+        save_as: "ft1_contact"
+        values:
+          name: "FT1 Contact"
+
+      - step: "Create the student"
+        action: "create"
+        model: "school_student"
+        save_as: "ft1_student"
+        values:
+          name: "FT1 Student"
+          code: "FT1ST"
+          contact_id: "REC: ft1_contact.id"
+          school_id: "REC: ft1_school.id"
+
+      - step: "Create the enrollment"
+        action: "create"
+        model: "school_enrollment"
+        save_as: "ft1_enrollment"
+        values:
+          academic_year_id: "REC: ft1_academic_year.id"
+          academic_term_id: "REC: ft1_academic_term.id"
+          school_id: "REC: ft1_school.id"
+          grade_id: "REC: ft1_grade.id"
+          grade_class_id: "REC: ft1_grade_class.id"
+          student_id: "REC: ft1_student.id"
+
+      - step: "Get the account.account.type Income reference"
+        action: "ref"
+        xml_id: "account.data_account_type_revenue"
+        save_as: "account_type_income"
+
+      - step: "Create the income account used by payment term details"
+        action: "create"
+        model: "account.account"
+        save_as: "ft1_income_account"
+        values:
+          name: "FT1 Income Account"
+          code: "FT1IA"
+          user_type_id: "REC: account_type_income.id"
+          reconcile: false
+
+      - step: "Create Product A (matched by Product)"
+        action: "create"
+        model: "product.product"
+        save_as: "ft1_product_a"
+        values:
+          name: "FT1 Product A"
+          type: "service"
+
+      - step: "Create Product Category B (matched by Category)"
+        action: "create"
+        model: "product.category"
+        save_as: "ft1_category_b"
+        values:
+          name: "FT1 Category B"
+
+      - step: "Create Product B, under Category B"
+        action: "create"
+        model: "product.product"
+        save_as: "ft1_product_b"
+        values:
+          name: "FT1 Product B"
+          type: "service"
+          categ_id: "REC: ft1_category_b.id"
+
+      - step: "Create the fee waiver type"
+        action: "create"
+        model: "school_fee_waiver_type"
+        save_as: "ft1_type"
+        values:
+          name: "FT1 Type"
+          code: "FT1TY"
+
+      - step: "Create the fee waiver reason"
+        action: "create"
+        model: "school_fee_waiver_reason"
+        save_as: "ft1_reason"
+        values:
+          name: "FT1 Reason"
+          code: "FT1RS"
+
+      - step: "Create Payment Term 1 (Product A)"
+        action: "create"
+        model: "school_enrollment_payment_term"
+        save_as: "ft1_term1"
+        values:
+          enrollment_id: "REC: ft1_enrollment.id"
+          name: "FT1 Term July"
+          date_due: 2026-07-15
+          detail_ids:
+            - - 0
+              - 0
+              - product_id: "REC: ft1_product_a.id"
+                name: "FT1 Term July Fee"
+                account_id: "REC: ft1_income_account.id"
+                uom_quantity: 1.0
+                uom_id: "REF: uom.product_uom_unit"
+                price_unit: 1000000.0
+
+      - step: "Create Payment Term 2 (Product A)"
+        action: "create"
+        model: "school_enrollment_payment_term"
+        save_as: "ft1_term2"
+        values:
+          enrollment_id: "REC: ft1_enrollment.id"
+          name: "FT1 Term August"
+          date_due: 2026-08-15
+          detail_ids:
+            - - 0
+              - 0
+              - product_id: "REC: ft1_product_a.id"
+                name: "FT1 Term August Fee"
+                account_id: "REC: ft1_income_account.id"
+                uom_quantity: 1.0
+                uom_id: "REF: uom.product_uom_unit"
+                price_unit: 1000000.0
+
+      - step: "Create Payment Term 3 (Product A)"
+        action: "create"
+        model: "school_enrollment_payment_term"
+        save_as: "ft1_term3"
+        values:
+          enrollment_id: "REC: ft1_enrollment.id"
+          name: "FT1 Term September"
+          date_due: 2026-09-15
+          detail_ids:
+            - - 0
+              - 0
+              - product_id: "REC: ft1_product_a.id"
+                name: "FT1 Term September Fee"
+                account_id: "REC: ft1_income_account.id"
+                uom_quantity: 1.0
+                uom_id: "REF: uom.product_uom_unit"
+                price_unit: 1000000.0
+
+      - step: "Create Payment Term 4 (Product A)"
+        action: "create"
+        model: "school_enrollment_payment_term"
+        save_as: "ft1_term4"
+        values:
+          enrollment_id: "REC: ft1_enrollment.id"
+          name: "FT1 Term October"
+          date_due: 2026-10-15
+          detail_ids:
+            - - 0
+              - 0
+              - product_id: "REC: ft1_product_a.id"
+                name: "FT1 Term October Fee"
+                account_id: "REC: ft1_income_account.id"
+                uom_quantity: 1.0
+                uom_id: "REF: uom.product_uom_unit"
+                price_unit: 1000000.0
+
+      - step: "Create the multi-term waiver (50% of Product A)"
+        action: "create"
+        model: "school_fee_waiver"
+        save_as: "ft1_waiver"
+        values:
+          type_id: "REC: ft1_type.id"
+          reason_id: "REC: ft1_reason.id"
+          student_id: "REC: ft1_student.id"
+          enrollment_id: "REC: ft1_enrollment.id"
+          coverage: "multi_term"
+          date_start: 2026-07-01
+          date_end: 2026-10-31
+          user_id: "REF: base.user_admin"
+          line_ids:
+            - - 0
+              - 0
+              - product_id: "REC: ft1_product_a.id"
+                computation: "percentage"
+                percentage: 50.0
+
+      - step: "Draft waiver does not count on the payment term"
+        action: "assert"
+        target: "ft1_term1"
+        asserts:
+          fee_waiver_amount:
+            type: "value"
+            expected: 0.0
+
+      - step: "Confirm the waiver"
+        action: "call"
+        target: "ft1_waiver"
+        method: "action_confirm"
+        as_user: "base.user_admin"
+        asserts:
+          state:
+            type: "value"
+            expected: "confirm"
+
+      - step: "Approve the waiver"
+        action: "call"
+        target: "ft1_waiver"
+        method: "action_approve_approval"
+        as_user: "base.user_admin"
+        asserts:
+          state:
+            type: "value"
+            expected: "open"
+
+      - step: "Find the Schedule line of Payment Term 1"
+        action: "search"
+        model: "school_fee_waiver_schedule"
+        domain: [["payment_term_id", "=", "REC: ft1_term1.id"]]
+        save_as: "ft1_sched1"
+        limit: 1
+
+      - step: "Find the Schedule line of Payment Term 2"
+        action: "search"
+        model: "school_fee_waiver_schedule"
+        domain: [["payment_term_id", "=", "REC: ft1_term2.id"]]
+        save_as: "ft1_sched2"
+        limit: 1
+
+      - step: "Find the Schedule line of Payment Term 3"
+        action: "search"
+        model: "school_fee_waiver_schedule"
+        domain: [["payment_term_id", "=", "REC: ft1_term3.id"]]
+        save_as: "ft1_sched3"
+        limit: 1
+
+      - step: "Find the Schedule line of Payment Term 4"
+        action: "search"
+        model: "school_fee_waiver_schedule"
+        domain: [["payment_term_id", "=", "REC: ft1_term4.id"]]
+        save_as: "ft1_sched4"
+        limit: 1
+
+      - step: "Payment Term 1 lists exactly one Schedule line"
+        action: "assert"
+        target: "ft1_term1"
+        asserts:
+          fee_waiver_schedule_ids:
+            type: "o2m"
+            check: "count"
+            expected_count: 1
+
+      - step: "Open waiver, nothing deducted: all planned amount is not yet deducted"
+        action: "assert"
+        target: "ft1_term1"
+        asserts:
+          fee_waiver_amount:
+            type: "value"
+            expected: 500000.0
+          fee_waiver_amount_deducted:
+            type: "value"
+            expected: 0.0
+          fee_waiver_amount_deducted_planned:
+            type: "value"
+            expected: 0.0
+          fee_waiver_amount_undeducted:
+            type: "value"
+            expected: 500000.0
+
+      - step: "Simulate a full deduction on Payment Term 2"
+        action: "write"
+        target: "ft1_sched2"
+        values:
+          state: "realized"
+          amount_realized: 500000.0
+
+      - step: "Full deduction: deducted equals planned, nothing left, total unchanged"
+        action: "assert"
+        target: "ft1_term2"
+        asserts:
+          fee_waiver_amount:
+            type: "value"
+            expected: 500000.0
+          fee_waiver_amount_deducted:
+            type: "value"
+            expected: 500000.0
+          fee_waiver_amount_deducted_planned:
+            type: "value"
+            expected: 500000.0
+          fee_waiver_amount_undeducted:
+            type: "value"
+            expected: 0.0
+
+      - step: "Simulate a partial deduction on Payment Term 3"
+        action: "write"
+        target: "ft1_sched3"
+        values:
+          state: "realized"
+          amount_realized: 250000.0
+
+      - step: "Partial deduction: actual is half, planned is full, nothing left"
+        action: "assert"
+        target: "ft1_term3"
+        asserts:
+          fee_waiver_amount:
+            type: "value"
+            expected: 500000.0
+          fee_waiver_amount_deducted:
+            type: "value"
+            expected: 250000.0
+          fee_waiver_amount_deducted_planned:
+            type: "value"
+            expected: 500000.0
+          fee_waiver_amount_undeducted:
+            type: "value"
+            expected: 0.0
+
+      - step: "Skip the Schedule line of Payment Term 4"
+        action: "call"
+        target: "ft1_sched4"
+        method: "action_skip"
+        as_user: "base.user_admin"
+        asserts:
+          state:
+            type: "value"
+            expected: "skipped"
+
+      - step: "Skipped schedule: all four amounts are zero"
+        action: "assert"
+        target: "ft1_term4"
+        asserts:
+          fee_waiver_amount:
+            type: "value"
+            expected: 0.0
+          fee_waiver_amount_deducted:
+            type: "value"
+            expected: 0.0
+          fee_waiver_amount_deducted_planned:
+            type: "value"
+            expected: 0.0
+          fee_waiver_amount_undeducted:
+            type: "value"
+            expected: 0.0
+
+      - step: "Payment Term 1 is unaffected by the other terms"
+        action: "assert"
+        target: "ft1_term1"
+        asserts:
+          fee_waiver_amount:
+            type: "value"
+            expected: 500000.0
+          fee_waiver_amount_deducted:
+            type: "value"
+            expected: 0.0
+          fee_waiver_amount_deducted_planned:
+            type: "value"
+            expected: 0.0
+          fee_waiver_amount_undeducted:
+            type: "value"
+            expected: 500000.0

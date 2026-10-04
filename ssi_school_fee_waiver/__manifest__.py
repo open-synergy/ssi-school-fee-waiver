@@ -44,6 +44,7 @@
         "views/school_fee_waiver_type.xml",
         "views/school_fee_waiver_reason.xml",
         "views/school_fee_waiver.xml",
+        "views/school_enrollment_payment_term.xml",
         "views/assets.xml",
     ],
 }
