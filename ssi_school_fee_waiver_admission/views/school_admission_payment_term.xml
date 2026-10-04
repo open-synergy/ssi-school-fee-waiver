@@ -1,0 +1,83 @@
+<?xml version="1.0" encoding="utf-8" ?>
+<!-- Copyright 2026 OpenSynergy Indonesia
+     Copyright 2026 PT. Simetri Sinergi Indonesia
+     License AGPL-3.0 or later (http://www.gnu.org/licenses/agpl). -->
+<odoo>
+<record id="school_admission_payment_term_view_tree" model="ir.ui.view">
+    <field name="name">school_admission_payment_term - tree fee waiver</field>
+    <field name="model">school_admission_payment_term</field>
+    <field
+            name="inherit_id"
+            ref="ssi_school_admission.school_admission_payment_term_view_tree"
+        />
+    <field name="arch" type="xml">
+        <data>
+            <xpath expr="//field[@name='amount_total']" position="after">
+                <field name="fee_waiver_amount" optional="hide" />
+                <field name="fee_waiver_amount_deducted" optional="hide" />
+                <field name="fee_waiver_amount_deducted_planned" optional="hide" />
+                <field name="fee_waiver_amount_undeducted" optional="hide" />
+            </xpath>
+        </data>
+    </field>
+</record>
+<record id="school_admission_payment_term_view_form_embedded" model="ir.ui.view">
+    <field
+            name="name"
+        >school_admission_payment_term - form (embedded) fee waiver</field>
+    <field name="model">school_admission_payment_term</field>
+    <field
+            name="inherit_id"
+            ref="ssi_school_admission.school_admission_payment_term_view_form_embedded"
+        />
+    <field name="arch" type="xml">
+        <data>
+            <xpath expr="//page[@name='detail']" position="after">
+                <page
+                        name="fee_waiver"
+                        string="Fee Waiver"
+                        groups="ssi_school_fee_waiver.school_fee_waiver_viewer_group"
+                    >
+                    <group name="fee_waiver_amount_group" colspan="4" col="2">
+                        <group name="fee_waiver_amount_left" colspan="1" col="2">
+                            <field name="fee_waiver_amount" />
+                            <field name="fee_waiver_amount_undeducted" />
+                        </group>
+                        <group name="fee_waiver_amount_right" colspan="1" col="2">
+                            <field name="fee_waiver_amount_deducted" />
+                            <field name="fee_waiver_amount_deducted_planned" />
+                        </group>
+                    </group>
+                    <field
+                            name="fee_waiver_schedule_ids"
+                            colspan="4"
+                            nolabel="1"
+                            readonly="1"
+                        >
+                        <tree create="false" edit="false" delete="false">
+                            <field name="waiver_id" />
+                            <field name="line_id" />
+                            <field name="date" />
+                            <field name="amount_planned" />
+                            <field name="amount_realized" />
+                            <field name="state" />
+                            <field name="currency_id" invisible="1" />
+                        </tree>
+                        <form>
+                            <group col="2">
+                                <field name="waiver_id" />
+                                <field name="line_id" />
+                                <field name="date" />
+                                <field name="amount_planned" />
+                                <field name="amount_realized" />
+                                <field name="state" />
+                                <field name="currency_id" invisible="1" />
+                            </group>
+                        </form>
+                    </field>
+                </page>
+            </xpath>
+        </data>
+    </field>
+</record>
+</odoo>

@@ -21,6 +21,7 @@
     ],
     "data": [
         "views/school_fee_waiver.xml",
+        "views/school_admission_payment_term.xml",
         "views/assets.xml",
     ],
     "demo": [],
