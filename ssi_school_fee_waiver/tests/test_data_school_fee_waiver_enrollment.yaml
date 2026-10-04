@@ -1,0 +1,358 @@
+options:
+  auto_refresh: true
+scenarios:
+  - name: "Fee Waiver Enrollment - Header Amounts"
+    steps:
+      # ── Shared fixture chain (suffix FT5) ────────────────────────
+      - step: "Create the grade type"
+        action: "create"
+        model: "school_grade_type"
+        save_as: "ft5_grade_type"
+        values:
+          name: "FT5 Grade Type"
+          code: "FT5GT"
+
+      - step: "Create the school"
+        action: "create"
+        model: "school"
+        save_as: "ft5_school"
+        values:
+          name: "FT5 School"
+          code: "FT5SC"
+          grade_type_id: "REC: ft5_grade_type.id"
+
+      - step: "Create the academic year"
+        action: "create"
+        model: "school_academic_year"
+        save_as: "ft5_academic_year"
+        values:
+          name: "FT5 Academic Year"
+          code: "FT5AY"
+          date_start: 2026-07-01
+          date_end: 2027-06-30
+
+      - step: "Create the academic term"
+        action: "create"
+        model: "school_academic_term"
+        save_as: "ft5_academic_term"
+        values:
+          name: "FT5 Term"
+          code: "FT5TM"
+          date_start: 2026-07-01
+          date_end: 2026-12-31
+          year_id: "REC: ft5_academic_year.id"
+
+      - step: "Create the grade"
+        action: "create"
+        model: "school_grade"
+        save_as: "ft5_grade"
+        values:
+          name: "FT5 Grade"
+          code: "FT5GR"
+          type_id: "REC: ft5_grade_type.id"
+
+      - step: "Create the grade class"
+        action: "create"
+        model: "school_grade_class"
+        save_as: "ft5_grade_class"
+        values:
+          name: "FT5 Class"
+          code: "FT5CL"
+          school_id: "REC: ft5_school.id"
+          grade_id: "REC: ft5_grade.id"
+
+      - step: "Create the student contact"
+        action: "create"
+        model: "res.partner"
+        save_as: "ft5_contact"
+        values:
+          name: "FT5 Contact"
+
+      - step: "Create the student"
+        action: "create"
+        model: "school_student"
+        save_as: "ft5_student"
+        values:
+          name: "FT5 Student"
+          code: "FT5ST"
+          contact_id: "REC: ft5_contact.id"
+          school_id: "REC: ft5_school.id"
+
+      - step: "Create the enrollment"
+        action: "create"
+        model: "school_enrollment"
+        save_as: "ft5_enrollment"
+        values:
+          academic_year_id: "REC: ft5_academic_year.id"
+          academic_term_id: "REC: ft5_academic_term.id"
+          school_id: "REC: ft5_school.id"
+          grade_id: "REC: ft5_grade.id"
+          grade_class_id: "REC: ft5_grade_class.id"
+          student_id: "REC: ft5_student.id"
+
+      - step: "Get the account.account.type Income reference"
+        action: "ref"
+        xml_id: "account.data_account_type_revenue"
+        save_as: "account_type_income"
+
+      - step: "Create the income account used by payment term details"
+        action: "create"
+        model: "account.account"
+        save_as: "ft5_income_account"
+        values:
+          name: "FT5 Income Account"
+          code: "FT5IA"
+          user_type_id: "REC: account_type_income.id"
+          reconcile: false
+
+      - step: "Create Product A (matched by Product)"
+        action: "create"
+        model: "product.product"
+        save_as: "ft5_product_a"
+        values:
+          name: "FT5 Product A"
+          type: "service"
+
+      - step: "Create Product Category B (matched by Category)"
+        action: "create"
+        model: "product.category"
+        save_as: "ft5_category_b"
+        values:
+          name: "FT5 Category B"
+
+      - step: "Create Product B, under Category B"
+        action: "create"
+        model: "product.product"
+        save_as: "ft5_product_b"
+        values:
+          name: "FT5 Product B"
+          type: "service"
+          categ_id: "REC: ft5_category_b.id"
+
+      - step: "Create the fee waiver type"
+        action: "create"
+        model: "school_fee_waiver_type"
+        save_as: "ft5_type"
+        values:
+          name: "FT5 Type"
+          code: "FT5TY"
+
+      - step: "Create the fee waiver reason"
+        action: "create"
+        model: "school_fee_waiver_reason"
+        save_as: "ft5_reason"
+        values:
+          name: "FT5 Reason"
+          code: "FT5RS"
+
+      - step: "Create Payment Term 1 (Product A)"
+        action: "create"
+        model: "school_enrollment_payment_term"
+        save_as: "ft5_term1"
+        values:
+          enrollment_id: "REC: ft5_enrollment.id"
+          name: "FT5 Term July"
+          date_due: 2026-07-15
+          detail_ids:
+            - - 0
+              - 0
+              - product_id: "REC: ft5_product_a.id"
+                name: "FT5 Term July Fee"
+                account_id: "REC: ft5_income_account.id"
+                uom_quantity: 1.0
+                uom_id: "REF: uom.product_uom_unit"
+                price_unit: 1000000.0
+
+      - step: "Create Payment Term 2 (Product A)"
+        action: "create"
+        model: "school_enrollment_payment_term"
+        save_as: "ft5_term2"
+        values:
+          enrollment_id: "REC: ft5_enrollment.id"
+          name: "FT5 Term August"
+          date_due: 2026-08-15
+          detail_ids:
+            - - 0
+              - 0
+              - product_id: "REC: ft5_product_a.id"
+                name: "FT5 Term August Fee"
+                account_id: "REC: ft5_income_account.id"
+                uom_quantity: 1.0
+                uom_id: "REF: uom.product_uom_unit"
+                price_unit: 1000000.0
+
+      - step: "Create Payment Term 3 (Product A)"
+        action: "create"
+        model: "school_enrollment_payment_term"
+        save_as: "ft5_term3"
+        values:
+          enrollment_id: "REC: ft5_enrollment.id"
+          name: "FT5 Term September"
+          date_due: 2026-09-15
+          detail_ids:
+            - - 0
+              - 0
+              - product_id: "REC: ft5_product_a.id"
+                name: "FT5 Term September Fee"
+                account_id: "REC: ft5_income_account.id"
+                uom_quantity: 1.0
+                uom_id: "REF: uom.product_uom_unit"
+                price_unit: 1000000.0
+
+      - step: "Create the multi-term waiver (50% of Product A)"
+        action: "create"
+        model: "school_fee_waiver"
+        save_as: "ft5_waiver"
+        values:
+          type_id: "REC: ft5_type.id"
+          reason_id: "REC: ft5_reason.id"
+          student_id: "REC: ft5_student.id"
+          enrollment_id: "REC: ft5_enrollment.id"
+          coverage: "multi_term"
+          date_start: 2026-07-01
+          date_end: 2026-09-30
+          user_id: "REF: base.user_admin"
+          line_ids:
+            - - 0
+              - 0
+              - product_id: "REC: ft5_product_a.id"
+                computation: "percentage"
+                percentage: 50.0
+
+      - step: "Draft waiver does not count on the payment term"
+        action: "assert"
+        target: "ft5_term1"
+        asserts:
+          fee_waiver_amount:
+            type: "value"
+            expected: 0.0
+
+      - step: "Confirm the waiver"
+        action: "call"
+        target: "ft5_waiver"
+        method: "action_confirm"
+        as_user: "base.user_admin"
+        asserts:
+          state:
+            type: "value"
+            expected: "confirm"
+
+      - step: "Approve the waiver"
+        action: "call"
+        target: "ft5_waiver"
+        method: "action_approve_approval"
+        as_user: "base.user_admin"
+        asserts:
+          state:
+            type: "value"
+            expected: "open"
+
+      - step: "Find the Schedule line of Payment Term 1"
+        action: "search"
+        model: "school_fee_waiver_schedule"
+        domain: [["payment_term_id", "=", "REC: ft5_term1.id"]]
+        save_as: "ft5_sched1"
+        limit: 1
+
+      - step: "Find the Schedule line of Payment Term 2"
+        action: "search"
+        model: "school_fee_waiver_schedule"
+        domain: [["payment_term_id", "=", "REC: ft5_term2.id"]]
+        save_as: "ft5_sched2"
+        limit: 1
+
+      - step: "Find the Schedule line of Payment Term 3"
+        action: "search"
+        model: "school_fee_waiver_schedule"
+        domain: [["payment_term_id", "=", "REC: ft5_term3.id"]]
+        save_as: "ft5_sched3"
+        limit: 1
+
+      - step: "Scheduled waiver: all planned is effective and not yet deducted"
+        action: "assert"
+        target: "ft5_enrollment"
+        asserts:
+          amount_total:
+            type: "value"
+            expected: 3000000.0
+          amount_fee_waiver:
+            type: "value"
+            expected: 1500000.0
+          amount_fee_waiver_deducted:
+            type: "value"
+            expected: 0.0
+          amount_fee_waiver_undeducted:
+            type: "value"
+            expected: 1500000.0
+          amount_deduction:
+            type: "value"
+            expected: 1500000.0
+          amount_deducted:
+            type: "value"
+            expected: 0.0
+          amount_net:
+            type: "value"
+            expected: 1500000.0
+
+      - step: "Partially deduct Payment Term 2"
+        action: "write"
+        target: "ft5_sched2"
+        values:
+          state: "realized"
+          amount_realized: 250000.0
+
+      - step: "Partial deduction: unrealized remainder is not a waiver"
+        action: "assert"
+        target: "ft5_enrollment"
+        asserts:
+          amount_fee_waiver:
+            type: "value"
+            expected: 1250000.0
+          amount_fee_waiver_deducted:
+            type: "value"
+            expected: 250000.0
+          amount_fee_waiver_undeducted:
+            type: "value"
+            expected: 1000000.0
+          amount_deduction:
+            type: "value"
+            expected: 1250000.0
+          amount_deducted:
+            type: "value"
+            expected: 250000.0
+          amount_net:
+            type: "value"
+            expected: 1750000.0
+
+      - step: "Skip the Schedule line of Payment Term 3"
+        action: "call"
+        target: "ft5_sched3"
+        method: "action_skip"
+        as_user: "base.user_admin"
+        asserts:
+          state:
+            type: "value"
+            expected: "skipped"
+
+      - step: "Skipped schedule is not counted in any field"
+        action: "assert"
+        target: "ft5_enrollment"
+        asserts:
+          amount_fee_waiver:
+            type: "value"
+            expected: 750000.0
+          amount_fee_waiver_deducted:
+            type: "value"
+            expected: 250000.0
+          amount_fee_waiver_undeducted:
+            type: "value"
+            expected: 500000.0
+          amount_deduction:
+            type: "value"
+            expected: 750000.0
+          amount_deducted:
+            type: "value"
+            expected: 250000.0
+          amount_net:
+            type: "value"
+            expected: 2250000.0

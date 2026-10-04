@@ -12,4 +12,5 @@ from . import test_school_fee_waiver_schedule
 from . import test_school_fee_waiver_guard
 from . import test_school_fee_waiver_schedule_voided
 from . import test_school_fee_waiver_payment_term
+from . import test_school_fee_waiver_enrollment
 from . import test_ui_school_fee_waiver
