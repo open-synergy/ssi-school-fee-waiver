@@ -1,4 +1,5 @@
 odoo-yaml-test
 odoo14-addon-ssi-school>=14.0.5.19.0
+odoo14-addon-ssi-school-admission>=14.0.2.31.0
 odoo14-addon-ssi-master-data-mixin
 odoo14-addon-ssi-m2o-configurator-mixin
