@@ -19,6 +19,9 @@ after the last pending approval level is fulfilled.
   step of `05-approve`).
 - **Record:** Amount Unallocated is zero -- otherwise this transition is rejected with
   an error and the document stays in **Waiting for Approval**.
+- **Record:** Every Schedule line has a source invoice and every Allocation targets one
+  of those source invoices -- otherwise this transition is rejected with an error and
+  the document stays in **Waiting for Approval**.
 
 ## Flow
 

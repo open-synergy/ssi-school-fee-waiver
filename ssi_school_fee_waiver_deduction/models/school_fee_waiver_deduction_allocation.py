@@ -49,10 +49,12 @@ class SchoolFeeWaiverDeductionAllocation(models.Model):
         required=True,
         ondelete="restrict",
         domain="[('partner_id', '=', parent.partner_id), "
-        "('state', '=', 'open'), ('amount_residual', '>', 0)]",
+        "('state', '=', 'open'), ('amount_residual', '>', 0), "
+        "('id', 'in', parent.allowed_customer_invoice_ids)]",
         help="Open customer invoice this allocation reconciles "
         "against. Restricted to invoices of this document's own "
-        "Partner with a positive residual.",
+        "Partner with a positive residual that are also the source "
+        "invoice of a Schedule line on this document.",
     )
     move_line_id = fields.Many2one(
         string="Invoice Receivable Move Line",

@@ -233,7 +233,7 @@ scenarios:
           grade_class_id: "REC: ma_grade_class.id"
           student_id: "REC: ma1_student.id"
 
-      - step: "MA1: create Payment Term 1 (300,000 -- the partial Allocation)"
+      - step: "MA1: create Payment Term 1 (1,000,000 -- the partial Allocation target)"
         action: "create"
         model: "school_enrollment_payment_term"
         save_as: "ma1_term1"
@@ -249,7 +249,7 @@ scenarios:
                 account_id: "REC: ma_income_account.id"
                 uom_quantity: 1.0
                 uom_id: "REF: uom.product_uom_unit"
-                price_unit: 300000.0
+                price_unit: 1000000.0
 
       - step: "MA1: create Payment Term 2 (200,000 -- the full Allocation)"
         action: "create"
@@ -330,29 +330,26 @@ scenarios:
         save_as: "ma1_sched2"
         limit: 1
 
-      - step: "MA1: create Invoice A (billed 1,000,000 -- the partial target)"
-        action: "create"
-        model: "customer_invoice"
-        save_as: "ma1_invoice_a"
+      - step: "MA1: set the enrollment's invoicing defaults"
+        action: "write"
+        target: "ma1_enrollment"
         values:
-          type_id: "REC: ma_invoice_type.id"
-          partner_id: "REC: ma1_contact.id"
-          date: 2026-08-20
-          date_due: 2026-09-20
-          currency_id: "REC: company.currency_id.id"
-          journal_id: "REC: ma_sale_journal.id"
+          receivable_journal_id: "REC: ma_sale_journal.id"
           receivable_account_id: "REC: ma_receivable_account.id"
+          customer_invoice_type_id: "REC: ma_invoice_type.id"
 
-      - step: "MA1: add a detail line to Invoice A"
-        action: "create"
-        model: "customer_invoice.line"
-        save_as: "ma1_invoice_a_line"
-        values:
-          customer_invoice_id: "REC: ma1_invoice_a.id"
-          name: "Line"
-          account_id: "REC: ma_income_account.id"
-          uom_quantity: 1
-          price_unit: 1000000.0
+      - step: "MA1 Invoice A: create the invoice from its own payment term"
+        action: "call"
+        target: "ma1_term1"
+        method: "action_create_invoice"
+        as_user: "base.user_admin"
+
+      - step: "MA1 Invoice A: get the term's generated invoice"
+        action: "search"
+        model: "customer_invoice"
+        domain: [["id", "=", "REC: ma1_term1.customer_invoice_id.id"]]
+        save_as: "ma1_invoice_a"
+        expect_count: 1
 
       - step: "MA1: confirm Invoice A"
         action: "call"
@@ -377,29 +374,18 @@ scenarios:
             type: "value"
             expected: 1000000.0
 
-      - step: "MA1: create Invoice B (billed 200,000 -- the full target)"
-        action: "create"
-        model: "customer_invoice"
-        save_as: "ma1_invoice_b"
-        values:
-          type_id: "REC: ma_invoice_type.id"
-          partner_id: "REC: ma1_contact.id"
-          date: 2026-08-20
-          date_due: 2026-09-20
-          currency_id: "REC: company.currency_id.id"
-          journal_id: "REC: ma_sale_journal.id"
-          receivable_account_id: "REC: ma_receivable_account.id"
+      - step: "MA1 Invoice B: create the invoice from its own payment term"
+        action: "call"
+        target: "ma1_term2"
+        method: "action_create_invoice"
+        as_user: "base.user_admin"
 
-      - step: "MA1: add a detail line to Invoice B"
-        action: "create"
-        model: "customer_invoice.line"
-        save_as: "ma1_invoice_b_line"
-        values:
-          customer_invoice_id: "REC: ma1_invoice_b.id"
-          name: "Line"
-          account_id: "REC: ma_income_account.id"
-          uom_quantity: 1
-          price_unit: 200000.0
+      - step: "MA1 Invoice B: get the term's generated invoice"
+        action: "search"
+        model: "customer_invoice"
+        domain: [["id", "=", "REC: ma1_term2.customer_invoice_id.id"]]
+        save_as: "ma1_invoice_b"
+        expect_count: 1
 
       - step: "MA1: confirm Invoice B"
         action: "call"
@@ -645,7 +631,7 @@ scenarios:
           grade_class_id: "REC: ma_grade_class.id"
           student_id: "REC: ma2_student.id"
 
-      - step: "MA2: create Payment Term 1 (300,000 -- the partial Allocation)"
+      - step: "MA2: create Payment Term 1 (1,000,000 -- the partial Allocation target)"
         action: "create"
         model: "school_enrollment_payment_term"
         save_as: "ma2_term1"
@@ -661,7 +647,7 @@ scenarios:
                 account_id: "REC: ma_income_account.id"
                 uom_quantity: 1.0
                 uom_id: "REF: uom.product_uom_unit"
-                price_unit: 300000.0
+                price_unit: 1000000.0
 
       - step: "MA2: create Payment Term 2 (200,000 -- the full Allocation)"
         action: "create"
@@ -742,29 +728,26 @@ scenarios:
         save_as: "ma2_sched2"
         limit: 1
 
-      - step: "MA2: create Invoice A (billed 1,000,000 -- the partial target)"
-        action: "create"
-        model: "customer_invoice"
-        save_as: "ma2_invoice_a"
+      - step: "MA2: set the enrollment's invoicing defaults"
+        action: "write"
+        target: "ma2_enrollment"
         values:
-          type_id: "REC: ma_invoice_type.id"
-          partner_id: "REC: ma2_contact.id"
-          date: 2026-08-20
-          date_due: 2026-09-20
-          currency_id: "REC: company.currency_id.id"
-          journal_id: "REC: ma_sale_journal.id"
+          receivable_journal_id: "REC: ma_sale_journal.id"
           receivable_account_id: "REC: ma_receivable_account.id"
+          customer_invoice_type_id: "REC: ma_invoice_type.id"
 
-      - step: "MA2: add a detail line to Invoice A"
-        action: "create"
-        model: "customer_invoice.line"
-        save_as: "ma2_invoice_a_line"
-        values:
-          customer_invoice_id: "REC: ma2_invoice_a.id"
-          name: "Line"
-          account_id: "REC: ma_income_account.id"
-          uom_quantity: 1
-          price_unit: 1000000.0
+      - step: "MA2 Invoice A: create the invoice from its own payment term"
+        action: "call"
+        target: "ma2_term1"
+        method: "action_create_invoice"
+        as_user: "base.user_admin"
+
+      - step: "MA2 Invoice A: get the term's generated invoice"
+        action: "search"
+        model: "customer_invoice"
+        domain: [["id", "=", "REC: ma2_term1.customer_invoice_id.id"]]
+        save_as: "ma2_invoice_a"
+        expect_count: 1
 
       - step: "MA2: confirm Invoice A"
         action: "call"
@@ -789,29 +772,18 @@ scenarios:
             type: "value"
             expected: 1000000.0
 
-      - step: "MA2: create Invoice B (billed 200,000 -- the full target)"
-        action: "create"
-        model: "customer_invoice"
-        save_as: "ma2_invoice_b"
-        values:
-          type_id: "REC: ma_invoice_type.id"
-          partner_id: "REC: ma2_contact.id"
-          date: 2026-08-20
-          date_due: 2026-09-20
-          currency_id: "REC: company.currency_id.id"
-          journal_id: "REC: ma_sale_journal.id"
-          receivable_account_id: "REC: ma_receivable_account.id"
+      - step: "MA2 Invoice B: create the invoice from its own payment term"
+        action: "call"
+        target: "ma2_term2"
+        method: "action_create_invoice"
+        as_user: "base.user_admin"
 
-      - step: "MA2: add a detail line to Invoice B"
-        action: "create"
-        model: "customer_invoice.line"
-        save_as: "ma2_invoice_b_line"
-        values:
-          customer_invoice_id: "REC: ma2_invoice_b.id"
-          name: "Line"
-          account_id: "REC: ma_income_account.id"
-          uom_quantity: 1
-          price_unit: 200000.0
+      - step: "MA2 Invoice B: get the term's generated invoice"
+        action: "search"
+        model: "customer_invoice"
+        domain: [["id", "=", "REC: ma2_term2.customer_invoice_id.id"]]
+        save_as: "ma2_invoice_b"
+        expect_count: 1
 
       - step: "MA2: confirm Invoice B"
         action: "call"

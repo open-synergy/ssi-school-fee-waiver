@@ -450,29 +450,26 @@ scenarios:
           journal_id: "REC: fwd1_sale_journal.id"
           receivable_account_id: "REC: fwd1_receivable_account.id"
 
-      - step: "Create Invoice 1 (full allocation target)"
-        action: "create"
-        model: "customer_invoice"
-        save_as: "fwd1_invoice1"
+      - step: "Enrollment: set the enrollment's invoicing defaults"
+        action: "write"
+        target: "fwd1_enrollment"
         values:
-          type_id: "REC: fwd1_invoice_type.id"
-          partner_id: "REC: fwd1_contact.id"
-          date: 2026-08-20
-          date_due: 2026-09-20
-          currency_id: "REC: company.currency_id.id"
-          journal_id: "REC: fwd1_sale_journal.id"
+          receivable_journal_id: "REC: fwd1_sale_journal.id"
           receivable_account_id: "REC: fwd1_receivable_account.id"
+          customer_invoice_type_id: "REC: fwd1_invoice_type.id"
 
-      - step: "Add a detail line to Invoice 1"
-        action: "create"
-        model: "customer_invoice.line"
-        save_as: "fwd1_invoice1_line"
-        values:
-          customer_invoice_id: "REC: fwd1_invoice1.id"
-          name: "Line"
-          account_id: "REC: fwd1_income_account.id"
-          uom_quantity: 1
-          price_unit: 1000000.0
+      - step: "Invoice 1: create the invoice from its own payment term"
+        action: "call"
+        target: "fwd1_term1"
+        method: "action_create_invoice"
+        as_user: "base.user_admin"
+
+      - step: "Invoice 1: get the term's generated invoice"
+        action: "search"
+        model: "customer_invoice"
+        domain: [["id", "=", "REC: fwd1_term1.customer_invoice_id.id"]]
+        save_as: "fwd1_invoice1"
+        expect_count: 1
 
       - step: "Confirm Invoice 1"
         action: "call"
@@ -497,29 +494,18 @@ scenarios:
             type: "value"
             expected: 1000000.0
 
-      - step: "Create Invoice 2 (full allocation target)"
-        action: "create"
-        model: "customer_invoice"
-        save_as: "fwd1_invoice2"
-        values:
-          type_id: "REC: fwd1_invoice_type.id"
-          partner_id: "REC: fwd1_contact.id"
-          date: 2026-08-20
-          date_due: 2026-09-20
-          currency_id: "REC: company.currency_id.id"
-          journal_id: "REC: fwd1_sale_journal.id"
-          receivable_account_id: "REC: fwd1_receivable_account.id"
+      - step: "Invoice 2: create the invoice from its own payment term"
+        action: "call"
+        target: "fwd1_term2"
+        method: "action_create_invoice"
+        as_user: "base.user_admin"
 
-      - step: "Add a detail line to Invoice 2"
-        action: "create"
-        model: "customer_invoice.line"
-        save_as: "fwd1_invoice2_line"
-        values:
-          customer_invoice_id: "REC: fwd1_invoice2.id"
-          name: "Line"
-          account_id: "REC: fwd1_income_account.id"
-          uom_quantity: 1
-          price_unit: 1000000.0
+      - step: "Invoice 2: get the term's generated invoice"
+        action: "search"
+        model: "customer_invoice"
+        domain: [["id", "=", "REC: fwd1_term2.customer_invoice_id.id"]]
+        save_as: "fwd1_invoice2"
+        expect_count: 1
 
       - step: "Confirm Invoice 2"
         action: "call"
@@ -540,6 +526,41 @@ scenarios:
           state:
             type: "value"
             expected: "open"
+
+      - step: "Invoice 3: create the invoice from Term 3's own payment term"
+        action: "call"
+        target: "fwd1_term3"
+        method: "action_create_invoice"
+        as_user: "base.user_admin"
+
+      - step: "Invoice 3: get Term 3's generated invoice"
+        action: "search"
+        model: "customer_invoice"
+        domain: [["id", "=", "REC: fwd1_term3.customer_invoice_id.id"]]
+        save_as: "fwd1_invoice3"
+        expect_count: 1
+
+      - step: "Confirm Invoice 3"
+        action: "call"
+        target: "fwd1_invoice3"
+        method: "action_confirm"
+        as_user: "base.user_admin"
+        # T-04 (test-traps.md): inline asserts force the refresh
+        # confirm→approve needs before approve_ok is read.
+        asserts:
+          state:
+            type: "value"
+            expected: "confirm"
+
+      - step: "Approve Invoice 3"
+        action: "call"
+        target: "fwd1_invoice3"
+        method: "action_approve_approval"
+        as_user: "base.user_admin"
+        asserts:
+          amount_residual:
+            type: "value"
+            expected: 1000000.0
 
       - step: "Create the small Invoice (partial-allocation target)"
         action: "create"
@@ -1082,7 +1103,7 @@ scenarios:
         save_as: "fwd1_alloc_neg2"
         values:
           deduction_id: "REC: fwd1_deduction_neg2.id"
-          customer_invoice_id: "REC: fwd1_invoice_small.id"
+          customer_invoice_id: "REC: fwd1_invoice3.id"
           amount: 200000.0
 
       - step: "Confirm the under-allocated deduction"

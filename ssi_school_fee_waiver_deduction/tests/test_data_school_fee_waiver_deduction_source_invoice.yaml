@@ -1,0 +1,965 @@
+# Copyright 2026 OpenSynergy Indonesia
+# Copyright 2026 PT. Simetri Sinergi Indonesia
+# License AGPL-3.0 or later (http://www.gnu.org/licenses/agpl).
+#
+# Source-invoice rule: every Allocation of a deduction must target the
+# source invoice (``_get_source_term().customer_invoice_id``) of one of
+# the Schedule lines on the document's own Lines.
+#
+# T-01 (odoo-development-unit-test/test-traps.md): scenarios in one YAML
+# file share a single, un-rolled-back DB transaction, and a top-level
+# `setup:` block is replayed before EVERY scenario. This file therefore
+# uses exactly ONE scenario with no `setup:` block. Fixture codes use the
+# `SI*`/`si_*` prefix, different from the other test files of this module.
+options:
+  auto_refresh: true
+scenarios:
+  - name: "Deduction - Allocations are restricted to the Schedules' source invoices"
+    steps:
+      - step: "Create the grade type"
+        action: "create"
+        model: "school_grade_type"
+        save_as: "si_grade_type"
+        values:
+          name: "SI Grade Type"
+          code: "SIGT"
+
+      - step: "Create the school"
+        action: "create"
+        model: "school"
+        save_as: "si_school"
+        values:
+          name: "SI School"
+          code: "SISC"
+          grade_type_id: "REC: si_grade_type.id"
+
+      - step: "Create the academic year"
+        action: "create"
+        model: "school_academic_year"
+        save_as: "si_year"
+        values:
+          name: "SI Academic Year"
+          code: "SIAY"
+          date_start: 2026-07-01
+          date_end: 2027-06-30
+
+      - step: "Create the academic term"
+        action: "create"
+        model: "school_academic_term"
+        save_as: "si_aterm"
+        values:
+          name: "SI Term"
+          code: "SITM"
+          date_start: 2026-07-01
+          date_end: 2026-12-31
+          year_id: "REC: si_year.id"
+
+      - step: "Create the grade"
+        action: "create"
+        model: "school_grade"
+        save_as: "si_grade"
+        values:
+          name: "SI Grade"
+          code: "SIGR"
+          type_id: "REC: si_grade_type.id"
+
+      - step: "Create the grade class"
+        action: "create"
+        model: "school_grade_class"
+        save_as: "si_class"
+        values:
+          name: "SI Class"
+          code: "SICL"
+          school_id: "REC: si_school.id"
+          grade_id: "REC: si_grade.id"
+
+      - step: "Create the student contact"
+        action: "create"
+        model: "res.partner"
+        save_as: "si_contact"
+        values:
+          name: "SI Contact"
+
+      - step: "Create the student"
+        action: "create"
+        model: "school_student"
+        save_as: "si_student"
+        values:
+          name: "SI Student"
+          code: "SIST"
+          contact_id: "REC: si_contact.id"
+          school_id: "REC: si_school.id"
+
+      - step: "Get the account.account.type Receivable reference"
+        action: "ref"
+        xml_id: "account.data_account_type_receivable"
+        save_as: "receivable_acc_type"
+
+      - step: "Get the account.account.type Income reference"
+        action: "ref"
+        xml_id: "account.data_account_type_revenue"
+        save_as: "income_acc_type"
+
+      - step: "Get the account.account.type Expense reference"
+        action: "ref"
+        xml_id: "account.data_account_type_expenses"
+        save_as: "expense_acc_type"
+
+      - step: "Create the Receivable Account"
+        action: "create"
+        model: "account.account"
+        save_as: "si_receivable"
+        values:
+          name: "SI Receivable Account"
+          code: "SIRA"
+          user_type_id: "REC: receivable_acc_type.id"
+          reconcile: true
+
+      - step: "Create the income account"
+        action: "create"
+        model: "account.account"
+        save_as: "si_income"
+        values:
+          name: "SI Income Account"
+          code: "SIIA"
+          user_type_id: "REC: income_acc_type.id"
+          reconcile: false
+
+      - step: "Create the discount account"
+        action: "create"
+        model: "account.account"
+        save_as: "si_discount"
+        values:
+          name: "SI Discount Account"
+          code: "SIDA"
+          user_type_id: "REC: expense_acc_type.id"
+          reconcile: false
+
+      - step: "Create the deduction journal"
+        action: "create"
+        model: "account.journal"
+        save_as: "si_ded_journal"
+        values:
+          name: "SI Deduction Journal"
+          code: "SIDJ"
+          type: "general"
+
+      - step: "Create the sale journal"
+        action: "create"
+        model: "account.journal"
+        save_as: "si_sale_journal"
+        values:
+          name: "SI Sale Journal"
+          code: "SISJ"
+          type: "sale"
+
+      - step: "Create the product"
+        action: "create"
+        model: "product.product"
+        save_as: "si_product"
+        values:
+          name: "SI Product"
+          type: "service"
+
+      - step: "Create the customer invoice type"
+        action: "create"
+        model: "customer_invoice_type"
+        save_as: "si_invoice_type"
+        values:
+          name: "SI Invoice Type"
+          code: "/"
+          journal_id: "REC: si_sale_journal.id"
+          receivable_account_id: "REC: si_receivable.id"
+
+      - step: "Create the enrollment"
+        action: "create"
+        model: "school_enrollment"
+        save_as: "si_enrollment"
+        values:
+          academic_year_id: "REC: si_year.id"
+          academic_term_id: "REC: si_aterm.id"
+          school_id: "REC: si_school.id"
+          grade_id: "REC: si_grade.id"
+          grade_class_id: "REC: si_class.id"
+          student_id: "REC: si_student.id"
+          currency_id: "REC: company.currency_id.id"
+          receivable_journal_id: "REC: si_sale_journal.id"
+          receivable_account_id: "REC: si_receivable.id"
+          customer_invoice_type_id: "REC: si_invoice_type.id"
+
+      - step: "Create Payment Term 1"
+        action: "create"
+        model: "school_enrollment_payment_term"
+        save_as: "si_term1"
+        values:
+          enrollment_id: "REC: si_enrollment.id"
+          name: "SI Term 1"
+          date_due: 2026-08-15
+          detail_ids:
+            - - 0
+              - 0
+              - product_id: "REC: si_product.id"
+                name: "SI Term 1 Fee"
+                account_id: "REC: si_income.id"
+                uom_quantity: 1.0
+                uom_id: "REF: uom.product_uom_unit"
+                price_unit: 1000000.0
+
+      - step: "Create Payment Term 2"
+        action: "create"
+        model: "school_enrollment_payment_term"
+        save_as: "si_term2"
+        values:
+          enrollment_id: "REC: si_enrollment.id"
+          name: "SI Term 2"
+          date_due: 2026-09-15
+          detail_ids:
+            - - 0
+              - 0
+              - product_id: "REC: si_product.id"
+                name: "SI Term 2 Fee"
+                account_id: "REC: si_income.id"
+                uom_quantity: 1.0
+                uom_id: "REF: uom.product_uom_unit"
+                price_unit: 1000000.0
+
+      - step: "Create Payment Term 3"
+        action: "create"
+        model: "school_enrollment_payment_term"
+        save_as: "si_term3"
+        values:
+          enrollment_id: "REC: si_enrollment.id"
+          name: "SI Term 3"
+          date_due: 2026-10-15
+          detail_ids:
+            - - 0
+              - 0
+              - product_id: "REC: si_product.id"
+                name: "SI Term 3 Fee"
+                account_id: "REC: si_income.id"
+                uom_quantity: 1.0
+                uom_id: "REF: uom.product_uom_unit"
+                price_unit: 1000000.0
+
+      - step: "Create Payment Term 4"
+        action: "create"
+        model: "school_enrollment_payment_term"
+        save_as: "si_term4"
+        values:
+          enrollment_id: "REC: si_enrollment.id"
+          name: "SI Term 4"
+          date_due: 2026-11-15
+          detail_ids:
+            - - 0
+              - 0
+              - product_id: "REC: si_product.id"
+                name: "SI Term 4 Fee"
+                account_id: "REC: si_income.id"
+                uom_quantity: 1.0
+                uom_id: "REF: uom.product_uom_unit"
+                price_unit: 1000000.0
+
+      - step: "Invoice Payment Term 1"
+        action: "call"
+        target: "si_term1"
+        method: "action_create_invoice"
+        as_user: "base.user_admin"
+
+      - step: "Get Payment Term 1's generated invoice"
+        action: "search"
+        model: "customer_invoice"
+        domain: [["id", "=", "REC: si_term1.customer_invoice_id.id"]]
+        save_as: "si_invoice1"
+        expect_count: 1
+
+      - step: "Confirm Invoice 1"
+        action: "call"
+        target: "si_invoice1"
+        method: "action_confirm"
+        as_user: "base.user_admin"
+        # T-04 (test-traps.md): inline asserts force the refresh
+        # confirm->approve needs before approve_ok is read.
+        asserts:
+          state:
+            type: "value"
+            expected: "confirm"
+
+      - step: "Approve Invoice 1"
+        action: "call"
+        target: "si_invoice1"
+        method: "action_approve_approval"
+        as_user: "base.user_admin"
+        asserts:
+          state:
+            type: "value"
+            expected: "open"
+          amount_residual:
+            type: "value"
+            expected: 1000000.0
+
+      - step: "Invoice Payment Term 2"
+        action: "call"
+        target: "si_term2"
+        method: "action_create_invoice"
+        as_user: "base.user_admin"
+
+      - step: "Get Payment Term 2's generated invoice"
+        action: "search"
+        model: "customer_invoice"
+        domain: [["id", "=", "REC: si_term2.customer_invoice_id.id"]]
+        save_as: "si_invoice2"
+        expect_count: 1
+
+      - step: "Confirm Invoice 2"
+        action: "call"
+        target: "si_invoice2"
+        method: "action_confirm"
+        as_user: "base.user_admin"
+        # T-04 (test-traps.md): inline asserts force the refresh
+        # confirm->approve needs before approve_ok is read.
+        asserts:
+          state:
+            type: "value"
+            expected: "confirm"
+
+      - step: "Approve Invoice 2"
+        action: "call"
+        target: "si_invoice2"
+        method: "action_approve_approval"
+        as_user: "base.user_admin"
+        asserts:
+          state:
+            type: "value"
+            expected: "open"
+          amount_residual:
+            type: "value"
+            expected: 1000000.0
+
+      - step: "Invoice Payment Term 3"
+        action: "call"
+        target: "si_term3"
+        method: "action_create_invoice"
+        as_user: "base.user_admin"
+
+      - step: "Get Payment Term 3's generated invoice"
+        action: "search"
+        model: "customer_invoice"
+        domain: [["id", "=", "REC: si_term3.customer_invoice_id.id"]]
+        save_as: "si_invoice3"
+        expect_count: 1
+
+      - step: "Confirm Invoice 3"
+        action: "call"
+        target: "si_invoice3"
+        method: "action_confirm"
+        as_user: "base.user_admin"
+        # T-04 (test-traps.md): inline asserts force the refresh
+        # confirm->approve needs before approve_ok is read.
+        asserts:
+          state:
+            type: "value"
+            expected: "confirm"
+
+      - step: "Approve Invoice 3"
+        action: "call"
+        target: "si_invoice3"
+        method: "action_approve_approval"
+        as_user: "base.user_admin"
+        asserts:
+          state:
+            type: "value"
+            expected: "open"
+          amount_residual:
+            type: "value"
+            expected: 1000000.0
+
+      - step: "Create the fee waiver type"
+        action: "create"
+        model: "school_fee_waiver_type"
+        save_as: "si_type"
+        values:
+          name: "SI Type"
+          code: "SITY"
+          deduction_journal_id: "REC: si_ded_journal.id"
+          discount_account_id: "REC: si_discount.id"
+
+      - step: "Create the fee waiver reason"
+        action: "create"
+        model: "school_fee_waiver_reason"
+        save_as: "si_reason"
+        values:
+          name: "SI Reason"
+          code: "SIRS"
+
+      - step: "Create fee waiver c (single term 2)"
+        action: "create"
+        model: "school_fee_waiver"
+        save_as: "si_waiver_c"
+        values:
+          type_id: "REC: si_type.id"
+          reason_id: "REC: si_reason.id"
+          student_id: "REC: si_student.id"
+          enrollment_id: "REC: si_enrollment.id"
+          coverage: "single_term"
+          payment_term_id: "REC: si_term2.id"
+          user_id: "REF: base.user_admin"
+          line_ids:
+            - - 0
+              - 0
+              - product_id: "REC: si_product.id"
+                computation: "full"
+
+      - step: "Confirm fee waiver c"
+        action: "call"
+        target: "si_waiver_c"
+        method: "action_confirm"
+        as_user: "base.user_admin"
+        asserts:
+          state:
+            type: "value"
+            expected: "confirm"
+
+      - step: "Approve fee waiver c"
+        action: "call"
+        target: "si_waiver_c"
+        method: "action_approve_approval"
+        as_user: "base.user_admin"
+        asserts:
+          state:
+            type: "value"
+            expected: "open"
+
+      - step: "Find fee waiver c's Schedule line"
+        action: "search"
+        model: "school_fee_waiver_schedule"
+        domain: [["waiver_id", "=", "REC: si_waiver_c.id"]]
+        save_as: "si_sched_c"
+        expect_count: 1
+
+      - step: "Create fee waiver f (single term 4)"
+        action: "create"
+        model: "school_fee_waiver"
+        save_as: "si_waiver_f"
+        values:
+          type_id: "REC: si_type.id"
+          reason_id: "REC: si_reason.id"
+          student_id: "REC: si_student.id"
+          enrollment_id: "REC: si_enrollment.id"
+          coverage: "single_term"
+          payment_term_id: "REC: si_term4.id"
+          user_id: "REF: base.user_admin"
+          line_ids:
+            - - 0
+              - 0
+              - product_id: "REC: si_product.id"
+                computation: "full"
+
+      - step: "Confirm fee waiver f"
+        action: "call"
+        target: "si_waiver_f"
+        method: "action_confirm"
+        as_user: "base.user_admin"
+        asserts:
+          state:
+            type: "value"
+            expected: "confirm"
+
+      - step: "Approve fee waiver f"
+        action: "call"
+        target: "si_waiver_f"
+        method: "action_approve_approval"
+        as_user: "base.user_admin"
+        asserts:
+          state:
+            type: "value"
+            expected: "open"
+
+      - step: "Find fee waiver f's Schedule line"
+        action: "search"
+        model: "school_fee_waiver_schedule"
+        domain: [["waiver_id", "=", "REC: si_waiver_f.id"]]
+        save_as: "si_sched_f"
+        expect_count: 1
+
+      - step: "Create fee waiver a (single term 1)"
+        action: "create"
+        model: "school_fee_waiver"
+        save_as: "si_waiver_a"
+        values:
+          type_id: "REC: si_type.id"
+          reason_id: "REC: si_reason.id"
+          student_id: "REC: si_student.id"
+          enrollment_id: "REC: si_enrollment.id"
+          coverage: "single_term"
+          payment_term_id: "REC: si_term1.id"
+          user_id: "REF: base.user_admin"
+          line_ids:
+            - - 0
+              - 0
+              - product_id: "REC: si_product.id"
+                computation: "percentage"
+                percentage: 50.0
+
+      - step: "Confirm fee waiver a"
+        action: "call"
+        target: "si_waiver_a"
+        method: "action_confirm"
+        as_user: "base.user_admin"
+        asserts:
+          state:
+            type: "value"
+            expected: "confirm"
+
+      - step: "Approve fee waiver a"
+        action: "call"
+        target: "si_waiver_a"
+        method: "action_approve_approval"
+        as_user: "base.user_admin"
+        asserts:
+          state:
+            type: "value"
+            expected: "open"
+
+      - step: "Find fee waiver a's Schedule line"
+        action: "search"
+        model: "school_fee_waiver_schedule"
+        domain: [["waiver_id", "=", "REC: si_waiver_a.id"]]
+        save_as: "si_sched_a"
+        expect_count: 1
+
+      - step: "Create fee waiver b (single term 1)"
+        action: "create"
+        model: "school_fee_waiver"
+        save_as: "si_waiver_b"
+        values:
+          type_id: "REC: si_type.id"
+          reason_id: "REC: si_reason.id"
+          student_id: "REC: si_student.id"
+          enrollment_id: "REC: si_enrollment.id"
+          coverage: "single_term"
+          payment_term_id: "REC: si_term1.id"
+          user_id: "REF: base.user_admin"
+          line_ids:
+            - - 0
+              - 0
+              - product_id: "REC: si_product.id"
+                computation: "percentage"
+                percentage: 50.0
+
+      - step: "Confirm fee waiver b"
+        action: "call"
+        target: "si_waiver_b"
+        method: "action_confirm"
+        as_user: "base.user_admin"
+        asserts:
+          state:
+            type: "value"
+            expected: "confirm"
+
+      - step: "Approve fee waiver b"
+        action: "call"
+        target: "si_waiver_b"
+        method: "action_approve_approval"
+        as_user: "base.user_admin"
+        asserts:
+          state:
+            type: "value"
+            expected: "open"
+
+      - step: "Find fee waiver b's Schedule line"
+        action: "search"
+        model: "school_fee_waiver_schedule"
+        domain: [["waiver_id", "=", "REC: si_waiver_b.id"]]
+        save_as: "si_sched_b"
+        expect_count: 1
+
+      # ══ NEGATIVE 1: the Allocation targets another term's invoice ══
+
+      - step: "NEG1: create the deduction document"
+        action: "create"
+        model: "school_fee_waiver_deduction"
+        save_as: "si_ded_neg1"
+        values:
+          waiver_id: "REC: si_waiver_c.id"
+          journal_id: "REC: si_ded_journal.id"
+          receivable_account_id: "REC: si_receivable.id"
+          date: 2026-08-25
+
+      - step: "NEG1: add the Line"
+        action: "create"
+        model: "school_fee_waiver_deduction_line"
+        save_as: "si_ded_neg1_line"
+        values:
+          deduction_id: "REC: si_ded_neg1.id"
+          schedule_id: "REC: si_sched_c.id"
+          account_id: "REC: si_discount.id"
+          amount: 500000.0
+
+      - step: "NEG1: add the Allocation"
+        action: "create"
+        model: "school_fee_waiver_deduction_allocation"
+        save_as: "si_ded_neg1_alloc"
+        values:
+          deduction_id: "REC: si_ded_neg1.id"
+          customer_invoice_id: "REC: si_invoice3.id"
+          amount: 500000.0
+
+      - step: "NEG1: allowed invoices are exactly the Schedule's own source invoice"
+        action: "assert"
+        target: "si_ded_neg1"
+        asserts:
+          allowed_customer_invoice_ids:
+            type: "m2m"
+            check: "exact"
+            expected_records:
+              - "REC: si_invoice2"
+
+      - step: "NEG1: confirming is rejected (Invoice 3 is not Term 2's invoice)"
+        action: "call"
+        target: "si_ded_neg1"
+        method: "action_confirm"
+        as_user: "base.user_admin"
+        expect_error:
+          type: "UserError"
+          message_contains: "is not the source invoice"
+
+      - step: "NEG1: remove the rejected draft"
+        action: "unlink"
+        target: "si_ded_neg1"
+
+      # ══ NEGATIVE 2: the Schedule's term has not been invoiced yet ══
+
+      - step: "NEG2: create the deduction document"
+        action: "create"
+        model: "school_fee_waiver_deduction"
+        save_as: "si_ded_neg2"
+        values:
+          waiver_id: "REC: si_waiver_f.id"
+          journal_id: "REC: si_ded_journal.id"
+          receivable_account_id: "REC: si_receivable.id"
+          date: 2026-08-25
+
+      - step: "NEG2: add the Line"
+        action: "create"
+        model: "school_fee_waiver_deduction_line"
+        save_as: "si_ded_neg2_line"
+        values:
+          deduction_id: "REC: si_ded_neg2.id"
+          schedule_id: "REC: si_sched_f.id"
+          account_id: "REC: si_discount.id"
+          amount: 100000.0
+
+      - step: "NEG2: add the Allocation"
+        action: "create"
+        model: "school_fee_waiver_deduction_allocation"
+        save_as: "si_ded_neg2_alloc"
+        values:
+          deduction_id: "REC: si_ded_neg2.id"
+          customer_invoice_id: "REC: si_invoice3.id"
+          amount: 100000.0
+
+      - step: "NEG2: no allowed invoice while the term is uninvoiced"
+        action: "assert"
+        target: "si_ded_neg2"
+        asserts:
+          allowed_customer_invoice_ids:
+            type: "m2m"
+            check: "count"
+            expected_count: 0
+
+      - step: "NEG2: confirming is rejected (the Schedule has no source invoice)"
+        action: "call"
+        target: "si_ded_neg2"
+        method: "action_confirm"
+        as_user: "base.user_admin"
+        expect_error:
+          type: "UserError"
+          message_contains: "has no source invoice yet"
+
+      - step: "NEG2: remove the rejected draft"
+        action: "unlink"
+        target: "si_ded_neg2"
+
+      # ══ POSITIVE 3: two waivers on one term deduct to the same invoice ══
+
+      - step: "POS3 deduction A: create the deduction document"
+        action: "create"
+        model: "school_fee_waiver_deduction"
+        save_as: "si_ded_a"
+        values:
+          waiver_id: "REC: si_waiver_a.id"
+          journal_id: "REC: si_ded_journal.id"
+          receivable_account_id: "REC: si_receivable.id"
+          date: 2026-08-25
+
+      - step: "POS3 deduction A: add the Line"
+        action: "create"
+        model: "school_fee_waiver_deduction_line"
+        save_as: "si_ded_a_line"
+        values:
+          deduction_id: "REC: si_ded_a.id"
+          schedule_id: "REC: si_sched_a.id"
+          account_id: "REC: si_discount.id"
+          amount: 500000.0
+
+      - step: "POS3 deduction A: add the Allocation"
+        action: "create"
+        model: "school_fee_waiver_deduction_allocation"
+        save_as: "si_ded_a_alloc"
+        values:
+          deduction_id: "REC: si_ded_a.id"
+          customer_invoice_id: "REC: si_invoice1.id"
+          amount: 500000.0
+
+      - step: "POS3 deduction A: confirm"
+        action: "call"
+        target: "si_ded_a"
+        method: "action_confirm"
+        as_user: "base.user_admin"
+        asserts:
+          state:
+            type: "value"
+            expected: "confirm"
+
+      - step: "POS3 deduction A: force a refresh before reading approve_ok (T-04)"
+        action: "assert"
+        target: "si_ded_a"
+        asserts:
+          state:
+            type: "value"
+            expected: "confirm"
+
+      - step: "POS3 deduction A: approve -- auto-opens (single level)"
+        action: "call"
+        target: "si_ded_a"
+        method: "action_approve_approval"
+        as_user: "base.user_admin"
+        asserts:
+          state:
+            type: "value"
+            expected: "open"
+
+      - step: "POS3 deduction B: create the deduction document"
+        action: "create"
+        model: "school_fee_waiver_deduction"
+        save_as: "si_ded_b"
+        values:
+          waiver_id: "REC: si_waiver_b.id"
+          journal_id: "REC: si_ded_journal.id"
+          receivable_account_id: "REC: si_receivable.id"
+          date: 2026-08-25
+
+      - step: "POS3 deduction B: add the Line"
+        action: "create"
+        model: "school_fee_waiver_deduction_line"
+        save_as: "si_ded_b_line"
+        values:
+          deduction_id: "REC: si_ded_b.id"
+          schedule_id: "REC: si_sched_b.id"
+          account_id: "REC: si_discount.id"
+          amount: 500000.0
+
+      - step: "POS3 deduction B: add the Allocation"
+        action: "create"
+        model: "school_fee_waiver_deduction_allocation"
+        save_as: "si_ded_b_alloc"
+        values:
+          deduction_id: "REC: si_ded_b.id"
+          customer_invoice_id: "REC: si_invoice1.id"
+          amount: 500000.0
+
+      - step: "POS3 deduction B: confirm"
+        action: "call"
+        target: "si_ded_b"
+        method: "action_confirm"
+        as_user: "base.user_admin"
+        asserts:
+          state:
+            type: "value"
+            expected: "confirm"
+
+      - step: "POS3 deduction B: force a refresh before reading approve_ok (T-04)"
+        action: "assert"
+        target: "si_ded_b"
+        asserts:
+          state:
+            type: "value"
+            expected: "confirm"
+
+      - step: "POS3 deduction B: approve -- auto-opens (single level)"
+        action: "call"
+        target: "si_ded_b"
+        method: "action_approve_approval"
+        as_user: "base.user_admin"
+        asserts:
+          state:
+            type: "value"
+            expected: "open"
+
+      - step: "POS3: Invoice 1 is fully covered by both deductions"
+        action: "assert"
+        target: "si_invoice1"
+        asserts:
+          amount_residual:
+            type: "value"
+            expected: 0.0
+          state:
+            type: "value"
+            expected: "done"
+
+      # ══ POSITIVE 4: Open, Cancel, then a new deduction on the same Schedule ══
+
+      - step: "POS4 deduction C1: create the deduction document"
+        action: "create"
+        model: "school_fee_waiver_deduction"
+        save_as: "si_ded_c1"
+        values:
+          waiver_id: "REC: si_waiver_c.id"
+          journal_id: "REC: si_ded_journal.id"
+          receivable_account_id: "REC: si_receivable.id"
+          date: 2026-08-25
+
+      - step: "POS4 deduction C1: add the Line"
+        action: "create"
+        model: "school_fee_waiver_deduction_line"
+        save_as: "si_ded_c1_line"
+        values:
+          deduction_id: "REC: si_ded_c1.id"
+          schedule_id: "REC: si_sched_c.id"
+          account_id: "REC: si_discount.id"
+          amount: 1000000.0
+
+      - step: "POS4 deduction C1: add the Allocation"
+        action: "create"
+        model: "school_fee_waiver_deduction_allocation"
+        save_as: "si_ded_c1_alloc"
+        values:
+          deduction_id: "REC: si_ded_c1.id"
+          customer_invoice_id: "REC: si_invoice2.id"
+          amount: 1000000.0
+
+      - step: "POS4 deduction C1: confirm"
+        action: "call"
+        target: "si_ded_c1"
+        method: "action_confirm"
+        as_user: "base.user_admin"
+        asserts:
+          state:
+            type: "value"
+            expected: "confirm"
+
+      - step: "POS4 deduction C1: force a refresh before reading approve_ok (T-04)"
+        action: "assert"
+        target: "si_ded_c1"
+        asserts:
+          state:
+            type: "value"
+            expected: "confirm"
+
+      - step: "POS4 deduction C1: approve -- auto-opens (single level)"
+        action: "call"
+        target: "si_ded_c1"
+        method: "action_approve_approval"
+        as_user: "base.user_admin"
+        asserts:
+          state:
+            type: "value"
+            expected: "open"
+
+      - step: "POS4: create the cancellation reason"
+        action: "create"
+        model: "base.cancel_reason"
+        save_as: "si_cancel_reason"
+        values:
+          name: "SI Cancel Reason"
+          code: "SICR"
+          global_use: true
+
+      - step: "POS4: cancel deduction C1 via the wizard"
+        action: "wizard"
+        model: "base.select_cancel_reason"
+        target: "si_ded_c1"
+        as_user: "base.user_admin"
+        values:
+          cancel_reason_id: "REC: si_cancel_reason"
+        method: "action_confirm"
+        asserts:
+          state:
+            type: "value"
+            expected: "cancel"
+
+      - step: "POS4: the Schedule is Scheduled again"
+        action: "assert"
+        target: "si_sched_c"
+        asserts:
+          state:
+            type: "value"
+            expected: "scheduled"
+
+      - step: "POS4 deduction C2: create the deduction document"
+        action: "create"
+        model: "school_fee_waiver_deduction"
+        save_as: "si_ded_c2"
+        values:
+          waiver_id: "REC: si_waiver_c.id"
+          journal_id: "REC: si_ded_journal.id"
+          receivable_account_id: "REC: si_receivable.id"
+          date: 2026-08-25
+
+      - step: "POS4 deduction C2: add the Line"
+        action: "create"
+        model: "school_fee_waiver_deduction_line"
+        save_as: "si_ded_c2_line"
+        values:
+          deduction_id: "REC: si_ded_c2.id"
+          schedule_id: "REC: si_sched_c.id"
+          account_id: "REC: si_discount.id"
+          amount: 1000000.0
+
+      - step: "POS4 deduction C2: add the Allocation"
+        action: "create"
+        model: "school_fee_waiver_deduction_allocation"
+        save_as: "si_ded_c2_alloc"
+        values:
+          deduction_id: "REC: si_ded_c2.id"
+          customer_invoice_id: "REC: si_invoice2.id"
+          amount: 1000000.0
+
+      - step: "POS4 deduction C2: confirm"
+        action: "call"
+        target: "si_ded_c2"
+        method: "action_confirm"
+        as_user: "base.user_admin"
+        asserts:
+          state:
+            type: "value"
+            expected: "confirm"
+
+      - step: "POS4 deduction C2: force a refresh before reading approve_ok (T-04)"
+        action: "assert"
+        target: "si_ded_c2"
+        asserts:
+          state:
+            type: "value"
+            expected: "confirm"
+
+      - step: "POS4 deduction C2: approve -- auto-opens (single level)"
+        action: "call"
+        target: "si_ded_c2"
+        method: "action_approve_approval"
+        as_user: "base.user_admin"
+        asserts:
+          state:
+            type: "value"
+            expected: "open"
+
+      - step: "POS4: the Schedule is Realized by the new deduction"
+        action: "assert"
+        target: "si_sched_c"
+        asserts:
+          state:
+            type: "value"
+            expected: "realized"
+          deduction_id:
+            type: "m2o"
+            expected: "REC: si_ded_c2"

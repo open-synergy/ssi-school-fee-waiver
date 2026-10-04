@@ -6,4 +6,5 @@ from . import test_school_fee_waiver_deduction
 from . import test_school_fee_waiver_deduction_enrollment_recognition
 from . import test_school_fee_waiver_deduction_multi_allocation
 from . import test_school_fee_waiver_deduction_partial_payment
+from . import test_school_fee_waiver_deduction_source_invoice
 from . import test_ui_school_fee_waiver_deduction
