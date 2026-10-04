@@ -5,6 +5,7 @@
 from . import (
     test_school_fee_waiver_admission,
     test_school_fee_waiver_admission_guard,
+    test_school_fee_waiver_admission_payment_term,
     test_school_fee_waiver_schedule_admission_voided,
     test_ui_school_fee_waiver,
 )
