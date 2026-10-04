@@ -117,6 +117,11 @@ msgid "Allocations"
 msgstr ""
 
 #. module: ssi_school_fee_waiver_deduction
+#: model:ir.model.fields,field_description:ssi_school_fee_waiver_deduction.field_school_fee_waiver_deduction__allowed_customer_invoice_ids
+msgid "Allowed Customer Invoices"
+msgstr ""
+
+#. module: ssi_school_fee_waiver_deduction
 #: model:ir.model.fields,field_description:ssi_school_fee_waiver_deduction.field_school_fee_waiver_deduction__allowed_policy_template_ids
 msgid "Allowed Policy Templates"
 msgstr ""
@@ -700,7 +705,8 @@ msgstr ""
 #: model:ir.model.fields,help:ssi_school_fee_waiver_deduction.field_school_fee_waiver_deduction_allocation__customer_invoice_id
 msgid ""
 "Open customer invoice this allocation reconciles against. Restricted to "
-"invoices of this document's own Partner with a positive residual."
+"invoices of this document's own Partner with a positive residual that are "
+"also the source invoice of a Schedule line on this document."
 msgstr ""
 
 #. module: ssi_school_fee_waiver_deduction
@@ -862,6 +868,13 @@ msgstr ""
 #. module: ssi_school_fee_waiver_deduction
 #: model:ir.model,name:ssi_school_fee_waiver_deduction.model_school_fee_waiver_type
 msgid "School Fee Waiver Type"
+msgstr ""
+
+#. module: ssi_school_fee_waiver_deduction
+#: model:ir.model.fields,help:ssi_school_fee_waiver_deduction.field_school_fee_waiver_deduction__allowed_customer_invoice_ids
+msgid ""
+"Source invoices of every Schedule line on this document's Lines. Allocations"
+" may only target these invoices."
 msgstr ""
 
 #. module: ssi_school_fee_waiver_deduction
