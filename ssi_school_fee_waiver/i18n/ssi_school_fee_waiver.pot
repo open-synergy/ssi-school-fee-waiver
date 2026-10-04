@@ -421,6 +421,15 @@ msgid "Draft"
 msgstr ""
 
 #. module: ssi_school_fee_waiver
+#: model:ir.model.fields,help:ssi_school_fee_waiver.field_school_enrollment__amount_fee_waiver
+msgid ""
+"Effective fee waiver of this enrollment: Fee Waiver Deducted plus Fee Waiver"
+" Not Yet Deducted. The unrealized remainder of a partially deducted schedule"
+" is not counted, because it is billed to the student, so this amount can be "
+"lower than the sum of Fee Waiver Amount of the payment terms."
+msgstr ""
+
+#. module: ssi_school_fee_waiver
 #: model:ir.model.fields,field_description:ssi_school_fee_waiver.field_school_fee_waiver__date_end
 msgid "End Date"
 msgstr ""
@@ -445,15 +454,18 @@ msgstr ""
 #: model:ir.ui.menu,name:ssi_school_fee_waiver.menu_school_fee_waiver_configuration
 #: model_terms:ir.ui.view,arch_db:ssi_school_fee_waiver.school_enrollment_payment_term_view_form
 #: model_terms:ir.ui.view,arch_db:ssi_school_fee_waiver.school_enrollment_payment_term_view_form_embedded
+#: model_terms:ir.ui.view,arch_db:ssi_school_fee_waiver.school_enrollment_view_form
 msgid "Fee Waiver"
 msgstr ""
 
 #. module: ssi_school_fee_waiver
+#: model:ir.model.fields,field_description:ssi_school_fee_waiver.field_school_enrollment__amount_fee_waiver
 #: model:ir.model.fields,field_description:ssi_school_fee_waiver.field_school_enrollment_payment_term__fee_waiver_amount
 msgid "Fee Waiver Amount"
 msgstr ""
 
 #. module: ssi_school_fee_waiver
+#: model:ir.model.fields,field_description:ssi_school_fee_waiver.field_school_enrollment__amount_fee_waiver_deducted
 #: model:ir.model.fields,field_description:ssi_school_fee_waiver.field_school_enrollment_payment_term__fee_waiver_amount_deducted
 msgid "Fee Waiver Deducted"
 msgstr ""
@@ -464,6 +476,7 @@ msgid "Fee Waiver Deducted (Planned)"
 msgstr ""
 
 #. module: ssi_school_fee_waiver
+#: model:ir.model.fields,field_description:ssi_school_fee_waiver.field_school_enrollment__amount_fee_waiver_undeducted
 #: model:ir.model.fields,field_description:ssi_school_fee_waiver.field_school_enrollment_payment_term__fee_waiver_amount_undeducted
 msgid "Fee Waiver Not Yet Deducted"
 msgstr ""
@@ -502,6 +515,13 @@ msgid "Fee Waivers"
 msgstr ""
 
 #. module: ssi_school_fee_waiver
+#: model:ir.model.fields,help:ssi_school_fee_waiver.field_school_enrollment__amount_fee_waiver_deducted
+msgid ""
+"Fee waiver already deducted from the invoices: the sum of Fee Waiver "
+"Deducted of the counted payment terms."
+msgstr ""
+
+#. module: ssi_school_fee_waiver
 #: model:ir.model.fields,help:ssi_school_fee_waiver.field_school_enrollment_payment_term__fee_waiver_amount_deducted
 msgid ""
 "Fee waiver already deducted: the sum of Amount Realized of Realized schedule"
@@ -525,6 +545,13 @@ msgstr ""
 msgid ""
 "Fee waiver still waiting for deduction: the sum of Amount Planned of "
 "Scheduled schedule lines whose waiver is Running or Finished."
+msgstr ""
+
+#. module: ssi_school_fee_waiver
+#: model:ir.model.fields,help:ssi_school_fee_waiver.field_school_enrollment__amount_fee_waiver_undeducted
+msgid ""
+"Fee waiver still waiting for deduction: the sum of Fee Waiver Not Yet "
+"Deducted of the counted payment terms."
 msgstr ""
 
 #. module: ssi_school_fee_waiver
