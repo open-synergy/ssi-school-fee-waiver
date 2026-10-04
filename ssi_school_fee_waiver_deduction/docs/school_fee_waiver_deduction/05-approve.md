@@ -10,6 +10,9 @@
 ## Pre-Condition
 
 - **Record:** Status is **Waiting for Approval**.
+- **Record:** Every Allocation still targets the source invoice of one of the Schedule
+  lines on the Lines tab (checked again before the automatic Open transition -- see
+  `08-auto-open`).
 - **Record:** Amount Unallocated is zero -- the full Amount Total has been assigned
   across the Allocation lines.
 - **Config:** An active `policy.template` grants `approve_ok` to the actor's group.
@@ -36,5 +39,7 @@
 - If there are still pending approval levels, status remains **Waiting for Approval**
   and the next level becomes pending.
 
-> **Note:** Approving a document whose Amount Unallocated is not zero is rejected with
-> an error when the automatic Open transition runs -- see `08-auto-open`.
+> **Note:** Approving a document whose Amount Unallocated is not zero, or whose
+> Allocation targets an invoice that is not the source invoice of one of its Schedule
+> lines, is rejected with an error when the automatic Open transition runs -- see
+> `08-auto-open`.

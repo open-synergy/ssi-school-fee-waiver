@@ -127,6 +127,7 @@
                     </field>
                 </page>
                 <page name="allocation" string="Allocations">
+                    <field name="allowed_customer_invoice_ids" invisible="1" />
                     <field name="allocation_ids" colspan="4" nolabel="1">
                         <tree editable="bottom">
                             <field name="customer_invoice_id" />

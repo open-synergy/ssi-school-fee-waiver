@@ -586,29 +586,26 @@ scenarios:
           journal_id: "REC: fwdou1_sale_journal.id"
           receivable_account_id: "REC: fwdou1_receivable_account.id"
 
-      - step: "Create the invoice for Student B (allocation target)"
-        action: "create"
-        model: "customer_invoice"
-        save_as: "fwdou1_invoice"
+      - step: "Enrollment B: set the enrollment's invoicing defaults"
+        action: "write"
+        target: "fwdou1_enrollment_b"
         values:
-          type_id: "REC: fwdou1_invoice_type.id"
-          partner_id: "REC: fwdou1_contact_b.id"
-          date: 2026-08-20
-          date_due: 2026-09-20
-          currency_id: "REC: company.currency_id.id"
-          journal_id: "REC: fwdou1_sale_journal.id"
+          receivable_journal_id: "REC: fwdou1_sale_journal.id"
           receivable_account_id: "REC: fwdou1_receivable_account.id"
+          customer_invoice_type_id: "REC: fwdou1_invoice_type.id"
 
-      - step: "Add a detail line to the invoice"
-        action: "create"
-        model: "customer_invoice.line"
-        save_as: "fwdou1_invoice_line"
-        values:
-          customer_invoice_id: "REC: fwdou1_invoice.id"
-          name: "Line"
-          account_id: "REC: fwdou1_income_account.id"
-          uom_quantity: 1
-          price_unit: 1000000.0
+      - step: "Invoice: create the invoice from its own payment term"
+        action: "call"
+        target: "fwdou1_term_b1"
+        method: "action_create_invoice"
+        as_user: "base.user_admin"
+
+      - step: "Invoice: get the term's generated invoice"
+        action: "search"
+        model: "customer_invoice"
+        domain: [["id", "=", "REC: fwdou1_term_b1.customer_invoice_id.id"]]
+        save_as: "fwdou1_invoice"
+        expect_count: 1
 
       - step: "Confirm the invoice"
         action: "call"

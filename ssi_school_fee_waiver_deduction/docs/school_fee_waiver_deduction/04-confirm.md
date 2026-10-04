@@ -10,6 +10,11 @@
 ## Pre-Condition
 
 - **Record:** Status is **Draft**.
+- **Record:** Every Schedule line on the Lines tab has a source invoice (its payment
+  term has been invoiced), and every Allocation targets the source invoice of one of
+  those Schedule lines. Otherwise **Confirm** is rejected with an error naming the
+  Schedule line without a source invoice, or the Allocation's invoice that is not a
+  source invoice -- see `01-create`.
 - **Config:** An active `policy.template` for this model grants `confirm_ok` for state
   `draft` to the actor's group.
 - **Config:** An active `approval.template` for this model matches this record and has

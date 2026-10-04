@@ -215,6 +215,15 @@ class SchoolFeeWaiverDeduction(models.Model):
         "Their Amount must add up to exactly this document's Amount "
         "Total before it can be opened.",
     )
+    allowed_customer_invoice_ids = fields.Many2many(
+        string="Allowed Customer Invoices",
+        comodel_name="customer_invoice",
+        compute="_compute_allowed_customer_invoice_ids",
+        store=False,
+        help="Source invoices of every Schedule line on this "
+        "document's Lines. Allocations may only target these "
+        "invoices.",
+    )
     schedule_ids = fields.One2many(
         string="Realized Schedule",
         comodel_name="school_fee_waiver_schedule",
@@ -291,6 +300,18 @@ class SchoolFeeWaiverDeduction(models.Model):
         "``_03_apply_enrollment_recognition`` when this document "
         "opens; never set by the user.",
     )
+
+    @api.depends("line_ids.schedule_id")
+    def _compute_allowed_customer_invoice_ids(self):
+        """Collect the source invoice of every Schedule line.
+
+        :return: nothing; assigns ``allowed_customer_invoice_ids``
+        """
+        for record in self:
+            result = self.env["customer_invoice"]
+            for schedule in record.line_ids.mapped("schedule_id"):
+                result |= schedule._get_source_term().customer_invoice_id
+            record.allowed_customer_invoice_ids = result
 
     @api.depends("waiver_id")
     def _compute_student_id(self):
@@ -504,6 +525,69 @@ cancel this document and re-create the Allocation against it
                     allocation.customer_invoice_id.amount_residual,
                 )
                 raise UserError(_(error_message))
+
+    def _check_allocation_source_invoice(self):
+        """Require every Allocation to target a source invoice.
+
+        The allowed invoices are the source invoices of all Schedule
+        lines on this document's Lines
+        (``allowed_customer_invoice_ids``).
+
+        :raises UserError: when a Schedule line has no source
+            invoice yet, or an Allocation targets an invoice outside
+            the allowed set.
+        """
+        self.ensure_one()
+        for schedule in self.line_ids.mapped("schedule_id"):
+            term = schedule._get_source_term()
+            if not term.customer_invoice_id:
+                error_message = """
+Document Type: %s
+Context: Validate deduction allocation
+Database ID: %s
+Problem: Schedule '%s' has no source invoice yet
+Solution: Create the invoice of the Schedule's payment term first, then retry
+""" % (
+                    self._description,
+                    self.id,
+                    schedule.display_name,
+                )
+                raise UserError(_(error_message))
+        allowed = self.allowed_customer_invoice_ids
+        for allocation in self.allocation_ids:
+            if allocation.customer_invoice_id not in allowed:
+                error_message = """
+Document Type: %s
+Context: Validate deduction allocation
+Database ID: %s
+Problem: Invoice '%s' is not the source invoice of any Schedule line
+Solution: Allocate only to invoices of the Schedule lines' own payment terms
+""" % (
+                    self._description,
+                    self.id,
+                    allocation.customer_invoice_id.display_name,
+                )
+                raise UserError(_(error_message))
+
+    @ssi_decorator.pre_confirm_check()
+    def _07_check_allocation_source_invoice(self):
+        """Check Allocations against source invoices at Confirm.
+
+        :raises UserError: see ``_check_allocation_source_invoice``.
+        """
+        self.ensure_one()
+        self._check_allocation_source_invoice()
+
+    @ssi_decorator.pre_open_action()
+    def _07_check_allocation_source_invoice_open(self):
+        """Check Allocations against source invoices at Open.
+
+        Runs after ``_06_check_allocation_residual``.
+
+        :raises UserError: see ``_check_allocation_source_invoice``.
+        """
+        self.ensure_one()
+        self._check_allocation_source_invoice()
 
     @ssi_decorator.post_open_action()
     def _10_create_accounting_entry(self):

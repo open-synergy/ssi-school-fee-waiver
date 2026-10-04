@@ -11,7 +11,11 @@
 - **Data:** A `school_fee_waiver` exists in status **On Progress** or **Done**, with at
   least one Schedule line still **Scheduled** (not yet Realized, Skipped, or Cancelled).
 - **Data:** At least one open `customer_invoice` exists for the waiver's own Partner,
-  with a positive residual amount, to allocate against.
+  with a positive residual amount, to allocate against. It must be the **source
+  invoice** of a Schedule line you deduct: the invoice generated from that Schedule
+  line's own payment term (enrollment or admission). A term that has not been invoiced
+  yet has no source invoice, so nothing can be allocated for its Schedule line until it
+  is invoiced.
 - **Data:** The waiver's own `school_fee_waiver_type` has Deduction Journal and Discount
   Account configured, so the Journal and Line Account default automatically.
 - **Access:** User is in group `User`.
@@ -39,7 +43,9 @@
      being deducted now. May not exceed the Schedule line's remaining planned amount.
 6. On the **Allocations** tab, add **at least one** line:
    - **Customer Invoice** _(required)_: Select an open invoice of the Waiver's own
-     Partner with a positive residual.
+     Partner with a positive residual. The list offers only the source invoices of the
+     Schedule lines added on the **Lines** tab (their payment terms' own invoices), so
+     add the Lines first. Several deductions may target the same source invoice.
    - **Amount** _(required)_: The portion of this document's Amount Total applied to the
      selected invoice. May not exceed the invoice's own residual.
 7. Click **Save**.
