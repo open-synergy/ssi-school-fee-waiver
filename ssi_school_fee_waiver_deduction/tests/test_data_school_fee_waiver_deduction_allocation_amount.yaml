@@ -519,13 +519,13 @@ scenarios:
           account_id: "REC: mb_discount_account.id"
           amount: 100000.0
 
-      - step: "MB2: add Allocation 1 (Invoice A, 300,000)"
+      - step: "MB2: add Allocation 1 (Invoice B, 300,000)"
         action: "create"
         model: "school_fee_waiver_deduction_allocation"
         save_as: "mb2_alloc1"
         values:
           deduction_id: "REC: mb2_deduction.id"
-          customer_invoice_id: "REC: mb_invoice_a.id"
+          customer_invoice_id: "REC: mb_invoice_b.id"
           amount: 300000.0
 
       - step: "MB2: confirm the deduction document"
@@ -546,7 +546,7 @@ scenarios:
             type: "value"
             expected: "confirm"
 
-      - step: "MB2: approving is rejected -- Invoice B has no Allocation"
+      - step: "MB2: approving is rejected -- Invoice A has no Allocation"
         action: "call"
         target: "mb2_deduction"
         method: "action_approve_approval"
