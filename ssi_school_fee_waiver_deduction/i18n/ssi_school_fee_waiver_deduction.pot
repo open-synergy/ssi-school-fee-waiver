@@ -21,7 +21,7 @@ msgid ""
 "Context: Finish enrollment\n"
 "Database ID: %s\n"
 "Problem: Fee waiver deduction '%s' allocated to this enrollment's own invoice is still Draft/Waiting for Approval\n"
-"Solution: Confirm and open that deduction before finishing this enrollment\n"
+"Solution: Confirm and finish that deduction before finishing this enrollment\n"
 msgstr ""
 
 #. module: ssi_school_fee_waiver_deduction
@@ -146,7 +146,7 @@ msgstr ""
 #: model:ir.model.fields,help:ssi_school_fee_waiver_deduction.field_school_fee_waiver_deduction__amount_unallocated
 msgid ""
 "Amount Total not yet assigned to an Allocation line. Must be zero before "
-"this document can be opened."
+"this document can be finished."
 msgstr ""
 
 #. module: ssi_school_fee_waiver_deduction
@@ -235,11 +235,6 @@ msgstr ""
 #. module: ssi_school_fee_waiver_deduction
 #: model:ir.model.fields,field_description:ssi_school_fee_waiver_deduction.field_school_fee_waiver_deduction__restart_approval_ok
 msgid "Can Restart Approval"
-msgstr ""
-
-#. module: ssi_school_fee_waiver_deduction
-#: model:ir.model.fields,field_description:ssi_school_fee_waiver_deduction.field_school_fee_waiver_deduction__open_ok
-msgid "Can Start"
 msgstr ""
 
 #. module: ssi_school_fee_waiver_deduction
@@ -339,7 +334,7 @@ msgstr ""
 #: model:ir.model.fields,help:ssi_school_fee_waiver_deduction.field_school_fee_waiver_deduction__allocation_ids
 msgid ""
 "Customer invoices this deduction is reconciled against. Their Amount must "
-"add up to exactly this document's Amount Total before it can be opened."
+"add up to exactly this document's Amount Total before it can be finished."
 msgstr ""
 
 #. module: ssi_school_fee_waiver_deduction
@@ -402,8 +397,8 @@ msgstr ""
 msgid ""
 "Discount/contra-revenue account this line debits. Defaulted from the "
 "Schedule's own Waiver Type. Temporarily replaced by the Waiver Type's own "
-"Deferred Discount Account while this line's parent document is opened under "
-"``recognition_method`` ``enrollment``."
+"Deferred Discount Account while this line's parent document is finished "
+"under ``recognition_method`` ``enrollment``."
 msgstr ""
 
 #. module: ssi_school_fee_waiver_deduction
@@ -564,12 +559,13 @@ msgstr ""
 #. module: ssi_school_fee_waiver_deduction
 #: model:ir.model.fields,help:ssi_school_fee_waiver_deduction.field_school_fee_waiver_deduction__move_id
 #: model:ir.model.fields,help:ssi_school_fee_waiver_deduction.field_school_fee_waiver_deduction_line__move_id
-msgid "Journal entry generated when this document is opened."
+msgid "Journal entry generated when this document is finished."
 msgstr ""
 
 #. module: ssi_school_fee_waiver_deduction
 #: model:ir.model.fields,help:ssi_school_fee_waiver_deduction.field_school_fee_waiver_deduction_line__move_line_id
-msgid "Journal item created for this line once the parent document is opened."
+msgid ""
+"Journal item created for this line once the parent document is finished."
 msgstr ""
 
 #. module: ssi_school_fee_waiver_deduction
@@ -754,15 +750,15 @@ msgstr ""
 msgid ""
 "Receivable account credited for the total deduction amount. Should match the"
 " Receivable Account of every allocated invoice, or reconciliation fails when"
-" this document is opened."
+" this document is finished."
 msgstr ""
 
 #. module: ssi_school_fee_waiver_deduction
 #: model:ir.model.fields,help:ssi_school_fee_waiver_deduction.field_school_fee_waiver_deduction_allocation__move_line_id
 msgid ""
 "Receivable journal item of the selected invoice, reconciled against this "
-"document's own receivable journal item once this document is opened. Filled "
-"by the header's ``_20_reconcile`` hook."
+"document's own receivable journal item once this document is finished. "
+"Filled by the header's ``_20_reconcile`` hook."
 msgstr ""
 
 #. module: ssi_school_fee_waiver_deduction
@@ -875,14 +871,6 @@ msgstr ""
 msgid ""
 "Source invoices of every Schedule line on this document's Lines. Allocations"
 " may only target these invoices."
-msgstr ""
-
-#. module: ssi_school_fee_waiver_deduction
-#: model:ir.model.fields,help:ssi_school_fee_waiver_deduction.field_school_fee_waiver_deduction__open_ok
-msgid ""
-"Start policy\n"
-"\n"
-"* If active user can see and execute 'Start' button"
 msgstr ""
 
 #. module: ssi_school_fee_waiver_deduction
@@ -1016,7 +1004,7 @@ msgstr ""
 #: model:ir.model.fields,help:ssi_school_fee_waiver_deduction.field_school_fee_waiver_deduction__schedule_ids
 msgid ""
 "Waiver Schedule lines realized by this document. Filled when this document "
-"opens; cleared again if it is cancelled."
+"is finished; cleared again if it is cancelled."
 msgstr ""
 
 #. module: ssi_school_fee_waiver_deduction
@@ -1033,8 +1021,9 @@ msgstr ""
 #: model:ir.model.fields,help:ssi_school_fee_waiver_deduction.field_school_fee_waiver_deduction__recognition_method
 msgid ""
 "``immediate`` books every Line straight to its own Account when this "
-"document opens. ``enrollment`` instead books every Line to the Waiver Type's"
-" own Deferred Discount Account, deferring recognition to the enrollment's "
-"own Revenue Recognition entry. Set by ``_03_apply_enrollment_recognition`` "
-"when this document opens; never set by the user."
+"document is finished. ``enrollment`` instead books every Line to the Waiver "
+"Type's own Deferred Discount Account, deferring recognition to the "
+"enrollment's own Revenue Recognition entry. Set by "
+"``_03_apply_enrollment_recognition`` when this document is finished; never "
+"set by the user."
 msgstr ""
