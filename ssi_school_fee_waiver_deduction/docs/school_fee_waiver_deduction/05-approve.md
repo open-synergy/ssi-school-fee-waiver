@@ -15,6 +15,10 @@
   `08-auto-open`).
 - **Record:** Amount Unallocated is zero -- the full Amount Total has been assigned
   across the Allocation lines.
+- **Record:** Each source invoice has exactly one Allocation, whose Amount equals the
+  sum of the Lines of the Schedules that invoice is the source of. Otherwise the
+  automatic Open transition is rejected (see `08-auto-open`).
+- **Record:** The Journal is not of type Bank or Cash.
 - **Config:** An active `policy.template` grants `approve_ok` to the actor's group.
 - **Access:** User is registered as an approver on the approval level that is currently
   **pending**.
@@ -41,5 +45,5 @@
 
 > **Note:** Approving a document whose Amount Unallocated is not zero, or whose
 > Allocation targets an invoice that is not the source invoice of one of its Schedule
-> lines, is rejected with an error when the automatic Open transition runs -- see
-> `08-auto-open`.
+> lines, or whose per-invoice Allocation Amount does not match its Lines, is rejected
+> with an error when the automatic Open transition runs -- see `08-auto-open`.

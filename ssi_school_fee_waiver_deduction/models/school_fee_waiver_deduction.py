@@ -164,6 +164,7 @@ class SchoolFeeWaiverDeduction(models.Model):
         required=True,
         ondelete="restrict",
         readonly=True,
+        domain="[('type', 'not in', ('bank', 'cash'))]",
         states={
             "draft": [
                 ("readonly", False),
@@ -588,6 +589,115 @@ Solution: Allocate only to invoices of the Schedule lines' own payment terms
         """
         self.ensure_one()
         self._check_allocation_source_invoice()
+
+    def _check_allocation_amount_per_invoice(self):
+        """Require each source invoice's Allocation to equal its Lines.
+
+        Lines are grouped by the source invoice of their Schedule
+        line's payment term. Every such invoice must have exactly one
+        Allocation whose ``amount`` equals the sum of the ``amount`` of
+        the Lines of that group. Allocations to invoices outside the
+        groups are rejected by ``_check_allocation_source_invoice``.
+
+        :raises UserError: when an invoice has no Allocation, more than
+            one Allocation, or an Allocation of a different amount.
+        """
+        self.ensure_one()
+        expected = {}
+        for line in self.line_ids:
+            invoice = line.schedule_id._get_source_term().customer_invoice_id
+            if not invoice:
+                continue
+            expected[invoice] = expected.get(invoice, 0.0) + line.amount
+        for invoice, expected_amount in expected.items():
+            allocations = self.allocation_ids.filtered(
+                lambda r, invoice=invoice: r.customer_invoice_id == invoice
+            )
+            if len(allocations) == 1 and not self.currency_id.compare_amounts(
+                allocations.amount, expected_amount
+            ):
+                continue
+            if not allocations:
+                problem = "Invoice '%s' has no Allocation (expected %s)" % (
+                    invoice.display_name,
+                    expected_amount,
+                )
+            elif len(allocations) > 1:
+                problem = "Invoice '%s' has %s Allocations instead of one" % (
+                    invoice.display_name,
+                    len(allocations),
+                )
+            else:
+                problem = "Allocation for invoice '%s' is %s instead of expected %s" % (
+                    invoice.display_name,
+                    allocations.amount,
+                    expected_amount,
+                )
+            error_message = """
+Document Type: %s
+Context: Validate deduction allocation
+Database ID: %s
+Problem: %s
+Solution: Allocate to each source invoice exactly the sum of the Lines of its Schedules
+""" % (
+                self._description,
+                self.id,
+                problem,
+            )
+            raise UserError(_(error_message))
+
+    @ssi_decorator.pre_open_action()
+    def _08_check_allocation_amount_per_invoice(self):
+        """Check Allocation amounts per source invoice at Open.
+
+        Runs after ``_05``/``_06``/``_07`` so their messages win.
+
+        :raises UserError: see ``_check_allocation_amount_per_invoice``.
+        """
+        self.ensure_one()
+        self._check_allocation_amount_per_invoice()
+
+    def _check_journal_type(self):
+        """Reject a Journal of type Bank or Cash.
+
+        A deduction posted in a bank/cash journal would read as a
+        received payment downstream and be counted twice.
+
+        :raises UserError: when ``journal_id.type`` is bank or cash.
+        """
+        self.ensure_one()
+        if self.journal_id.type in ("bank", "cash"):
+            error_message = """
+Document Type: %s
+Context: Validate deduction journal
+Database ID: %s
+Problem: Journal '%s' has type '%s'
+Solution: Select a journal that is not of type Bank or Cash
+""" % (
+                self._description,
+                self.id,
+                self.journal_id.display_name,
+                self.journal_id.type,
+            )
+            raise UserError(_(error_message))
+
+    @ssi_decorator.pre_confirm_check()
+    def _08_check_journal_type(self):
+        """Check the Journal type at Confirm.
+
+        :raises UserError: see ``_check_journal_type``.
+        """
+        self.ensure_one()
+        self._check_journal_type()
+
+    @ssi_decorator.pre_open_action()
+    def _09_check_journal_type(self):
+        """Check the Journal type at Open.
+
+        :raises UserError: see ``_check_journal_type``.
+        """
+        self.ensure_one()
+        self._check_journal_type()
 
     @ssi_decorator.post_open_action()
     def _10_create_accounting_entry(self):
