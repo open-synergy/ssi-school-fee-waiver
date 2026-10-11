@@ -18,7 +18,7 @@ class SchoolFeeWaiverDeduction(models.Model):
     of truth.
 
     Also propagates that same operating unit onto this document's own
-    ``account.move`` header when it is opened
+    ``account.move`` header when it is finished
     (``_prepare_standard_move``). The header's own credit line and
     every debit line on ``school_fee_waiver_deduction_line`` are
     ``account.move.line`` records created via

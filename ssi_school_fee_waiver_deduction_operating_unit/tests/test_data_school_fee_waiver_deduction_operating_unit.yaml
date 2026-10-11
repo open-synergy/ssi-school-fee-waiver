@@ -678,7 +678,7 @@ scenarios:
             type: "value"
             expected: "confirm"
 
-      - step: "Approve the deduction -- auto-opens, posting its own move"
+      - step: "Approve the deduction -- auto-completes (Done), posting its own move"
         action: "call"
         target: "fwdou1_deduction_open"
         method: "action_approve_approval"
@@ -686,7 +686,7 @@ scenarios:
         asserts:
           state:
             type: "value"
-            expected: "open"
+            expected: "done"
 
       - step: "The posted move carries the same operating unit as the document"
         action: "assert"

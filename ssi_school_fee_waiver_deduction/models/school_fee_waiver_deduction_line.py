@@ -55,7 +55,7 @@ class SchoolFeeWaiverDeductionLine(models.Model):
         help="Discount/contra-revenue account this line debits. "
         "Defaulted from the Schedule's own Waiver Type. Temporarily "
         "replaced by the Waiver Type's own Deferred Discount Account "
-        "while this line's parent document is opened under "
+        "while this line's parent document is finished under "
         "``recognition_method`` ``enrollment``.",
     )
     final_account_id = fields.Many2one(
@@ -82,7 +82,7 @@ class SchoolFeeWaiverDeductionLine(models.Model):
         readonly=True,
         copy=False,
         help="Journal item created for this line once the parent "
-        "document is opened.",
+        "document is finished.",
     )
     analytic_account_id = fields.Many2one(
         string="Analytic Account",
@@ -120,7 +120,7 @@ class SchoolFeeWaiverDeductionLine(models.Model):
 
         Both fields start out equal: ``account_id`` is later replaced
         by the Deferred Discount Account when this line's parent
-        document opens under ``recognition_method`` ``enrollment``
+        document is finished under ``recognition_method`` ``enrollment``
         (see ``_03_apply_enrollment_recognition``), while
         ``final_account_id`` keeps naming the account the amount is
         ultimately recognized against.

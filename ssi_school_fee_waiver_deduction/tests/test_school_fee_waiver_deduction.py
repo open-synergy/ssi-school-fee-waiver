@@ -211,7 +211,7 @@ class TestSchoolFeeWaiverDeduction(YamlTransactionCase):
                 "schedule_id": schedule.id,
                 "account_id": discount_account.id,
                 # Matches the allocation below exactly, so Amount
-                # Unallocated is zero and the pre-open gate passes --
+                # Unallocated is zero and the pre-done gate passes --
                 # the fractional value under test is the invoice's own
                 # residual after this PARTIAL allocation, not this
                 # line's own amount.

@@ -297,10 +297,10 @@ odoo.define(
                     {
                         // The fixture's single approval level is
                         // fulfilled by admin, the tour user, on this
-                        // first Approve click -- auto-opens.
-                        content: "Status is On Progress",
+                        // first Approve click -- auto-completes.
+                        content: "Status is Done",
                         trigger:
-                            ".o_statusbar_status .o_arrow_button[data-value='open'].btn-primary",
+                            ".o_statusbar_status .o_arrow_button[data-value='done'].btn-primary",
                         extra_trigger: "body:not(:has(.modal))",
                         run: function () {
                             // Assertion only; do not trigger the default click.
@@ -331,35 +331,6 @@ odoo.define(
                         content: "Status is Rejected",
                         trigger:
                             ".o_statusbar_status .o_arrow_button[data-value='reject'].btn-primary",
-                        extra_trigger: "body:not(:has(.modal))",
-                        run: function () {
-                            // Assertion only; do not trigger the default click.
-                        },
-                    },
-                ]
-            )
-        );
-
-        // IK: docs/school_fee_waiver_deduction/09-finish.md
-        tour.register(
-            "ssi_school_fee_waiver_deduction_finish",
-            {test: true, url: "/web"},
-            [].concat(
-                openFeeWaiverDeductionsList(),
-                openRecord("TOUR FWD Student FINISH"),
-                [
-                    {
-                        content: "Click the Done button",
-                        trigger: ".o_statusbar_buttons button[name='action_done']",
-                        extra_trigger: ".o_form_view",
-                    },
-                ],
-                confirmDialog(),
-                [
-                    {
-                        content: "Status is Done",
-                        trigger:
-                            ".o_statusbar_status .o_arrow_button[data-value='done'].btn-primary",
                         extra_trigger: "body:not(:has(.modal))",
                         run: function () {
                             // Assertion only; do not trigger the default click.

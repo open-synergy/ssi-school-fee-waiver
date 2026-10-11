@@ -729,7 +729,7 @@ scenarios:
             type: "value"
             expected: "confirm"
 
-      - step: "POS3 deduction A: approve -- auto-opens (single level)"
+      - step: "POS3 deduction A: approve -- auto-completes (Done) (single level)"
         action: "call"
         target: "si_ded_a"
         method: "action_approve_approval"
@@ -737,7 +737,7 @@ scenarios:
         asserts:
           state:
             type: "value"
-            expected: "open"
+            expected: "done"
 
       - step: "POS3 deduction B: create the deduction document"
         action: "create"
@@ -786,7 +786,7 @@ scenarios:
             type: "value"
             expected: "confirm"
 
-      - step: "POS3 deduction B: approve -- auto-opens (single level)"
+      - step: "POS3 deduction B: approve -- auto-completes (Done) (single level)"
         action: "call"
         target: "si_ded_b"
         method: "action_approve_approval"
@@ -794,7 +794,7 @@ scenarios:
         asserts:
           state:
             type: "value"
-            expected: "open"
+            expected: "done"
 
       - step: "POS3: Invoice 1 is fully covered by both deductions"
         action: "assert"
@@ -856,7 +856,7 @@ scenarios:
             type: "value"
             expected: "confirm"
 
-      - step: "POS4 deduction C1: approve -- auto-opens (single level)"
+      - step: "POS4 deduction C1: approve -- auto-completes (Done) (single level)"
         action: "call"
         target: "si_ded_c1"
         method: "action_approve_approval"
@@ -864,7 +864,7 @@ scenarios:
         asserts:
           state:
             type: "value"
-            expected: "open"
+            expected: "done"
 
       - step: "POS4: create the cancellation reason"
         action: "create"
@@ -943,7 +943,7 @@ scenarios:
             type: "value"
             expected: "confirm"
 
-      - step: "POS4 deduction C2: approve -- auto-opens (single level)"
+      - step: "POS4 deduction C2: approve -- auto-completes (Done) (single level)"
         action: "call"
         target: "si_ded_c2"
         method: "action_approve_approval"
@@ -951,7 +951,7 @@ scenarios:
         asserts:
           state:
             type: "value"
-            expected: "open"
+            expected: "done"
 
       - step: "POS4: the Schedule is Realized by the new deduction"
         action: "assert"

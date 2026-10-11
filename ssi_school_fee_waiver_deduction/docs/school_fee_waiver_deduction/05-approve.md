@@ -4,20 +4,20 @@
 > **Model:** `school_fee_waiver_deduction`\
 > **Menu:** School > Fee Waiver > Fee Waiver Deductions\
 > **Actor:** approver on the pending approval level\
-> **State:** `confirm` → `open`\
+> **State:** `confirm` → `done`\
 > **Requires:** `04-confirm`
 
 ## Pre-Condition
 
 - **Record:** Status is **Waiting for Approval**.
 - **Record:** Every Allocation still targets the source invoice of one of the Schedule
-  lines on the Lines tab (checked again before the automatic Open transition -- see
-  `08-auto-open`).
+  lines on the Lines tab (checked again before the automatic Done transition -- see
+  `08-auto-done`).
 - **Record:** Amount Unallocated is zero -- the full Amount Total has been assigned
   across the Allocation lines.
 - **Record:** Each source invoice has exactly one Allocation, whose Amount equals the
   sum of the Lines of the Schedules that invoice is the source of. Otherwise the
-  automatic Open transition is rejected (see `08-auto-open`).
+  automatic Done transition is rejected (see `08-auto-done`).
 - **Record:** The Journal is not of type Bank or Cash.
 - **Config:** An active `policy.template` grants `approve_ok` to the actor's group.
 - **Access:** User is registered as an approver on the approval level that is currently
@@ -32,10 +32,10 @@
 
 ## Post-Condition
 
-- If all approval levels are fulfilled, status changes automatically to **On Progress**,
-  shown on the statusbar, and the record's **# Document** number is assigned from the
-  `FWD/` sequence (no longer showing `/`). See `08-auto-open` for what happens next --
-  **if** every enrollment behind this document's allocated invoices still has Revenue
+- If all approval levels are fulfilled, status changes automatically to **Done**, shown
+  on the statusbar, and the record's **# Document** number is assigned from the `FWD/`
+  sequence (no longer showing `/`). See `08-auto-done` for what happens next -- **if**
+  every enrollment behind this document's allocated invoices still has Revenue
   Recognition pending and this document's own Fee Waiver Type has a Deferred Discount
   Account configured, every Line is booked to that Deferred Discount Account instead of
   its own usual Discount Account, to be reclassed later by that enrollment's own Revenue
@@ -46,4 +46,4 @@
 > **Note:** Approving a document whose Amount Unallocated is not zero, or whose
 > Allocation targets an invoice that is not the source invoice of one of its Schedule
 > lines, or whose per-invoice Allocation Amount does not match its Lines, is rejected
-> with an error when the automatic Open transition runs -- see `08-auto-open`.
+> with an error when the automatic Done transition runs -- see `08-auto-done`.

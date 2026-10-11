@@ -33,7 +33,7 @@ class SchoolEnrollment(models.Model):
         cannot be reclassed by this enrollment's own Revenue
         Recognition. Confirmed by the user: a pending deduction always
         blocks ``done``, whether or not it would end up deferred once
-        opened.
+        finished.
 
         :raises UserError: when a matching deduction is still
             ``draft``/``confirm``
@@ -57,7 +57,7 @@ Context: Finish enrollment
 Database ID: %s
 Problem: Fee waiver deduction '%s' allocated to this enrollment's own \
 invoice is still Draft/Waiting for Approval
-Solution: Confirm and open that deduction before finishing this enrollment
+Solution: Confirm and finish that deduction before finishing this enrollment
 """
                 )
                 % (self.id, pending[0].display_name)
@@ -78,7 +78,7 @@ Solution: Confirm and open that deduction before finishing this enrollment
         """Build the Recognition Line values for deferred deductions.
 
         Extension point of ``_prepare_revenue_recognition_line_data``.
-        One line per Line of every ``open`` fee waiver deduction whose
+        One line per Line of every ``done`` fee waiver deduction whose
         ``recognition_method`` is ``enrollment`` and that has at least
         one Allocation pointing to one of this enrollment's own
         invoiced payment terms. The amount reclassed is that Line's
@@ -100,7 +100,7 @@ Solution: Confirm and open that deduction before finishing this enrollment
             return result
         deductions = self.env["school_fee_waiver_deduction"].search(
             [
-                ("state", "=", "open"),
+                ("state", "=", "done"),
                 ("recognition_method", "=", "enrollment"),
                 ("allocation_ids.customer_invoice_id", "in", invoice_ids),
             ]

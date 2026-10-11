@@ -18,11 +18,11 @@ class TestUiSchoolFeeWaiverDeduction(HttpSavepointCase):
 
         Every tour scenario gets its own dedicated Student/Enrollment/
         Waiver/Schedule/Invoice chain (suffixed CREATE/CONFIRM/APPROVE/
-        REJECT/FINISH/CANCEL/RESTART/RAPPROVAL), the same pattern
+        REJECT/CANCEL/RESTART/RAPPROVAL), the same pattern
         ``ssi_school_fee_waiver``'s own ``test_ui_school_fee_waiver.py``
         uses -- so the list view always shows one uniquely-named row per
         scenario (searchable by the Student column) and so a tour that
-        actually opens its own document (Approve/Finish) can never
+        actually completes its own document (Approve/Cancel) can never
         realize a Schedule line or reconcile an invoice shared by
         another scenario's fixture.
         """
@@ -253,7 +253,7 @@ class TestUiSchoolFeeWaiverDeduction(HttpSavepointCase):
             :param suffix: unique code/name suffix for this scenario
             :param price: amount used for both the Line and the
                 Allocation (they match, so Amount Unallocated is zero
-                and the document is ready to Open)
+                and the document is ready to Done)
             :return: the draft ``school_fee_waiver_deduction``
             """
             _contact, waiver, schedule, term = build_open_waiver(suffix, price)
@@ -303,30 +303,14 @@ class TestUiSchoolFeeWaiverDeduction(HttpSavepointCase):
         cls.tour_deduction_reject.action_confirm()
         cls.tour_deduction_reject.invalidate_cache()
 
-        # ── Pre-Condition for 09-finish -- already On Progress, same
-        # recipe as 05-approve's own fixture, its own Schedule/invoice.
-        cls.tour_deduction_finish = build_deduction("FINISH", 1000000.0)
-        cls.tour_deduction_finish = cls.tour_deduction_finish.with_user(admin)
-        cls.tour_deduction_finish.action_confirm()
-        cls.tour_deduction_finish.invalidate_cache()
-        cls.tour_deduction_finish.action_approve_approval()
-
-        # ── Pre-Condition for 10-cancel -- a header-only Draft
-        # deduction. Cancel from Draft does not require any Line, so no
-        # Schedule/invoice fixture is needed at all. ────────────────────
-        (
-            _cancel_contact,
-            cancel_waiver,
-            _cancel_schedule,
-            _cancel_term,
-        ) = build_open_waiver("CANCEL", 500000.0)
-        cls.tour_deduction_cancel = cls.env["school_fee_waiver_deduction"].create(
-            {
-                "waiver_id": cancel_waiver.id,
-                "journal_id": cls.deduction_journal.id,
-                "receivable_account_id": cls.receivable_account.id,
-            }
-        )
+        # ── Pre-Condition for 10-cancel -- already Done (the last
+        # approval level auto-completes it), with its own
+        # Schedule/invoice so cancelling it reverses nothing shared. ───
+        cls.tour_deduction_cancel = build_deduction("CANCEL", 1000000.0)
+        cls.tour_deduction_cancel = cls.tour_deduction_cancel.with_user(admin)
+        cls.tour_deduction_cancel.action_confirm()
+        cls.tour_deduction_cancel.invalidate_cache()
+        cls.tour_deduction_cancel.action_approve_approval()
 
         # ── Pre-Condition for 12-restart -- already Cancelled. Written
         # directly rather than through the wizard, since the cancel
@@ -410,17 +394,6 @@ class TestUiSchoolFeeWaiverDeduction(HttpSavepointCase):
         self.start_tour(
             "/web",
             "ssi_school_fee_waiver_deduction_reject",
-            login="admin",
-        )
-
-    def test_finish(self):
-        """Run the finish tour for ``school_fee_waiver_deduction``.
-
-        IK: docs/school_fee_waiver_deduction/09-finish.md
-        """
-        self.start_tour(
-            "/web",
-            "ssi_school_fee_waiver_deduction_finish",
             login="admin",
         )
 

@@ -6,13 +6,13 @@
 School Fee Waiver Deduction
 =============================
 
-Turns a fee waiver's plan into an accounting fact. Opening a Fee Waiver
+Turns a fee waiver's plan into an accounting fact. Finishing a Fee Waiver
 Deduction document books its own journal entry -- crediting the student's
 Receivable Account on the header, debiting a discount/contra-revenue account
 per Deduction Line -- then reconciles that credit against one or more open
 Customer Invoices, so their own residual amount drops and they move to Paid
 once fully covered. Every realized Schedule line of the linked waiver moves
-to Realized at the same time; cancelling the document reverses the
+to Realized at the same time; cancelling the document, even once Done, reverses the
 reconciliation, the journal entry, and every Schedule line it realized, all
 at once or not at all.
 
@@ -29,8 +29,7 @@ Fee Waiver Deduction
 * `Confirm Fee Waiver Deduction <docs/school_fee_waiver_deduction/04-confirm.html>`_
 * `Approve Fee Waiver Deduction <docs/school_fee_waiver_deduction/05-approve.html>`_
 * `Reject Fee Waiver Deduction <docs/school_fee_waiver_deduction/06-reject.html>`_
-* `Auto-Open Fee Waiver Deduction <docs/school_fee_waiver_deduction/08-auto-open.html>`_
-* `Finish Fee Waiver Deduction <docs/school_fee_waiver_deduction/09-finish.html>`_
+* `Auto-Done Fee Waiver Deduction <docs/school_fee_waiver_deduction/08-auto-done.html>`_
 * `Cancel Fee Waiver Deduction <docs/school_fee_waiver_deduction/10-cancel.html>`_
 * `Restart Fee Waiver Deduction <docs/school_fee_waiver_deduction/12-restart.html>`_
 * `Restart Fee Waiver Deduction Approval Process <docs/school_fee_waiver_deduction/14-restart-approval.html>`_
