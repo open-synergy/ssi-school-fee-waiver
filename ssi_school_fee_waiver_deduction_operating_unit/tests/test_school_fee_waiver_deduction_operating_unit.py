@@ -16,7 +16,7 @@ class TestSchoolFeeWaiverDeductionOperatingUnit(
     Covers create/write derivation of ``operating_unit_id`` from the
     selected Waiver, the explicit-value-wins contract, propagation
     onto the resulting ``account.move`` and its lines once the
-    document is opened, the Operating Unit record rule denying list
+    document is finished, the Operating Unit record rule denying list
     visibility of a document outside a restricted user's own
     Operating Units, and the negative path of an operating unit that
     diverges from the source Waiver's own.
