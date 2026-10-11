@@ -12,7 +12,7 @@ class SchoolFeeWaiverSchedule(models.Model):
 
     Filled by ``school_fee_waiver_deduction``'s own
     ``_30_mark_schedule_realized`` hook when the deduction document
-    opens, and cleared again by its ``_30_reset_schedule`` hook when
+    is finished, and cleared again by its ``_30_reset_schedule`` hook when
     the deduction document is cancelled.
     """
 

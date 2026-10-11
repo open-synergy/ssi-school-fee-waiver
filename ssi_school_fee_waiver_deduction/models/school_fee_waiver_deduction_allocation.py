@@ -63,7 +63,7 @@ class SchoolFeeWaiverDeductionAllocation(models.Model):
         copy=False,
         help="Receivable journal item of the selected invoice, "
         "reconciled against this document's own receivable journal "
-        "item once this document is opened. Filled by the header's "
+        "item once this document is finished. Filled by the header's "
         "``_20_reconcile`` hook.",
     )
     amount = fields.Monetary(

@@ -454,7 +454,7 @@ scenarios:
             expected: "confirm"
 
       # ── Positive (Scenario 1): open under `enrollment` mode ──────────────
-      - step: "Approve deduction B -- auto-opens under `enrollment` mode"
+      - step: "Approve deduction B -- auto-completes (Done) under `enrollment` mode"
         action: "call"
         target: "rr_b_deduction"
         method: "action_approve_approval"
@@ -462,7 +462,7 @@ scenarios:
         asserts:
           state:
             type: "value"
-            expected: "open"
+            expected: "done"
           recognition_method:
             type: "value"
             expected: "enrollment"
@@ -687,7 +687,7 @@ scenarios:
         asserts:
           state:
             type: "value"
-            expected: "open"
+            expected: "done"
           recognition_method:
             type: "value"
             expected: "immediate"
@@ -940,7 +940,7 @@ scenarios:
             type: "value"
             expected: "confirm"
 
-      - step: "Approve deduction C -- auto-opens under `enrollment` mode"
+      - step: "Approve deduction C -- auto-completes (Done) under `enrollment` mode"
         action: "call"
         target: "rr_c_deduction"
         method: "action_approve_approval"
@@ -948,7 +948,7 @@ scenarios:
         asserts:
           state:
             type: "value"
-            expected: "open"
+            expected: "done"
           recognition_method:
             type: "value"
             expected: "enrollment"
@@ -1379,7 +1379,7 @@ scenarios:
         asserts:
           state:
             type: "value"
-            expected: "open"
+            expected: "done"
           recognition_method:
             type: "value"
             expected: "immediate"

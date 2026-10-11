@@ -53,7 +53,7 @@
      add the Lines first. Several deductions may target the same source invoice. Each
      source invoice needs exactly one Allocation here, whose Amount equals the sum of
      the Lines of the Schedules that invoice is the source of -- this is checked when
-     the document is opened (see `08-auto-open`).
+     the document is finished (see `08-auto-done`).
    - **Amount** _(required)_: The portion of this document's Amount Total applied to the
      selected invoice. May not exceed the invoice's own residual.
 7. Click **Save**.
@@ -63,4 +63,5 @@
 - A new Fee Waiver Deduction record is created in **Draft** status.
 - **Amount Total** is the sum of the Lines' own Amount; **Amount Allocated** is the sum
   of the Allocations' own Amount; **Amount Unallocated** is their difference, and must
-  reach zero before this document can be opened -- see `04-confirm` and `08-auto-open`.
+  reach zero before this document can be finished -- see `04-confirm` and
+  `08-auto-done`.

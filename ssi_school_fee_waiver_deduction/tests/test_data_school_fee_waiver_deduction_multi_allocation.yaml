@@ -490,7 +490,8 @@ scenarios:
             type: "value"
             expected: "confirm"
 
-      - step: "MA1: approve the deduction document -- auto-opens (single level)"
+      - step:
+          "MA1: approve the deduction document -- auto-completes (Done) (single level)"
         action: "call"
         target: "ma1_deduction"
         method: "action_approve_approval"
@@ -498,7 +499,7 @@ scenarios:
         asserts:
           state:
             type: "value"
-            expected: "open"
+            expected: "done"
           reconciled:
             type: "value"
             expected: true

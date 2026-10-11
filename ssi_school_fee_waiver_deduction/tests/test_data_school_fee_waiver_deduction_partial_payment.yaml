@@ -531,7 +531,7 @@ scenarios:
             type: "value"
             expected: "confirm"
 
-      - step: "Approve the deduction document -- auto-opens (single level)"
+      - step: "Approve the deduction document -- auto-completes (Done) (single level)"
         action: "call"
         target: "pp1_deduction"
         method: "action_approve_approval"
@@ -539,7 +539,7 @@ scenarios:
         asserts:
           state:
             type: "value"
-            expected: "open"
+            expected: "done"
           reconciled:
             type: "value"
             expected: true

@@ -706,7 +706,8 @@ scenarios:
             type: "value"
             expected: "confirm"
 
-      - step: "MB4: approve the deduction document -- auto-opens (single level)"
+      - step:
+          "MB4: approve the deduction document -- auto-completes (Done) (single level)"
         action: "call"
         target: "mb4_deduction"
         method: "action_approve_approval"
@@ -714,7 +715,7 @@ scenarios:
         asserts:
           state:
             type: "value"
-            expected: "open"
+            expected: "done"
 
       - step: "MB4: Invoice A's residual dropped by exactly 200,000"
         action: "assert"

@@ -18,7 +18,7 @@ class SchoolFeeWaiverDeduction(models.Model):
     A fee waiver (``school_fee_waiver``) only plans how much of a
     student's billed fees will be waived, term by term, through its
     own Schedule lines. This document is what actually turns that
-    plan into an accounting fact: opening it books its own
+    plan into an accounting fact: finishing it books its own
     ``account.move`` -- crediting the student's Receivable Account on
     the header itself, and debiting a discount/contra-revenue Account
     per Deduction Line -- then reconciles that credit against one or
@@ -26,17 +26,17 @@ class SchoolFeeWaiverDeduction(models.Model):
     so those invoices' own ``amount_residual`` drops and they move to
     Paid once fully covered. This is the reverse of
     ``customer_invoice``'s own accounting entry: there, the header
-    debits Receivable; here, it credits it. Opening this document
+    debits Receivable; here, it credits it. Finishing this document
     also flips every deducted Schedule line of the linked waiver from
-    ``scheduled`` to ``realized``; cancelling it reverses both the
-    reconciliation and that flip, in full or not at all.
+    ``scheduled`` to ``realized``; cancelling it, even once it is
+    ``done``, reverses both the reconciliation and that flip, in full
+    or not at all.
     """
 
     _name = "school_fee_waiver_deduction"
     _inherit = [
         "mixin.transaction_cancel",
         "mixin.transaction_done",
-        "mixin.transaction_open",
         "mixin.transaction_confirm",
         "mixin.company_currency",
         "mixin.account_move",
@@ -47,23 +47,24 @@ class SchoolFeeWaiverDeduction(models.Model):
 
     # Multiple Approval Attribute
     _approval_from_state = "draft"
-    _approval_to_state = "open"
+    _approval_to_state = "done"
     _approval_state = "confirm"
-    _after_approved_method = "action_open"
-    _automatically_insert_open_button = False
+    _after_approved_method = "action_done"
 
     # Attributes related to add element on view automatically
     _automatically_insert_view_element = True
+    _automatically_insert_done_policy_fields = False
+    _automatically_insert_done_button = False
 
-    _statusbar_visible_label = "draft,confirm,open,done"
+    _statusbar_visible_label = "draft,confirm,done"
     _policy_field_order = [
         "confirm_ok",
         "approve_ok",
         "reject_ok",
         "restart_approval_ok",
-        "done_ok",
         "cancel_ok",
         "restart_ok",
+        "done_ok",
         "manual_number_ok",
     ]
     _header_button_order = [
@@ -71,7 +72,6 @@ class SchoolFeeWaiverDeduction(models.Model):
         "action_approve_approval",
         "action_reject_approval",
         "%(ssi_transaction_cancel_mixin.base_select_cancel_reason_action)d",
-        "action_done",
         "action_restart",
     ]
 
@@ -80,13 +80,12 @@ class SchoolFeeWaiverDeduction(models.Model):
         "dom_draft",
         "dom_confirm",
         "dom_reject",
-        "dom_open",
         "dom_done",
         "dom_cancel",
     ]
 
     # Sequence attribute
-    _create_sequence_state = "open"
+    _create_sequence_state = "done"
 
     # Accounting Entry Header Mixin (``mixin.account_move``)
     _journal_id_field_name = "journal_id"
@@ -187,7 +186,7 @@ class SchoolFeeWaiverDeduction(models.Model):
         help="Receivable account credited for the total deduction "
         "amount. Should match the Receivable Account of every "
         "allocated invoice, or reconciliation fails when this "
-        "document is opened.",
+        "document is finished.",
     )
     line_ids = fields.One2many(
         string="Lines",
@@ -214,7 +213,7 @@ class SchoolFeeWaiverDeduction(models.Model):
         },
         help="Customer invoices this deduction is reconciled against. "
         "Their Amount must add up to exactly this document's Amount "
-        "Total before it can be opened.",
+        "Total before it can be finished.",
     )
     allowed_customer_invoice_ids = fields.Many2many(
         string="Allowed Customer Invoices",
@@ -231,7 +230,7 @@ class SchoolFeeWaiverDeduction(models.Model):
         inverse_name="deduction_id",
         readonly=True,
         help="Waiver Schedule lines realized by this document. Filled "
-        "when this document opens; cleared again if it is "
+        "when this document is finished; cleared again if it is "
         "cancelled.",
     )
     amount_total = fields.Monetary(
@@ -258,14 +257,14 @@ class SchoolFeeWaiverDeduction(models.Model):
         store=True,
         compute_sudo=True,
         help="Amount Total not yet assigned to an Allocation line. "
-        "Must be zero before this document can be opened.",
+        "Must be zero before this document can be finished.",
     )
     move_id = fields.Many2one(
         string="Move",
         comodel_name="account.move",
         readonly=True,
         copy=False,
-        help="Journal entry generated when this document is opened.",
+        help="Journal entry generated when this document is finished.",
     )
     receivable_move_line_id = fields.Many2one(
         string="Receivable Move Line",
@@ -294,12 +293,12 @@ class SchoolFeeWaiverDeduction(models.Model):
         readonly=True,
         copy=False,
         help="``immediate`` books every Line straight to its own "
-        "Account when this document opens. ``enrollment`` instead "
+        "Account when this document is finished. ``enrollment`` instead "
         "books every Line to the Waiver Type's own Deferred Discount "
         "Account, deferring recognition to the enrollment's own "
         "Revenue Recognition entry. Set by "
         "``_03_apply_enrollment_recognition`` when this document "
-        "opens; never set by the user.",
+        "is finished; never set by the user.",
     )
 
     @api.depends("line_ids.schedule_id")
@@ -415,18 +414,18 @@ Solution: Select a Waiver that has already reached Open or Done
         )
         return terms.mapped("enrollment_id")
 
-    @ssi_decorator.pre_open_action()
+    @ssi_decorator.pre_done_check()
     def _03_apply_enrollment_recognition(self):
         """Defer this document's own Lines to an enrollment's own recognition.
 
-        Pre-open hook, runs before ``_05_check_amount_unallocated``.
+        Pre-done hook, runs before ``_05_check_amount_unallocated``.
         A no-op unless every enrollment behind this document's
         allocated invoices (``_get_revenue_recognition_enrollments``)
         still has ``revenue_recognition`` enabled and has not yet
         reached ``done``, **and** this document's own Waiver's Type
         has a Deferred Discount Account configured. Otherwise every
         Line keeps its default ``immediate`` behaviour -- including a
-        deduction opened after the enrollment already reached
+        deduction finished after the enrollment already reached
         ``done``, which simply books straight to its own Discount
         Account since there is no later Revenue Recognition entry
         left to reclass it.
@@ -459,9 +458,9 @@ Solution: Select a Waiver that has already reached Open or Done
         self.line_ids.write({"account_id": deferred_account.id})
         self.recognition_method = "enrollment"
 
-    @ssi_decorator.pre_open_action()
+    @ssi_decorator.pre_done_check()
     def _05_check_amount_unallocated(self):
-        """Reject opening a document with an unallocated remainder.
+        """Reject finishing a document with an unallocated remainder.
 
         :raises UserError: when ``amount_unallocated`` is not zero.
         """
@@ -470,7 +469,7 @@ Solution: Select a Waiver that has already reached Open or Done
         if not float_is_zero(self.amount_unallocated, precision_digits=precision):
             error_message = """
 Document Type: %s
-Context: Open deduction
+Context: Finish deduction
 Database ID: %s
 Problem: Amount Unallocated is %s instead of zero
 Solution: Allocate the full Amount Total across the Allocation lines
@@ -481,14 +480,14 @@ Solution: Allocate the full Amount Total across the Allocation lines
             )
             raise UserError(_(error_message))
 
-    @ssi_decorator.pre_open_action()
+    @ssi_decorator.pre_done_check()
     def _06_check_allocation_residual(self):
-        """Reject opening when an Allocation exceeds its invoice's residual.
+        """Reject finishing when an Allocation exceeds its invoice's residual.
 
         ``_check_amount_not_exceed_residual`` on the Allocation model
         (``@api.constrains``) only runs when the Allocation itself is
         written, so a customer payment reconciled against an
-        allocated invoice between confirm and open can shrink that
+        allocated invoice between confirm and done can shrink that
         invoice's own ``amount_residual`` below the Allocation's own
         ``amount`` without ever touching the Allocation record. Core's
         ``reconcile()`` used to silently cap the matched amount at
@@ -513,7 +512,7 @@ Solution: Allocate the full Amount Total across the Allocation lines
             ):
                 error_message = """
 Document Type: %s
-Context: Open deduction
+Context: Finish deduction
 Database ID: %s
 Problem: Allocation Amount %s now exceeds invoice '%s' current residual %s
 Solution: Lower the Allocation Amount to the invoice's current residual, or
@@ -579,9 +578,9 @@ Solution: Allocate only to invoices of the Schedule lines' own payment terms
         self.ensure_one()
         self._check_allocation_source_invoice()
 
-    @ssi_decorator.pre_open_action()
+    @ssi_decorator.pre_done_check()
     def _07_check_allocation_source_invoice_open(self):
-        """Check Allocations against source invoices at Open.
+        """Check Allocations against source invoices at Done.
 
         Runs after ``_06_check_allocation_residual``.
 
@@ -646,9 +645,9 @@ Solution: Allocate to each source invoice exactly the sum of the Lines of its Sc
             )
             raise UserError(_(error_message))
 
-    @ssi_decorator.pre_open_action()
+    @ssi_decorator.pre_done_check()
     def _08_check_allocation_amount_per_invoice(self):
-        """Check Allocation amounts per source invoice at Open.
+        """Check Allocation amounts per source invoice at Done.
 
         Runs after ``_05``/``_06``/``_07`` so their messages win.
 
@@ -690,16 +689,16 @@ Solution: Select a journal that is not of type Bank or Cash
         self.ensure_one()
         self._check_journal_type()
 
-    @ssi_decorator.pre_open_action()
+    @ssi_decorator.pre_done_check()
     def _09_check_journal_type(self):
-        """Check the Journal type at Open.
+        """Check the Journal type at Done.
 
         :raises UserError: see ``_check_journal_type``.
         """
         self.ensure_one()
         self._check_journal_type()
 
-    @ssi_decorator.post_open_action()
+    @ssi_decorator.post_done_action()
     def _10_create_accounting_entry(self):
         """Create and post this document's ``account.move``.
 
@@ -731,7 +730,7 @@ Solution: Select a journal that is not of type Bank or Cash
         res["partner_id"] = getattr(self, self._partner_id_field_name).id
         return res
 
-    @ssi_decorator.post_open_action()
+    @ssi_decorator.post_done_action()
     def _20_reconcile(self):
         """Reconcile the receivable line against every allocated invoice.
 
@@ -783,7 +782,7 @@ Solution: Select a journal that is not of type Bank or Cash
                 }
             )
 
-    @ssi_decorator.post_open_action()
+    @ssi_decorator.post_done_action()
     def _30_mark_schedule_realized(self):
         """Flip every deducted Schedule line to state ``realized``.
 
@@ -929,11 +928,11 @@ cancel this document
     def _get_policy_field(self):
         """Register this model's policy fields for ``mixin.policy``.
 
-        ``open_ok`` (from ``mixin.transaction_open``) must be listed
+        ``done_ok`` (from ``mixin.transaction_done``) must be listed
         here too, or Odoo raises ``ValueError: Compute method failed
-        to assign ...open_ok`` as soon as the field is read.
+        to assign ...done_ok`` as soon as the field is read.
 
-        :return: the base policy fields of the standard four-mixin
+        :return: the base policy fields of the standard three-mixin
             workflow combo
         """
         res = super()._get_policy_field()
@@ -946,7 +945,6 @@ cancel this document
             "cancel_ok",
             "restart_ok",
             "manual_number_ok",
-            "open_ok",
         ]
         res += policy_field
         return res

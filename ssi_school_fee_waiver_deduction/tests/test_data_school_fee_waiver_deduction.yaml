@@ -820,7 +820,7 @@ scenarios:
             type: "value"
             expected: "confirm"
 
-      - step: "Approve the deduction document -- auto-opens (single level)"
+      - step: "Approve the deduction document -- auto-completes (Done) (single level)"
         action: "call"
         target: "fwd1_deduction"
         method: "action_approve_approval"
@@ -828,7 +828,7 @@ scenarios:
         asserts:
           state:
             type: "value"
-            expected: "open"
+            expected: "done"
           name:
             type: "value"
             operator: "not_equals"
@@ -976,7 +976,7 @@ scenarios:
             type: "value"
             operator: "is_falsy"
 
-      # ── Negative: constraints & the pre-open gate ─────────────────────
+      # ── Negative: constraints & the pre-done gate ─────────────────────
       # Terms 3/4 and their fresh Schedule lines (fwd1_sched_t3_v2,
       # fwd1_sched_t4_v2) were already created further up, right after the
       # Waiver first opened -- see the "early regenerate" block above.
@@ -1120,7 +1120,7 @@ scenarios:
             type: "value"
             expected: "confirm"
 
-      - step: "Approving it fails the Amount Unallocated gate on auto-open"
+      - step: "Approving it fails the Amount Unallocated gate on auto-done"
         action: "call"
         target: "fwd1_deduction_neg2"
         method: "action_approve_approval"

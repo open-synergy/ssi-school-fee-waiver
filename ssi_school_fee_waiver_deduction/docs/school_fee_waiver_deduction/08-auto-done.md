@@ -1,17 +1,18 @@
-# Auto-Open Fee Waiver Deduction
+# Auto-Done Fee Waiver Deduction
 
 > **Module:** `ssi_school_fee_waiver_deduction`\
 > **Model:** `school_fee_waiver_deduction`\
 > **Menu:** School > Fee Waiver > Fee Waiver Deductions\
 > **Actor:** System — triggered automatically, no user interaction\
-> **State:** `confirm` → `open`\
+> **State:** `confirm` → `done`\
 > **Requires:** `05-approve`
 
-There is no **Start** button on this model: this model sets
-`_automatically_insert_open_button = False`, so the mixin never inserts the button in
-the first place, and its policy template has no active row for `open_ok`. The transition
-to **On Progress** is performed automatically by `action_approve_approval` itself, right
-after the last pending approval level is fulfilled.
+There is no **Done** button on this model: this model sets
+`_automatically_insert_done_button = False`, so the mixin never inserts the button in
+the first place, and its policy template has no active row for `done_ok`. The transition
+to **Done** is performed automatically by `action_approve_approval` itself, right after
+the last pending approval level is fulfilled. A **Done** document can still be cancelled
+-- see `10-cancel`.
 
 ## Pre-Condition
 
@@ -35,11 +36,11 @@ after the last pending approval level is fulfilled.
 
 This transition has no click steps — it is triggered automatically by the system as part
 of `05-approve`. The last pending approver clicks **Approve**; once every approval level
-is fulfilled, the document moves straight to **On Progress** without a separate action.
+is fulfilled, the document moves straight to **Done** without a separate action.
 
 ## Post-Condition
 
-- Status changes to **On Progress**, shown on the statusbar.
+- Status changes to **Done**, shown on the statusbar.
 - A journal entry is created and posted: one debit line per Deduction Line (to that
   line's own Account), and one credit line on the Receivable Account for the full Amount
   Total.
