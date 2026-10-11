@@ -22,6 +22,14 @@ after the last pending approval level is fulfilled.
 - **Record:** Every Schedule line has a source invoice and every Allocation targets one
   of those source invoices -- otherwise this transition is rejected with an error and
   the document stays in **Waiting for Approval**.
+- **Record:** Each source invoice has exactly one Allocation, whose Amount equals the
+  sum of the Amounts of the Lines whose Schedule that invoice is the source of --
+  otherwise this transition is rejected with an error naming the invoice, its Allocation
+  Amount and the expected amount (or that the invoice has no Allocation), and the
+  document stays in **Waiting for Approval**. This is checked after the checks above, so
+  their messages appear first.
+- **Record:** The Journal is not of type Bank or Cash -- otherwise this transition is
+  rejected with an error and the document stays in **Waiting for Approval**.
 
 ## Flow
 

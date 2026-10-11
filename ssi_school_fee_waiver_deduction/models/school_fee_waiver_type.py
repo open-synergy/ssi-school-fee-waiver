@@ -25,6 +25,7 @@ class SchoolFeeWaiverType(models.Model):
         string="Deduction Journal",
         comodel_name="account.journal",
         ondelete="restrict",
+        domain="[('type', 'not in', ('bank', 'cash'))]",
         help="Accounting journal a deduction document of this fee "
         "waiver type defaults its own Journal from.",
     )

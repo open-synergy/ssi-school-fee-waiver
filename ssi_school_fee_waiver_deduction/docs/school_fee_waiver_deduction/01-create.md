@@ -18,6 +18,10 @@
   is invoiced.
 - **Data:** The waiver's own `school_fee_waiver_type` has Deduction Journal and Discount
   Account configured, so the Journal and Line Account default automatically.
+- **Config:** The Journal used by this document is **not** of type Bank or Cash (for
+  example a General journal). The Journal list on the document, and the Deduction
+  Journal on the Fee Waiver Type, do not offer Bank or Cash journals; a deduction booked
+  there would be read as a received payment downstream.
 - **Access:** User is in group `User`.
 
 ## Flow
@@ -30,7 +34,8 @@
      own Fee Waiver Type.
    - **Date**: Defaults to today's date.
 4. On the **Accounting** tab, fill in:
-   - **Journal** _(required)_: Defaults from the Waiver's Type; may be overridden.
+   - **Journal** _(required)_: Defaults from the Waiver's Type; may be overridden. Bank
+     and Cash journals are not offered.
    - **Receivable Account** _(required)_: Select the receivable account credited for the
      total deduction amount.
 5. On the **Lines** tab, add **at least one** line:
@@ -45,7 +50,10 @@
    - **Customer Invoice** _(required)_: Select an open invoice of the Waiver's own
      Partner with a positive residual. The list offers only the source invoices of the
      Schedule lines added on the **Lines** tab (their payment terms' own invoices), so
-     add the Lines first. Several deductions may target the same source invoice.
+     add the Lines first. Several deductions may target the same source invoice. Each
+     source invoice needs exactly one Allocation here, whose Amount equals the sum of
+     the Lines of the Schedules that invoice is the source of -- this is checked when
+     the document is opened (see `08-auto-open`).
    - **Amount** _(required)_: The portion of this document's Amount Total applied to the
      selected invoice. May not exceed the invoice's own residual.
 7. Click **Save**.

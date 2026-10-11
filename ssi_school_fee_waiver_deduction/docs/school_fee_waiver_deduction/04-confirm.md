@@ -15,6 +15,9 @@
   those Schedule lines. Otherwise **Confirm** is rejected with an error naming the
   Schedule line without a source invoice, or the Allocation's invoice that is not a
   source invoice -- see `01-create`.
+- **Record:** The Journal is not of type Bank or Cash. Otherwise **Confirm** is rejected
+  with an error naming the Journal and its type (relevant for data created by import or
+  script, since the Journal list does not offer such journals).
 - **Config:** An active `policy.template` for this model grants `confirm_ok` for state
   `draft` to the actor's group.
 - **Config:** An active `approval.template` for this model matches this record and has
