@@ -1,0 +1,1084 @@
+# Translation of Odoo Server.
+# This file contains the translation of the following modules:
+# 	* ssi_school_fee_waiver_deduction
+#
+msgid ""
+msgstr ""
+"Project-Id-Version: Odoo Server 14.0\n"
+"Report-Msgid-Bugs-To: \n"
+"PO-Revision-Date: 2026-11-03 00:00+0000\n"
+"Last-Translator: \n"
+"Language-Team: \n"
+"Language: id\n"
+"MIME-Version: 1.0\n"
+"Content-Type: text/plain; charset=UTF-8\n"
+"Content-Transfer-Encoding: 8bit\n"
+"Plural-Forms: nplurals=1; plural=0;\n"
+
+#. module: ssi_school_fee_waiver_deduction
+#: code:addons/ssi_school_fee_waiver_deduction/models/school_enrollment.py:0
+#, python-format
+msgid ""
+"\n"
+"Context: Finish enrollment\n"
+"Database ID: %s\n"
+"Problem: Fee waiver deduction '%s' allocated to this enrollment's own invoice is still Draft/Waiting for Approval\n"
+"Solution: Confirm and finish that deduction before finishing this enrollment\n"
+msgstr ""
+"\n"
+"Konteks: Menyelesaikan pendaftaran\n"
+"ID Basis Data: %s\n"
+"Masalah: Pemotongan keringanan biaya '%s' yang dialokasikan ke faktur pendaftaran ini masih berstatus Draf/Menunggu Persetujuan\n"
+"Solusi: Konfirmasi dan selesaikan pemotongan tersebut sebelum menyelesaikan pendaftaran ini\n"
+
+#. module: ssi_school_fee_waiver_deduction
+#: model:ir.model.fields,field_description:ssi_school_fee_waiver_deduction.field_school_fee_waiver_deduction_allocation__deduction_id
+#: model:ir.model.fields,field_description:ssi_school_fee_waiver_deduction.field_school_fee_waiver_deduction_line__deduction_id
+msgid "# Deduction"
+msgstr "# Pemotongan"
+
+#. module: ssi_school_fee_waiver_deduction
+#: model:ir.model.fields,field_description:ssi_school_fee_waiver_deduction.field_school_fee_waiver_deduction__name
+msgid "# Document"
+msgstr "No. Dokumen"
+
+#. module: ssi_school_fee_waiver_deduction
+#: model:ir.model.fields,field_description:ssi_school_fee_waiver_deduction.field_school_fee_waiver_deduction_line__account_id
+msgid "Account"
+msgstr "Akun"
+
+#. module: ssi_school_fee_waiver_deduction
+#: model_terms:ir.ui.view,arch_db:ssi_school_fee_waiver_deduction.school_fee_waiver_deduction_view_form
+msgid "Accounting"
+msgstr "Akuntansi"
+
+#. module: ssi_school_fee_waiver_deduction
+#: model:ir.model.fields,help:ssi_school_fee_waiver_deduction.field_school_fee_waiver_deduction__date
+#: model:ir.model.fields,help:ssi_school_fee_waiver_deduction.field_school_fee_waiver_deduction_line__date
+msgid "Accounting date of this deduction document."
+msgstr "Tanggal akuntansi dokumen pemotongan ini."
+
+#. module: ssi_school_fee_waiver_deduction
+#: model:ir.model.fields,help:ssi_school_fee_waiver_deduction.field_school_fee_waiver_type__deduction_journal_id
+msgid ""
+"Accounting journal a deduction document of this fee waiver type defaults its"
+" own Journal from."
+msgstr "Jurnal akuntansi tempat dokumen pemotongan berjenis keringanan biaya ini mengambil nilai bawaan Jurnal-nya."
+
+#. module: ssi_school_fee_waiver_deduction
+#: model:ir.model.fields,help:ssi_school_fee_waiver_deduction.field_school_fee_waiver_deduction__journal_id
+msgid ""
+"Accounting journal in which the resulting accounting entry of this document "
+"will be posted."
+msgstr "Jurnal akuntansi tempat entri akuntansi hasil dokumen ini akan diposting."
+
+#. module: ssi_school_fee_waiver_deduction
+#: model:ir.model.fields,field_description:ssi_school_fee_waiver_deduction.field_school_fee_waiver_deduction__message_needaction
+msgid "Action Needed"
+msgstr "Perlu Tindakan"
+
+#. module: ssi_school_fee_waiver_deduction
+#: model:ir.model.fields,field_description:ssi_school_fee_waiver_deduction.field_school_fee_waiver_deduction__active_approval_ids
+msgid "Active Approvals"
+msgstr "Persetujuan Aktif"
+
+#. module: ssi_school_fee_waiver_deduction
+#: model:ir.model.fields,field_description:ssi_school_fee_waiver_deduction.field_school_fee_waiver_deduction__active_approver_partner_ids
+msgid "Active Partners"
+msgstr "Mitra Aktif"
+
+#. module: ssi_school_fee_waiver_deduction
+#: model:ir.model.fields,field_description:ssi_school_fee_waiver_deduction.field_school_fee_waiver_deduction__active_approver_user_ids
+msgid "Active Users"
+msgstr "Pengguna Aktif"
+
+#. module: ssi_school_fee_waiver_deduction
+#: model:ir.model.fields,field_description:ssi_school_fee_waiver_deduction.field_school_fee_waiver_deduction__activity_ids
+msgid "Activities"
+msgstr "Aktivitas"
+
+#. module: ssi_school_fee_waiver_deduction
+#: model:ir.model.fields,field_description:ssi_school_fee_waiver_deduction.field_school_fee_waiver_deduction__activity_exception_decoration
+msgid "Activity Exception Decoration"
+msgstr "Dekorasi Pengecualian Aktivitas"
+
+#. module: ssi_school_fee_waiver_deduction
+#: model:ir.model.fields,field_description:ssi_school_fee_waiver_deduction.field_school_fee_waiver_deduction__activity_state
+msgid "Activity State"
+msgstr "Status Aktivitas"
+
+#. module: ssi_school_fee_waiver_deduction
+#: model:ir.model.fields,field_description:ssi_school_fee_waiver_deduction.field_school_fee_waiver_deduction__activity_type_icon
+msgid "Activity Type Icon"
+msgstr "Ikon Jenis Aktivitas"
+
+#. module: ssi_school_fee_waiver_deduction
+#: model:res.groups,name:ssi_school_fee_waiver_deduction.school_fee_waiver_deduction_all_group
+msgid "All"
+msgstr "Semua"
+
+#. module: ssi_school_fee_waiver_deduction
+#: model:ir.model.fields,field_description:ssi_school_fee_waiver_deduction.field_school_fee_waiver_deduction__allocation_ids
+#: model_terms:ir.ui.view,arch_db:ssi_school_fee_waiver_deduction.school_fee_waiver_deduction_view_form
+msgid "Allocations"
+msgstr "Alokasi"
+
+#. module: ssi_school_fee_waiver_deduction
+#: model:ir.model.fields,field_description:ssi_school_fee_waiver_deduction.field_school_fee_waiver_deduction__allowed_customer_invoice_ids
+msgid "Allowed Customer Invoices"
+msgstr "Faktur Pelanggan yang Diizinkan"
+
+#. module: ssi_school_fee_waiver_deduction
+#: model:ir.model.fields,field_description:ssi_school_fee_waiver_deduction.field_school_fee_waiver_deduction__allowed_policy_template_ids
+msgid "Allowed Policy Templates"
+msgstr "Templat Kebijakan yang Diizinkan"
+
+#. module: ssi_school_fee_waiver_deduction
+#: model:ir.model.fields,field_description:ssi_school_fee_waiver_deduction.field_school_fee_waiver_deduction_allocation__amount
+#: model:ir.model.fields,field_description:ssi_school_fee_waiver_deduction.field_school_fee_waiver_deduction_line__amount
+msgid "Amount"
+msgstr "Jumlah"
+
+#. module: ssi_school_fee_waiver_deduction
+#: model:ir.model.fields,field_description:ssi_school_fee_waiver_deduction.field_school_fee_waiver_deduction__amount_allocated
+msgid "Amount Allocated"
+msgstr "Jumlah Teralokasi"
+
+#. module: ssi_school_fee_waiver_deduction
+#: model:ir.model.fields,field_description:ssi_school_fee_waiver_deduction.field_school_fee_waiver_deduction__amount_total
+msgid "Amount Total"
+msgstr "Jumlah Total"
+
+#. module: ssi_school_fee_waiver_deduction
+#: model:ir.model.fields,help:ssi_school_fee_waiver_deduction.field_school_fee_waiver_deduction__amount_unallocated
+msgid ""
+"Amount Total not yet assigned to an Allocation line. Must be zero before "
+"this document can be finished."
+msgstr "Jumlah Total yang belum ditetapkan ke baris Alokasi. Harus nol sebelum dokumen ini dapat diselesaikan."
+
+#. module: ssi_school_fee_waiver_deduction
+#: model:ir.model.fields,field_description:ssi_school_fee_waiver_deduction.field_school_fee_waiver_deduction__amount_unallocated
+msgid "Amount Unallocated"
+msgstr "Jumlah Belum Teralokasi"
+
+#. module: ssi_school_fee_waiver_deduction
+#: model:ir.model.fields,field_description:ssi_school_fee_waiver_deduction.field_school_fee_waiver_deduction_line__analytic_account_id
+msgid "Analytic Account"
+msgstr "Akun Analitik"
+
+#. module: ssi_school_fee_waiver_deduction
+#: model:ir.model.fields,help:ssi_school_fee_waiver_deduction.field_school_fee_waiver_deduction_line__analytic_account_id
+msgid "Analytic account this line's journal item is posted against, if any."
+msgstr "Akun analitik tempat item jurnal baris ini diposting, bila ada."
+
+#. module: ssi_school_fee_waiver_deduction
+#: model:ir.model.fields,help:ssi_school_fee_waiver_deduction.field_school_fee_waiver_deduction__approval_template_id
+msgid "Approval Configuration"
+msgstr "Konfigurasi Persetujuan"
+
+#. module: ssi_school_fee_waiver_deduction
+#: model:ir.model.fields,field_description:ssi_school_fee_waiver_deduction.field_school_fee_waiver_deduction__approval_template_id
+msgid "Approval Template"
+msgstr "Templat Persetujuan"
+
+#. module: ssi_school_fee_waiver_deduction
+#: model:ir.model.fields,field_description:ssi_school_fee_waiver_deduction.field_school_fee_waiver_deduction__approval_ids
+msgid "Approvals"
+msgstr "Persetujuan"
+
+#. module: ssi_school_fee_waiver_deduction
+#: model:ir.model.fields,help:ssi_school_fee_waiver_deduction.field_school_fee_waiver_deduction__approve_ok
+msgid ""
+"Approve policy\n"
+"\n"
+"* If active user can see and execute 'Approve' button"
+msgstr ""
+"Kebijakan persetujuan\n"
+"\n"
+"* Jika pengguna aktif dapat melihat dan menjalankan tombol 'Setujui'"
+
+#. module: ssi_school_fee_waiver_deduction
+#: model:ir.model.fields,field_description:ssi_school_fee_waiver_deduction.field_school_fee_waiver_deduction__approved
+msgid "Approved"
+msgstr "Disetujui"
+
+#. module: ssi_school_fee_waiver_deduction
+#: model:ir.model.fields,field_description:ssi_school_fee_waiver_deduction.field_school_fee_waiver_deduction__message_attachment_count
+msgid "Attachment Count"
+msgstr "Jumlah Lampiran"
+
+#. module: ssi_school_fee_waiver_deduction
+#: model:ir.model.fields,field_description:ssi_school_fee_waiver_deduction.field_school_fee_waiver_deduction__approve_ok
+msgid "Can Approve"
+msgstr "Dapat Menyetujui"
+
+#. module: ssi_school_fee_waiver_deduction
+#: model:ir.model.fields,field_description:ssi_school_fee_waiver_deduction.field_school_fee_waiver_deduction__cancel_ok
+msgid "Can Cancel"
+msgstr "Dapat Membatalkan"
+
+#. module: ssi_school_fee_waiver_deduction
+#: model:ir.model.fields,field_description:ssi_school_fee_waiver_deduction.field_school_fee_waiver_deduction__confirm_ok
+msgid "Can Confirm"
+msgstr "Dapat Mengonfirmasi"
+
+#. module: ssi_school_fee_waiver_deduction
+#: model:ir.model.fields,field_description:ssi_school_fee_waiver_deduction.field_school_fee_waiver_deduction__done_ok
+msgid "Can Finished"
+msgstr "Dapat Diselesaikan"
+
+#. module: ssi_school_fee_waiver_deduction
+#: model:ir.model.fields,field_description:ssi_school_fee_waiver_deduction.field_school_fee_waiver_deduction__manual_number_ok
+msgid "Can Input Manual Document Number"
+msgstr "Dapat Memasukkan Nomor Dokumen Manual"
+
+#. module: ssi_school_fee_waiver_deduction
+#: model:ir.model.fields,field_description:ssi_school_fee_waiver_deduction.field_school_fee_waiver_deduction__reject_ok
+msgid "Can Reject"
+msgstr "Dapat Menolak"
+
+#. module: ssi_school_fee_waiver_deduction
+#: model:ir.model.fields,field_description:ssi_school_fee_waiver_deduction.field_school_fee_waiver_deduction__restart_ok
+msgid "Can Restart"
+msgstr "Dapat Memulai Ulang"
+
+#. module: ssi_school_fee_waiver_deduction
+#: model:ir.model.fields,field_description:ssi_school_fee_waiver_deduction.field_school_fee_waiver_deduction__restart_approval_ok
+msgid "Can Restart Approval"
+msgstr "Dapat Memulai Ulang Persetujuan"
+
+#. module: ssi_school_fee_waiver_deduction
+#: model:ir.model.fields,field_description:ssi_school_fee_waiver_deduction.field_school_fee_waiver_deduction__cancel_reason_id
+msgid "Cancel Reason"
+msgstr "Alasan Pembatalan"
+
+#. module: ssi_school_fee_waiver_deduction
+#: model:ir.model.fields,help:ssi_school_fee_waiver_deduction.field_school_fee_waiver_deduction__cancel_ok
+msgid ""
+"Cancel policy\n"
+"\n"
+"* If active user can see and execute 'Cancel' button"
+msgstr ""
+"Kebijakan pembatalan\n"
+"\n"
+"* Jika pengguna aktif dapat melihat dan menjalankan tombol 'Batal'"
+
+#. module: ssi_school_fee_waiver_deduction
+#: model:ir.model.fields,field_description:ssi_school_fee_waiver_deduction.field_school_fee_waiver_deduction__company_id
+#: model:ir.model.fields,field_description:ssi_school_fee_waiver_deduction.field_school_fee_waiver_deduction_line__company_id
+#: model:res.groups,name:ssi_school_fee_waiver_deduction.school_fee_waiver_deduction_company_group
+msgid "Company"
+msgstr "Perusahaan"
+
+#. module: ssi_school_fee_waiver_deduction
+#: model:ir.model.fields,field_description:ssi_school_fee_waiver_deduction.field_school_fee_waiver_deduction__company_currency_id
+#: model:ir.model.fields,field_description:ssi_school_fee_waiver_deduction.field_school_fee_waiver_deduction_line__company_currency_id
+msgid "Company Currency"
+msgstr "Mata Uang Perusahaan"
+
+#. module: ssi_school_fee_waiver_deduction
+#: model:ir.model.fields,field_description:ssi_school_fee_waiver_deduction.field_school_fee_waiver_deduction__company_partner_id
+msgid "Company Partner"
+msgstr "Mitra Perusahaan"
+
+#. module: ssi_school_fee_waiver_deduction
+#: model:res.groups,name:ssi_school_fee_waiver_deduction.school_fee_waiver_deduction_company_child_group
+msgid "Company and All Child Companies"
+msgstr "Perusahaan dan Semua Perusahaan Anak"
+
+#. module: ssi_school_fee_waiver_deduction
+#: model:ir.model.fields,help:ssi_school_fee_waiver_deduction.field_school_fee_waiver_deduction__company_id
+#: model:ir.model.fields,help:ssi_school_fee_waiver_deduction.field_school_fee_waiver_deduction_line__company_id
+msgid ""
+"Company that own the document\n"
+"\n"
+"* Automatically filled with user's company.\n"
+"  Default company can be changed"
+msgstr ""
+"Perusahaan pemilik dokumen\n"
+"\n"
+"* Otomatis diisi dengan perusahaan pengguna.\n"
+"  Perusahaan bawaan dapat diubah"
+
+#. module: ssi_school_fee_waiver_deduction
+#: model:ir.model.fields,help:ssi_school_fee_waiver_deduction.field_school_fee_waiver_deduction__confirm_ok
+msgid ""
+"Confirm policy\n"
+"\n"
+"* If active user can see and execute 'Confirm' button"
+msgstr ""
+"Kebijakan konfirmasi\n"
+"\n"
+"* Jika pengguna aktif dapat melihat dan menjalankan tombol 'Konfirmasi'"
+
+#. module: ssi_school_fee_waiver_deduction
+#: model:ir.model.fields,field_description:ssi_school_fee_waiver_deduction.field_school_fee_waiver_deduction__create_uid
+#: model:ir.model.fields,field_description:ssi_school_fee_waiver_deduction.field_school_fee_waiver_deduction_allocation__create_uid
+#: model:ir.model.fields,field_description:ssi_school_fee_waiver_deduction.field_school_fee_waiver_deduction_line__create_uid
+msgid "Created by"
+msgstr "Dibuat oleh"
+
+#. module: ssi_school_fee_waiver_deduction
+#: model:ir.model.fields,field_description:ssi_school_fee_waiver_deduction.field_school_fee_waiver_deduction__create_date
+#: model:ir.model.fields,field_description:ssi_school_fee_waiver_deduction.field_school_fee_waiver_deduction_allocation__create_date
+#: model:ir.model.fields,field_description:ssi_school_fee_waiver_deduction.field_school_fee_waiver_deduction_line__create_date
+msgid "Created on"
+msgstr "Dibuat pada"
+
+#. module: ssi_school_fee_waiver_deduction
+#: model:ir.model.fields,field_description:ssi_school_fee_waiver_deduction.field_school_fee_waiver_deduction__currency_id
+#: model:ir.model.fields,field_description:ssi_school_fee_waiver_deduction.field_school_fee_waiver_deduction_allocation__currency_id
+#: model:ir.model.fields,field_description:ssi_school_fee_waiver_deduction.field_school_fee_waiver_deduction_line__currency_id
+msgid "Currency"
+msgstr "Mata Uang"
+
+#. module: ssi_school_fee_waiver_deduction
+#: model:ir.model.fields,help:ssi_school_fee_waiver_deduction.field_school_fee_waiver_deduction_allocation__currency_id
+msgid "Currency of the parent document."
+msgstr "Mata uang dokumen induk."
+
+#. module: ssi_school_fee_waiver_deduction
+#: model:ir.model.fields,help:ssi_school_fee_waiver_deduction.field_school_fee_waiver_deduction__currency_id
+#: model:ir.model.fields,help:ssi_school_fee_waiver_deduction.field_school_fee_waiver_deduction_line__currency_id
+msgid ""
+"Currency this document is expressed in. This document does not support a "
+"currency other than the Company Currency."
+msgstr "Mata uang yang dipakai dokumen ini. Dokumen ini tidak mendukung mata uang selain Mata Uang Perusahaan."
+
+#. module: ssi_school_fee_waiver_deduction
+#: model:ir.model.fields,field_description:ssi_school_fee_waiver_deduction.field_school_fee_waiver_deduction_allocation__customer_invoice_id
+msgid "Customer Invoice"
+msgstr "Faktur Pelanggan"
+
+#. module: ssi_school_fee_waiver_deduction
+#: model:ir.model.fields,help:ssi_school_fee_waiver_deduction.field_school_fee_waiver_deduction__allocation_ids
+msgid ""
+"Customer invoices this deduction is reconciled against. Their Amount must "
+"add up to exactly this document's Amount Total before it can be finished."
+msgstr "Faktur pelanggan yang direkonsiliasi dengan pemotongan ini. Jumlahnya harus tepat sama dengan Jumlah Total dokumen ini sebelum dapat diselesaikan."
+
+#. module: ssi_school_fee_waiver_deduction
+#: model:ir.model.fields,field_description:ssi_school_fee_waiver_deduction.field_school_fee_waiver_deduction__date
+#: model:ir.model.fields,field_description:ssi_school_fee_waiver_deduction.field_school_fee_waiver_deduction_line__date
+msgid "Date"
+msgstr "Tanggal"
+
+#. module: ssi_school_fee_waiver_deduction
+#: model:ir.model.fields,field_description:ssi_school_fee_waiver_deduction.field_school_fee_waiver_schedule__deduction_id
+msgid "Deduction"
+msgstr "Pemotongan"
+
+#. module: ssi_school_fee_waiver_deduction
+#: model:ir.model.fields,field_description:ssi_school_fee_waiver_deduction.field_school_fee_waiver_type__deduction_journal_id
+msgid "Deduction Journal"
+msgstr "Jurnal Pemotongan"
+
+#. module: ssi_school_fee_waiver_deduction
+#: model:ir.model.fields,help:ssi_school_fee_waiver_deduction.field_school_fee_waiver_schedule__deduction_id
+msgid "Deduction document that realized this schedule line, if any."
+msgstr "Dokumen pemotongan yang merealisasikan baris jadwal ini, bila ada."
+
+#. module: ssi_school_fee_waiver_deduction
+#: model:ir.model.fields,help:ssi_school_fee_waiver_deduction.field_school_fee_waiver_deduction_allocation__deduction_id
+msgid "Deduction document this allocation line belongs to."
+msgstr "Dokumen pemotongan tempat baris alokasi ini berada."
+
+#. module: ssi_school_fee_waiver_deduction
+#: model:ir.model.fields,help:ssi_school_fee_waiver_deduction.field_school_fee_waiver_deduction_line__deduction_id
+msgid "Deduction document this line belongs to."
+msgstr "Dokumen pemotongan tempat baris ini berada."
+
+#. module: ssi_school_fee_waiver_deduction
+#: model:ir.model.fields,help:ssi_school_fee_waiver_deduction.field_school_fee_waiver_deduction__line_ids
+msgid ""
+"Deduction lines, one per realized Schedule line. Their sum is this "
+"document's Amount Total."
+msgstr "Baris pemotongan, satu untuk setiap baris Jadwal yang terealisasi. Totalnya adalah Jumlah Total dokumen ini."
+
+#. module: ssi_school_fee_waiver_deduction
+#: model:ir.model.fields,field_description:ssi_school_fee_waiver_deduction.field_school_fee_waiver_type__deferred_discount_account_id
+msgid "Deferred Discount Account"
+msgstr "Akun Diskon Ditangguhkan"
+
+#. module: ssi_school_fee_waiver_deduction
+#: model:ir.model.fields,field_description:ssi_school_fee_waiver_deduction.field_school_fee_waiver_type__discount_account_id
+msgid "Discount Account"
+msgstr "Akun Diskon"
+
+#. module: ssi_school_fee_waiver_deduction
+#: model:ir.model.fields,help:ssi_school_fee_waiver_deduction.field_school_fee_waiver_type__discount_account_id
+msgid ""
+"Discount/contra-revenue account a deduction line of this fee waiver type "
+"defaults its own Account from."
+msgstr "Akun diskon/kontra-pendapatan yang menjadi nilai bawaan Akun pada baris pemotongan berjenis keringanan biaya ini."
+
+#. module: ssi_school_fee_waiver_deduction
+#: model:ir.model.fields,help:ssi_school_fee_waiver_deduction.field_school_fee_waiver_deduction_line__account_id
+msgid ""
+"Discount/contra-revenue account this line debits. Defaulted from the "
+"Schedule's own Waiver Type. Temporarily replaced by the Waiver Type's own "
+"Deferred Discount Account while this line's parent document is finished "
+"under ``recognition_method`` ``enrollment``."
+msgstr "Akun diskon/kontra-pendapatan yang didebit baris ini. Nilai bawaannya diambil dari Jenis Keringanan milik Jadwal. Sementara diganti dengan Akun Diskon Ditangguhkan milik Jenis Keringanan selama dokumen induk baris ini diselesaikan dengan ``recognition_method`` ``enrollment``."
+
+#. module: ssi_school_fee_waiver_deduction
+#: model:ir.model.fields,help:ssi_school_fee_waiver_deduction.field_school_fee_waiver_deduction_line__final_account_id
+msgid ""
+"Discount/contra-revenue account this line's amount is ultimately recognized "
+"against. Defaulted together with ``account_id`` and left untouched "
+"afterwards, so it still names the original account once ``account_id`` "
+"itself is temporarily replaced by the Deferred Discount Account."
+msgstr "Akun diskon/kontra-pendapatan tempat jumlah baris ini akhirnya diakui. Diisi bersamaan dengan ``account_id`` dan tidak diubah setelahnya, sehingga tetap menyebut akun asli saat ``account_id`` sendiri sementara diganti dengan Akun Diskon Ditangguhkan."
+
+#. module: ssi_school_fee_waiver_deduction
+#: model:ir.model.fields,field_description:ssi_school_fee_waiver_deduction.field_school_enrollment__display_name
+#: model:ir.model.fields,field_description:ssi_school_fee_waiver_deduction.field_school_enrollment_revenue_recognition_line__display_name
+#: model:ir.model.fields,field_description:ssi_school_fee_waiver_deduction.field_school_fee_waiver__display_name
+#: model:ir.model.fields,field_description:ssi_school_fee_waiver_deduction.field_school_fee_waiver_deduction__display_name
+#: model:ir.model.fields,field_description:ssi_school_fee_waiver_deduction.field_school_fee_waiver_deduction_allocation__display_name
+#: model:ir.model.fields,field_description:ssi_school_fee_waiver_deduction.field_school_fee_waiver_deduction_line__display_name
+#: model:ir.model.fields,field_description:ssi_school_fee_waiver_deduction.field_school_fee_waiver_schedule__display_name
+#: model:ir.model.fields,field_description:ssi_school_fee_waiver_deduction.field_school_fee_waiver_type__display_name
+msgid "Display Name"
+msgstr "Nama Tampilan"
+
+#. module: ssi_school_fee_waiver_deduction
+#: model:ir.model.fields,help:ssi_school_fee_waiver_deduction.field_school_fee_waiver_deduction__done_ok
+msgid ""
+"Done policy\n"
+"\n"
+"* If active user can see and execute 'Done' button"
+msgstr ""
+"Kebijakan selesai\n"
+"\n"
+"* Jika pengguna aktif dapat melihat dan menjalankan tombol 'Selesai'"
+
+#. module: ssi_school_fee_waiver_deduction
+#: model:ir.model.fields.selection,name:ssi_school_fee_waiver_deduction.selection__school_fee_waiver_deduction__recognition_method__enrollment
+msgid "Enrollment"
+msgstr "Pendaftaran"
+
+#. module: ssi_school_fee_waiver_deduction
+#: model:ir.model.fields,field_description:ssi_school_fee_waiver_deduction.field_school_enrollment_revenue_recognition_line__fee_waiver_deduction_line_id
+msgid "Fee Waiver Deduction Line"
+msgstr "Baris Pemotongan Keringanan Biaya"
+
+#. module: ssi_school_fee_waiver_deduction
+#: model:ir.actions.act_window,name:ssi_school_fee_waiver_deduction.school_fee_waiver_deduction_action
+#: model:ir.ui.menu,name:ssi_school_fee_waiver_deduction.school_fee_waiver_deduction_menu
+msgid "Fee Waiver Deductions"
+msgstr "Pemotongan Keringanan Biaya"
+
+#. module: ssi_school_fee_waiver_deduction
+#: model:ir.model.fields,help:ssi_school_fee_waiver_deduction.field_school_enrollment_revenue_recognition_line__fee_waiver_deduction_line_id
+msgid ""
+"Fee waiver deduction Line this Recognition Line reclasses from its Deferred "
+"Discount Account to its own Final Account. Empty for a Recognition Line "
+"originating from an invoiced payment term detail instead."
+msgstr "Baris pemotongan keringanan biaya yang direklasifikasi Baris Pengakuan ini dari Akun Diskon Ditangguhkan ke Akun Akhir miliknya. Kosong untuk Baris Pengakuan yang berasal dari detail termin pembayaran yang sudah ditagihkan."
+
+#. module: ssi_school_fee_waiver_deduction
+#: model:ir.model.fields,help:ssi_school_fee_waiver_deduction.field_school_fee_waiver_deduction__waiver_id
+msgid "Fee waiver document this deduction realizes."
+msgstr "Dokumen keringanan biaya yang direalisasikan pemotongan ini."
+
+#. module: ssi_school_fee_waiver_deduction
+#: model:ir.model.fields,field_description:ssi_school_fee_waiver_deduction.field_school_fee_waiver_deduction_line__final_account_id
+msgid "Final Account"
+msgstr "Akun Akhir"
+
+#. module: ssi_school_fee_waiver_deduction
+#: model:ir.model.fields,field_description:ssi_school_fee_waiver_deduction.field_school_fee_waiver_deduction__message_follower_ids
+msgid "Followers"
+msgstr "Pengikut"
+
+#. module: ssi_school_fee_waiver_deduction
+#: model:ir.model.fields,field_description:ssi_school_fee_waiver_deduction.field_school_fee_waiver_deduction__message_channel_ids
+msgid "Followers (Channels)"
+msgstr "Pengikut (Saluran)"
+
+#. module: ssi_school_fee_waiver_deduction
+#: model:ir.model.fields,field_description:ssi_school_fee_waiver_deduction.field_school_fee_waiver_deduction__message_partner_ids
+msgid "Followers (Partners)"
+msgstr "Pengikut (Mitra)"
+
+#. module: ssi_school_fee_waiver_deduction
+#: model:ir.model.fields,help:ssi_school_fee_waiver_deduction.field_school_fee_waiver_deduction__activity_type_icon
+msgid "Font awesome icon e.g. fa-tasks"
+msgstr "Ikon Font Awesome, mis. fa-tasks"
+
+#. module: ssi_school_fee_waiver_deduction
+#: model_terms:ir.ui.view,arch_db:ssi_school_fee_waiver_deduction.school_fee_waiver_deduction_view_search
+msgid "Group By"
+msgstr "Kelompokkan Berdasarkan"
+
+#. module: ssi_school_fee_waiver_deduction
+#: model:ir.model.fields,help:ssi_school_fee_waiver_deduction.field_school_fee_waiver_type__deferred_discount_account_id
+msgid ""
+"Holding account a deduction line of this fee waiver type is booked to "
+"instead of its own Discount Account, while the deduction's allocated invoice"
+" belongs to an enrollment whose Revenue Recognition is still pending. Left "
+"empty, a deduction of this type is never deferred."
+msgstr "Akun penampung yang dipakai baris pemotongan berjenis keringanan biaya ini sebagai pengganti Akun Diskon-nya, selama faktur yang dialokasikan pemotongan itu milik pendaftaran yang Pengakuan Pendapatannya masih tertunda. Bila dikosongkan, pemotongan berjenis ini tidak pernah ditangguhkan."
+
+#. module: ssi_school_fee_waiver_deduction
+#: model:ir.model.fields,field_description:ssi_school_fee_waiver_deduction.field_school_enrollment__id
+#: model:ir.model.fields,field_description:ssi_school_fee_waiver_deduction.field_school_enrollment_revenue_recognition_line__id
+#: model:ir.model.fields,field_description:ssi_school_fee_waiver_deduction.field_school_fee_waiver__id
+#: model:ir.model.fields,field_description:ssi_school_fee_waiver_deduction.field_school_fee_waiver_deduction__id
+#: model:ir.model.fields,field_description:ssi_school_fee_waiver_deduction.field_school_fee_waiver_deduction_allocation__id
+#: model:ir.model.fields,field_description:ssi_school_fee_waiver_deduction.field_school_fee_waiver_deduction_line__id
+#: model:ir.model.fields,field_description:ssi_school_fee_waiver_deduction.field_school_fee_waiver_schedule__id
+#: model:ir.model.fields,field_description:ssi_school_fee_waiver_deduction.field_school_fee_waiver_type__id
+msgid "ID"
+msgstr "ID"
+
+#. module: ssi_school_fee_waiver_deduction
+#: model:ir.model.fields,field_description:ssi_school_fee_waiver_deduction.field_school_fee_waiver_deduction__activity_exception_icon
+msgid "Icon"
+msgstr "Ikon"
+
+#. module: ssi_school_fee_waiver_deduction
+#: model:ir.model.fields,help:ssi_school_fee_waiver_deduction.field_school_fee_waiver_deduction__activity_exception_icon
+msgid "Icon to indicate an exception activity."
+msgstr "Ikon untuk menandai aktivitas pengecualian."
+
+#. module: ssi_school_fee_waiver_deduction
+#: model:ir.model.fields,help:ssi_school_fee_waiver_deduction.field_school_fee_waiver_deduction__message_needaction
+#: model:ir.model.fields,help:ssi_school_fee_waiver_deduction.field_school_fee_waiver_deduction__message_unread
+msgid "If checked, new messages require your attention."
+msgstr "Jika dicentang, pesan baru memerlukan perhatian Anda."
+
+#. module: ssi_school_fee_waiver_deduction
+#: model:ir.model.fields,help:ssi_school_fee_waiver_deduction.field_school_fee_waiver_deduction__message_has_error
+msgid "If checked, some messages have a delivery error."
+msgstr "Jika dicentang, beberapa pesan mengalami kesalahan pengiriman."
+
+#. module: ssi_school_fee_waiver_deduction
+#: model:ir.model.fields.selection,name:ssi_school_fee_waiver_deduction.selection__school_fee_waiver_deduction__recognition_method__immediate
+msgid "Immediate"
+msgstr "Langsung"
+
+#. module: ssi_school_fee_waiver_deduction
+#: model:ir.model.fields,field_description:ssi_school_fee_waiver_deduction.field_school_fee_waiver_deduction_allocation__move_line_id
+msgid "Invoice Receivable Move Line"
+msgstr "Baris Piutang Faktur"
+
+#. module: ssi_school_fee_waiver_deduction
+#: model:ir.model.fields,field_description:ssi_school_fee_waiver_deduction.field_school_fee_waiver_deduction__message_is_follower
+msgid "Is Follower"
+msgstr "Adalah Pengikut"
+
+#. module: ssi_school_fee_waiver_deduction
+#: model:ir.model.fields,field_description:ssi_school_fee_waiver_deduction.field_school_fee_waiver_deduction__journal_id
+msgid "Journal"
+msgstr "Jurnal"
+
+#. module: ssi_school_fee_waiver_deduction
+#: model:ir.model.fields,field_description:ssi_school_fee_waiver_deduction.field_school_fee_waiver_deduction_line__move_line_id
+msgid "Journal Item"
+msgstr "Item Jurnal"
+
+#. module: ssi_school_fee_waiver_deduction
+#: model:ir.model.fields,help:ssi_school_fee_waiver_deduction.field_school_fee_waiver_deduction__move_id
+#: model:ir.model.fields,help:ssi_school_fee_waiver_deduction.field_school_fee_waiver_deduction_line__move_id
+msgid "Journal entry generated when this document is finished."
+msgstr "Entri jurnal yang dibuat saat dokumen ini diselesaikan."
+
+#. module: ssi_school_fee_waiver_deduction
+#: model:ir.model.fields,help:ssi_school_fee_waiver_deduction.field_school_fee_waiver_deduction_line__move_line_id
+msgid ""
+"Journal item created for this line once the parent document is finished."
+msgstr "Item jurnal yang dibuat untuk baris ini setelah dokumen induk diselesaikan."
+
+#. module: ssi_school_fee_waiver_deduction
+#: model:ir.model.fields,help:ssi_school_fee_waiver_deduction.field_school_fee_waiver_deduction__receivable_move_line_id
+msgid ""
+"Journal item on the Receivable Account created together with ``move_id``, "
+"then reconciled against every allocated invoice's own receivable journal "
+"item."
+msgstr "Item jurnal pada Akun Piutang yang dibuat bersama ``move_id``, lalu direkonsiliasi dengan item jurnal piutang milik setiap faktur yang dialokasikan."
+
+#. module: ssi_school_fee_waiver_deduction
+#: model:ir.model.fields,field_description:ssi_school_fee_waiver_deduction.field_school_enrollment____last_update
+#: model:ir.model.fields,field_description:ssi_school_fee_waiver_deduction.field_school_enrollment_revenue_recognition_line____last_update
+#: model:ir.model.fields,field_description:ssi_school_fee_waiver_deduction.field_school_fee_waiver____last_update
+#: model:ir.model.fields,field_description:ssi_school_fee_waiver_deduction.field_school_fee_waiver_deduction____last_update
+#: model:ir.model.fields,field_description:ssi_school_fee_waiver_deduction.field_school_fee_waiver_deduction_allocation____last_update
+#: model:ir.model.fields,field_description:ssi_school_fee_waiver_deduction.field_school_fee_waiver_deduction_line____last_update
+#: model:ir.model.fields,field_description:ssi_school_fee_waiver_deduction.field_school_fee_waiver_schedule____last_update
+#: model:ir.model.fields,field_description:ssi_school_fee_waiver_deduction.field_school_fee_waiver_type____last_update
+msgid "Last Modified on"
+msgstr "Terakhir Diubah pada"
+
+#. module: ssi_school_fee_waiver_deduction
+#: model:ir.model.fields,field_description:ssi_school_fee_waiver_deduction.field_school_fee_waiver_deduction__write_uid
+#: model:ir.model.fields,field_description:ssi_school_fee_waiver_deduction.field_school_fee_waiver_deduction_allocation__write_uid
+#: model:ir.model.fields,field_description:ssi_school_fee_waiver_deduction.field_school_fee_waiver_deduction_line__write_uid
+msgid "Last Updated by"
+msgstr "Terakhir Diperbarui oleh"
+
+#. module: ssi_school_fee_waiver_deduction
+#: model:ir.model.fields,field_description:ssi_school_fee_waiver_deduction.field_school_fee_waiver_deduction__write_date
+#: model:ir.model.fields,field_description:ssi_school_fee_waiver_deduction.field_school_fee_waiver_deduction_allocation__write_date
+#: model:ir.model.fields,field_description:ssi_school_fee_waiver_deduction.field_school_fee_waiver_deduction_line__write_date
+msgid "Last Updated on"
+msgstr "Terakhir Diperbarui pada"
+
+#. module: ssi_school_fee_waiver_deduction
+#: model:ir.model.fields,field_description:ssi_school_fee_waiver_deduction.field_school_fee_waiver_deduction__line_ids
+#: model_terms:ir.ui.view,arch_db:ssi_school_fee_waiver_deduction.school_fee_waiver_deduction_view_form
+msgid "Lines"
+msgstr "Baris"
+
+#. module: ssi_school_fee_waiver_deduction
+#: model:ir.model.fields,field_description:ssi_school_fee_waiver_deduction.field_school_fee_waiver_deduction__message_main_attachment_id
+msgid "Main Attachment"
+msgstr "Lampiran Utama"
+
+#. module: ssi_school_fee_waiver_deduction
+#: model:ir.model.fields,help:ssi_school_fee_waiver_deduction.field_school_fee_waiver_deduction__manual_number_ok
+msgid ""
+"Manual number assignment policy\n"
+"\n"
+"* If active user can edit document number"
+msgstr ""
+"Kebijakan penetapan nomor manual\n"
+"\n"
+"* Jika pengguna aktif dapat mengubah nomor dokumen"
+
+#. module: ssi_school_fee_waiver_deduction
+#: model:ir.model.fields,field_description:ssi_school_fee_waiver_deduction.field_school_fee_waiver_deduction__message_has_error
+msgid "Message Delivery error"
+msgstr "Kesalahan Pengiriman Pesan"
+
+#. module: ssi_school_fee_waiver_deduction
+#: model:ir.model.fields,field_description:ssi_school_fee_waiver_deduction.field_school_fee_waiver_deduction__message_ids
+msgid "Messages"
+msgstr "Pesan"
+
+#. module: ssi_school_fee_waiver_deduction
+#: model:ir.model.fields,field_description:ssi_school_fee_waiver_deduction.field_school_fee_waiver_deduction__move_id
+#: model:ir.model.fields,field_description:ssi_school_fee_waiver_deduction.field_school_fee_waiver_deduction_line__move_id
+msgid "Move"
+msgstr "Entri"
+
+#. module: ssi_school_fee_waiver_deduction
+#: model:ir.model.fields,field_description:ssi_school_fee_waiver_deduction.field_school_fee_waiver_deduction__my_activity_date_deadline
+msgid "My Activity Deadline"
+msgstr "Batas Waktu Aktivitas Saya"
+
+#. module: ssi_school_fee_waiver_deduction
+#: model:ir.model.fields,field_description:ssi_school_fee_waiver_deduction.field_school_fee_waiver_deduction__need_validation
+msgid "Need Validation"
+msgstr "Perlu Validasi"
+
+#. module: ssi_school_fee_waiver_deduction
+#: model:ir.model.fields,field_description:ssi_school_fee_waiver_deduction.field_school_fee_waiver_deduction__activity_date_deadline
+msgid "Next Activity Deadline"
+msgstr "Batas Waktu Aktivitas Berikutnya"
+
+#. module: ssi_school_fee_waiver_deduction
+#: model:ir.model.fields,field_description:ssi_school_fee_waiver_deduction.field_school_fee_waiver_deduction__activity_summary
+msgid "Next Activity Summary"
+msgstr "Ringkasan Aktivitas Berikutnya"
+
+#. module: ssi_school_fee_waiver_deduction
+#: model:ir.model.fields,field_description:ssi_school_fee_waiver_deduction.field_school_fee_waiver_deduction__activity_type_id
+msgid "Next Activity Type"
+msgstr "Jenis Aktivitas Berikutnya"
+
+#. module: ssi_school_fee_waiver_deduction
+#: model:ir.model.fields,field_description:ssi_school_fee_waiver_deduction.field_school_fee_waiver_deduction__next_approval_ids
+msgid "Next Approvals"
+msgstr "Persetujuan Berikutnya"
+
+#. module: ssi_school_fee_waiver_deduction
+#: model:ir.model.fields,field_description:ssi_school_fee_waiver_deduction.field_school_fee_waiver_deduction__note
+msgid "Note"
+msgstr "Catatan"
+
+#. module: ssi_school_fee_waiver_deduction
+#: model:ir.model.fields,field_description:ssi_school_fee_waiver_deduction.field_school_fee_waiver_deduction__message_needaction_counter
+msgid "Number of Actions"
+msgstr "Jumlah Tindakan"
+
+#. module: ssi_school_fee_waiver_deduction
+#: model:ir.model.fields,field_description:ssi_school_fee_waiver_deduction.field_school_fee_waiver_deduction__message_has_error_counter
+msgid "Number of errors"
+msgstr "Jumlah kesalahan"
+
+#. module: ssi_school_fee_waiver_deduction
+#: model:ir.model.fields,help:ssi_school_fee_waiver_deduction.field_school_fee_waiver_deduction__message_needaction_counter
+msgid "Number of messages which requires an action"
+msgstr "Jumlah pesan yang memerlukan tindakan"
+
+#. module: ssi_school_fee_waiver_deduction
+#: model:ir.model.fields,help:ssi_school_fee_waiver_deduction.field_school_fee_waiver_deduction__message_has_error_counter
+msgid "Number of messages with delivery error"
+msgstr "Jumlah pesan dengan kesalahan pengiriman"
+
+#. module: ssi_school_fee_waiver_deduction
+#: model:ir.model.fields,help:ssi_school_fee_waiver_deduction.field_school_fee_waiver_deduction__message_unread_counter
+msgid "Number of unread messages"
+msgstr "Jumlah pesan yang belum dibaca"
+
+#. module: ssi_school_fee_waiver_deduction
+#: model:ir.model.fields,help:ssi_school_fee_waiver_deduction.field_school_fee_waiver_deduction_allocation__customer_invoice_id
+msgid ""
+"Open customer invoice this allocation reconciles against. Restricted to "
+"invoices of this document's own Partner with a positive residual that are "
+"also the source invoice of a Schedule line on this document."
+msgstr "Faktur pelanggan terbuka yang direkonsiliasi dengan alokasi ini. Dibatasi pada faktur milik Mitra dokumen ini yang memiliki sisa positif dan sekaligus menjadi faktur sumber sebuah baris Jadwal pada dokumen ini."
+
+#. module: ssi_school_fee_waiver_deduction
+#: model:ir.model.fields,field_description:ssi_school_fee_waiver_deduction.field_school_fee_waiver_deduction__partner_id
+msgid "Partner"
+msgstr "Mitra"
+
+#. module: ssi_school_fee_waiver_deduction
+#: model:ir.model.fields,field_description:ssi_school_fee_waiver_deduction.field_school_fee_waiver_deduction__policy_template_id
+msgid "Policy Template"
+msgstr "Templat Kebijakan"
+
+#. module: ssi_school_fee_waiver_deduction
+#: model:ir.model.fields,help:ssi_school_fee_waiver_deduction.field_school_fee_waiver_deduction_line__amount
+msgid ""
+"Portion of the Schedule line's own Amount Planned being deducted now. May "
+"not exceed the Schedule line's remaining planned amount."
+msgstr "Bagian dari Jumlah Direncanakan milik baris Jadwal yang dipotong saat ini. Tidak boleh melebihi sisa jumlah yang direncanakan pada baris Jadwal."
+
+#. module: ssi_school_fee_waiver_deduction
+#: model:ir.model.fields,help:ssi_school_fee_waiver_deduction.field_school_fee_waiver_deduction_allocation__amount
+msgid ""
+"Portion of this document's Amount Total applied to the selected invoice. May"
+" not exceed the invoice's own residual."
+msgstr "Bagian dari Jumlah Total dokumen ini yang diterapkan ke faktur terpilih. Tidak boleh melebihi sisa faktur itu sendiri."
+
+#. module: ssi_school_fee_waiver_deduction
+#: model:ir.model.fields,field_description:ssi_school_fee_waiver_deduction.field_school_fee_waiver_deduction__schedule_ids
+#: model_terms:ir.ui.view,arch_db:ssi_school_fee_waiver_deduction.school_fee_waiver_deduction_view_form
+msgid "Realized Schedule"
+msgstr "Jadwal Terealisasi"
+
+#. module: ssi_school_fee_waiver_deduction
+#: model:ir.model.fields,field_description:ssi_school_fee_waiver_deduction.field_school_fee_waiver_deduction__receivable_account_id
+msgid "Receivable Account"
+msgstr "Akun Piutang"
+
+#. module: ssi_school_fee_waiver_deduction
+#: model:ir.model.fields,field_description:ssi_school_fee_waiver_deduction.field_school_fee_waiver_deduction__receivable_move_line_id
+msgid "Receivable Move Line"
+msgstr "Baris Piutang"
+
+#. module: ssi_school_fee_waiver_deduction
+#: model:ir.model.fields,help:ssi_school_fee_waiver_deduction.field_school_fee_waiver_deduction__receivable_account_id
+msgid ""
+"Receivable account credited for the total deduction amount. Should match the"
+" Receivable Account of every allocated invoice, or reconciliation fails when"
+" this document is finished."
+msgstr "Akun piutang yang dikredit sebesar total jumlah pemotongan. Sebaiknya sama dengan Akun Piutang setiap faktur yang dialokasikan, jika tidak rekonsiliasi gagal saat dokumen ini diselesaikan."
+
+#. module: ssi_school_fee_waiver_deduction
+#: model:ir.model.fields,help:ssi_school_fee_waiver_deduction.field_school_fee_waiver_deduction_allocation__move_line_id
+msgid ""
+"Receivable journal item of the selected invoice, reconciled against this "
+"document's own receivable journal item once this document is finished. "
+"Filled by the header's ``_20_reconcile`` hook."
+msgstr "Item jurnal piutang dari faktur terpilih, yang direkonsiliasi dengan item jurnal piutang milik dokumen ini setelah dokumen ini diselesaikan. Diisi oleh hook ``_20_reconcile`` milik header."
+
+#. module: ssi_school_fee_waiver_deduction
+#: model:ir.model.fields,field_description:ssi_school_fee_waiver_deduction.field_school_fee_waiver_deduction__recognition_method
+msgid "Recognition Method"
+msgstr "Metode Pengakuan"
+
+#. module: ssi_school_fee_waiver_deduction
+#: model:ir.model.fields,field_description:ssi_school_fee_waiver_deduction.field_school_fee_waiver_deduction__reconciled
+msgid "Reconciled"
+msgstr "Terekonsiliasi"
+
+#. module: ssi_school_fee_waiver_deduction
+#: model:ir.model.fields,help:ssi_school_fee_waiver_deduction.field_school_fee_waiver_deduction__reject_ok
+msgid ""
+"Reject policy\n"
+"\n"
+"* If active user can see and execute 'Reject' button"
+msgstr ""
+"Kebijakan penolakan\n"
+"\n"
+"* Jika pengguna aktif dapat melihat dan menjalankan tombol 'Tolak'"
+
+#. module: ssi_school_fee_waiver_deduction
+#: model:ir.model.fields,field_description:ssi_school_fee_waiver_deduction.field_school_fee_waiver_deduction__rejected
+msgid "Rejected"
+msgstr "Ditolak"
+
+#. module: ssi_school_fee_waiver_deduction
+#: model:ir.model.fields,field_description:ssi_school_fee_waiver_deduction.field_school_fee_waiver_deduction__user_id
+msgid "Responsible"
+msgstr "Penanggung Jawab"
+
+#. module: ssi_school_fee_waiver_deduction
+#: model:ir.model.fields,field_description:ssi_school_fee_waiver_deduction.field_school_fee_waiver_deduction__activity_user_id
+msgid "Responsible User"
+msgstr "Pengguna Penanggung Jawab"
+
+#. module: ssi_school_fee_waiver_deduction
+#: model:ir.model.fields,help:ssi_school_fee_waiver_deduction.field_school_fee_waiver_deduction__restart_approval_ok
+msgid ""
+"Restart approval policy\n"
+"\n"
+"* If active user can see and execute 'Restart Approval' button"
+msgstr ""
+"Kebijakan mulai ulang persetujuan\n"
+"\n"
+"* Jika pengguna aktif dapat melihat dan menjalankan tombol 'Mulai Ulang Persetujuan'"
+
+#. module: ssi_school_fee_waiver_deduction
+#: model:ir.model.fields,help:ssi_school_fee_waiver_deduction.field_school_fee_waiver_deduction__restart_ok
+msgid ""
+"Restart policy\n"
+"\n"
+"* If active user can see and execute 'Restart' button"
+msgstr ""
+"Kebijakan mulai ulang\n"
+"\n"
+"* Jika pengguna aktif dapat melihat dan menjalankan tombol 'Mulai Ulang'"
+
+#. module: ssi_school_fee_waiver_deduction
+#: model:ir.model.fields,field_description:ssi_school_fee_waiver_deduction.field_school_fee_waiver_deduction__reviewer_id
+msgid "Reviewer"
+msgstr "Pemeriksa"
+
+#. module: ssi_school_fee_waiver_deduction
+#: model:ir.model.fields,field_description:ssi_school_fee_waiver_deduction.field_school_fee_waiver_deduction_line__schedule_id
+msgid "Schedule"
+msgstr "Jadwal"
+
+#. module: ssi_school_fee_waiver_deduction
+#: model:ir.module.category,name:ssi_school_fee_waiver_deduction.school_fee_waiver_deduction_data_ownership_module_category
+#: model:ir.module.category,name:ssi_school_fee_waiver_deduction.school_fee_waiver_deduction_workflow_module_category
+msgid "School - Fee Waiver - Deduction"
+msgstr "Sekolah - Keringanan Biaya - Pemotongan"
+
+#. module: ssi_school_fee_waiver_deduction
+#: model:ir.model,name:ssi_school_fee_waiver_deduction.model_school_enrollment
+msgid "School Enrollment"
+msgstr "Pendaftaran Sekolah"
+
+#. module: ssi_school_fee_waiver_deduction
+#: model:ir.model,name:ssi_school_fee_waiver_deduction.model_school_enrollment_revenue_recognition_line
+msgid "School Enrollment Revenue Recognition - Line"
+msgstr "Pengakuan Pendapatan Pendaftaran Sekolah - Baris"
+
+#. module: ssi_school_fee_waiver_deduction
+#: model:ir.model,name:ssi_school_fee_waiver_deduction.model_school_fee_waiver
+msgid "School Fee Waiver"
+msgstr "Keringanan Biaya Sekolah"
+
+#. module: ssi_school_fee_waiver_deduction
+#: model:ir.model,name:ssi_school_fee_waiver_deduction.model_school_fee_waiver_deduction
+msgid "School Fee Waiver Deduction"
+msgstr "Pemotongan Keringanan Biaya Sekolah"
+
+#. module: ssi_school_fee_waiver_deduction
+#: model:ir.model,name:ssi_school_fee_waiver_deduction.model_school_fee_waiver_deduction_allocation
+msgid "School Fee Waiver Deduction - Allocation"
+msgstr "Pemotongan Keringanan Biaya Sekolah - Alokasi"
+
+#. module: ssi_school_fee_waiver_deduction
+#: model:ir.model,name:ssi_school_fee_waiver_deduction.model_school_fee_waiver_deduction_line
+msgid "School Fee Waiver Deduction - Line"
+msgstr "Pemotongan Keringanan Biaya Sekolah - Baris"
+
+#. module: ssi_school_fee_waiver_deduction
+#: model:ir.model,name:ssi_school_fee_waiver_deduction.model_school_fee_waiver_schedule
+msgid "School Fee Waiver Schedule"
+msgstr "Jadwal Keringanan Biaya Sekolah"
+
+#. module: ssi_school_fee_waiver_deduction
+#: model:ir.model,name:ssi_school_fee_waiver_deduction.model_school_fee_waiver_type
+msgid "School Fee Waiver Type"
+msgstr "Jenis Keringanan Biaya Sekolah"
+
+#. module: ssi_school_fee_waiver_deduction
+#: model:ir.model.fields,help:ssi_school_fee_waiver_deduction.field_school_fee_waiver_deduction__allowed_customer_invoice_ids
+msgid ""
+"Source invoices of every Schedule line on this document's Lines. Allocations"
+" may only target these invoices."
+msgstr "Faktur sumber dari setiap baris Jadwal pada Baris dokumen ini. Alokasi hanya boleh menyasar faktur-faktur ini."
+
+#. module: ssi_school_fee_waiver_deduction
+#: model:ir.model.fields,field_description:ssi_school_fee_waiver_deduction.field_school_fee_waiver_deduction__state
+msgid "State"
+msgstr "Status"
+
+#. module: ssi_school_fee_waiver_deduction
+#: model:ir.model.fields,help:ssi_school_fee_waiver_deduction.field_school_fee_waiver_deduction__activity_state
+msgid ""
+"Status based on activities\n"
+"Overdue: Due date is already passed\n"
+"Today: Activity date is today\n"
+"Planned: Future activities."
+msgstr ""
+"Status berdasarkan aktivitas\n"
+"Terlambat: Tanggal jatuh tempo sudah lewat\n"
+"Hari ini: Tanggal aktivitas adalah hari ini\n"
+"Direncanakan: Aktivitas mendatang."
+
+#. module: ssi_school_fee_waiver_deduction
+#: model:ir.model.fields,field_description:ssi_school_fee_waiver_deduction.field_school_fee_waiver_deduction__student_id
+msgid "Student"
+msgstr "Siswa"
+
+#. module: ssi_school_fee_waiver_deduction
+#: model:ir.model.fields,help:ssi_school_fee_waiver_deduction.field_school_fee_waiver_deduction__student_id
+msgid "Student of the selected Waiver."
+msgstr "Siswa dari Keringanan terpilih."
+
+#. module: ssi_school_fee_waiver_deduction
+#: model:ir.model.fields,help:ssi_school_fee_waiver_deduction.field_school_fee_waiver_deduction__amount_allocated
+msgid "Sum of the Allocation lines' Amount."
+msgstr "Total Jumlah baris Alokasi."
+
+#. module: ssi_school_fee_waiver_deduction
+#: model:ir.model.fields,help:ssi_school_fee_waiver_deduction.field_school_fee_waiver_deduction__amount_total
+msgid ""
+"Sum of the Deduction lines' Amount. This is also the amount credited to the "
+"Receivable Account."
+msgstr "Total Jumlah baris Pemotongan. Ini juga jumlah yang dikredit ke Akun Piutang."
+
+#. module: ssi_school_fee_waiver_deduction
+#: model:ir.model.fields,help:ssi_school_fee_waiver_deduction.field_school_fee_waiver_deduction__reconciled
+msgid ""
+"Technical flag mirroring whether the receivable journal item has been fully "
+"reconciled."
+msgstr "Penanda teknis yang mencerminkan apakah item jurnal piutang sudah direkonsiliasi sepenuhnya."
+
+#. module: ssi_school_fee_waiver_deduction
+#: model:ir.model.fields,help:ssi_school_fee_waiver_deduction.field_school_fee_waiver_deduction__partner_id
+msgid ""
+"The student's contact partner, copied from the selected Waiver. Must match "
+"the Partner of every allocated invoice."
+msgstr "Mitra kontak siswa, disalin dari Keringanan terpilih. Harus sama dengan Mitra setiap faktur yang dialokasikan."
+
+#. module: ssi_school_fee_waiver_deduction
+#: model:ir.model.fields,help:ssi_school_fee_waiver_deduction.field_school_fee_waiver_deduction__name
+msgid ""
+"Transaction/document number\n"
+"\n"
+"* Unique indentifer of transaction\n"
+"* Leave '/' to automatically generate number\n"
+"* Change '/' into any number/identifier to manually assign number.\n"
+"  Manual number assignment can be done in 'Draft' state\n"
+"  Only user with 'Can Manualy Assign Number' policy can manually assign number.\n"
+"* Transaction with number other than '/' can not be deleted."
+msgstr ""
+"Nomor transaksi/dokumen\n"
+"\n"
+"* Pengenal unik transaksi\n"
+"* Biarkan '/' untuk menghasilkan nomor secara otomatis\n"
+"* Ubah '/' menjadi nomor/pengenal apa pun untuk menetapkan nomor secara manual.\n"
+"  Penetapan nomor manual dapat dilakukan pada status 'Draf'\n"
+"  Hanya pengguna dengan kebijakan 'Dapat Menetapkan Nomor Secara Manual' yang dapat menetapkan nomor secara manual.\n"
+"* Transaksi dengan nomor selain '/' tidak dapat dihapus."
+
+#. module: ssi_school_fee_waiver_deduction
+#: model:ir.model.fields,help:ssi_school_fee_waiver_deduction.field_school_fee_waiver_deduction__activity_exception_decoration
+msgid "Type of the exception activity on record."
+msgstr "Jenis aktivitas pengecualian pada data."
+
+#. module: ssi_school_fee_waiver_deduction
+#: model:ir.model.fields,field_description:ssi_school_fee_waiver_deduction.field_school_fee_waiver_deduction__message_unread
+msgid "Unread Messages"
+msgstr "Pesan yang Belum Dibaca"
+
+#. module: ssi_school_fee_waiver_deduction
+#: model:ir.model.fields,field_description:ssi_school_fee_waiver_deduction.field_school_fee_waiver_deduction__message_unread_counter
+msgid "Unread Messages Counter"
+msgstr "Penghitung Pesan yang Belum Dibaca"
+
+#. module: ssi_school_fee_waiver_deduction
+#: model:res.groups,name:ssi_school_fee_waiver_deduction.school_fee_waiver_deduction_user_group
+msgid "User"
+msgstr "Pengguna"
+
+#. module: ssi_school_fee_waiver_deduction
+#: model:ir.model.fields,help:ssi_school_fee_waiver_deduction.field_school_fee_waiver_deduction__user_id
+msgid ""
+"User that responsible for document\n"
+"\n"
+"* Create user can be different with responsible user\n"
+"* Automatically filled with user that initiate document creation.\n"
+"  Default responsible can be changed."
+msgstr ""
+"Pengguna yang bertanggung jawab atas dokumen\n"
+"\n"
+"* Pengguna pembuat dapat berbeda dengan pengguna penanggung jawab\n"
+"* Otomatis diisi dengan pengguna yang memulai pembuatan dokumen.\n"
+"  Penanggung jawab bawaan dapat diubah."
+
+#. module: ssi_school_fee_waiver_deduction
+#: model:ir.model.fields,help:ssi_school_fee_waiver_deduction.field_school_fee_waiver_deduction__reviewer_id
+msgid ""
+"User that responsible to review document\n"
+"\n"
+"* Unless it configured to approve reviewer does not equal to approver"
+msgstr ""
+"Pengguna yang bertanggung jawab memeriksa dokumen\n"
+"\n"
+"* Kecuali dikonfigurasi untuk menyetujui, pemeriksa tidak sama dengan penyetuju"
+
+#. module: ssi_school_fee_waiver_deduction
+#: model:ir.model.fields,help:ssi_school_fee_waiver_deduction.field_school_fee_waiver_deduction__active_approver_user_ids
+msgid "Users that can approve/reject document"
+msgstr "Pengguna yang dapat menyetujui/menolak dokumen"
+
+#. module: ssi_school_fee_waiver_deduction
+#: model:res.groups,name:ssi_school_fee_waiver_deduction.school_fee_waiver_deduction_validator_group
+msgid "Validator"
+msgstr "Validator"
+
+#. module: ssi_school_fee_waiver_deduction
+#: model:res.groups,name:ssi_school_fee_waiver_deduction.school_fee_waiver_deduction_viewer_group
+msgid "Viewer"
+msgstr "Penampil"
+
+#. module: ssi_school_fee_waiver_deduction
+#: model:ir.model.fields,field_description:ssi_school_fee_waiver_deduction.field_school_fee_waiver_deduction__waiver_id
+#: model_terms:ir.ui.view,arch_db:ssi_school_fee_waiver_deduction.school_fee_waiver_deduction_view_search
+msgid "Waiver"
+msgstr "Keringanan"
+
+#. module: ssi_school_fee_waiver_deduction
+#: model:ir.model.fields,help:ssi_school_fee_waiver_deduction.field_school_fee_waiver_deduction_line__schedule_id
+msgid "Waiver Schedule line this deduction line realizes."
+msgstr "Baris Jadwal Keringanan yang direalisasikan baris pemotongan ini."
+
+#. module: ssi_school_fee_waiver_deduction
+#: model:ir.model.fields,help:ssi_school_fee_waiver_deduction.field_school_fee_waiver_deduction__schedule_ids
+msgid ""
+"Waiver Schedule lines realized by this document. Filled when this document "
+"is finished; cleared again if it is cancelled."
+msgstr "Baris Jadwal Keringanan yang direalisasikan dokumen ini. Diisi saat dokumen ini diselesaikan; dikosongkan kembali bila dibatalkan."
+
+#. module: ssi_school_fee_waiver_deduction
+#: model:ir.model.fields,field_description:ssi_school_fee_waiver_deduction.field_school_fee_waiver_deduction__website_message_ids
+msgid "Website Messages"
+msgstr "Pesan Situs Web"
+
+#. module: ssi_school_fee_waiver_deduction
+#: model:ir.model.fields,help:ssi_school_fee_waiver_deduction.field_school_fee_waiver_deduction__website_message_ids
+msgid "Website communication history"
+msgstr "Riwayat komunikasi situs web"
+
+#. module: ssi_school_fee_waiver_deduction
+#: model:ir.model.fields,help:ssi_school_fee_waiver_deduction.field_school_fee_waiver_deduction__recognition_method
+msgid ""
+"``immediate`` books every Line straight to its own Account when this "
+"document is finished. ``enrollment`` instead books every Line to the Waiver "
+"Type's own Deferred Discount Account, deferring recognition to the "
+"enrollment's own Revenue Recognition entry. Set by "
+"``_03_apply_enrollment_recognition`` when this document is finished; never "
+"set by the user."
+msgstr "``immediate`` membukukan setiap Baris langsung ke Akun-nya sendiri saat dokumen ini diselesaikan. ``enrollment`` sebaliknya membukukan setiap Baris ke Akun Diskon Ditangguhkan milik Jenis Keringanan, dengan menunda pengakuan ke entri Pengakuan Pendapatan milik pendaftaran. Ditetapkan oleh ``_03_apply_enrollment_recognition`` saat dokumen ini diselesaikan; tidak pernah ditetapkan oleh pengguna."
