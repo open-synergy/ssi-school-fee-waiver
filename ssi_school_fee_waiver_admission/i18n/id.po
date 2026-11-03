@@ -1,0 +1,203 @@
+# Translation of Odoo Server.
+# This file contains the translation of the following modules:
+# 	* ssi_school_fee_waiver_admission
+#
+msgid ""
+msgstr ""
+"Project-Id-Version: Odoo Server 14.0\n"
+"Report-Msgid-Bugs-To: \n"
+"PO-Revision-Date: 2026-11-03 00:00+0000\n"
+"Last-Translator: \n"
+"Language-Team: \n"
+"Language: id\n"
+"MIME-Version: 1.0\n"
+"Content-Type: text/plain; charset=UTF-8\n"
+"Content-Transfer-Encoding: 8bit\n"
+"Plural-Forms: nplurals=1; plural=0;\n"
+
+#. module: ssi_school_fee_waiver_admission
+#: model:ir.model.fields,field_description:ssi_school_fee_waiver_admission.field_school_fee_waiver__admission_id
+#: model:ir.model.fields.selection,name:ssi_school_fee_waiver_admission.selection__school_fee_waiver__source_type__admission
+msgid "Admission"
+msgstr "Penerimaan"
+
+#. module: ssi_school_fee_waiver_admission
+#: model:ir.model.fields,field_description:ssi_school_fee_waiver_admission.field_school_fee_waiver__admission_payment_term_id
+#: model:ir.model.fields,field_description:ssi_school_fee_waiver_admission.field_school_fee_waiver_schedule__admission_payment_term_id
+msgid "Admission Payment Term"
+msgstr "Termin Pembayaran Penerimaan"
+
+#. module: ssi_school_fee_waiver_admission
+#: model:ir.model.fields,help:ssi_school_fee_waiver_admission.field_school_fee_waiver_schedule__admission_payment_term_id
+msgid ""
+"Admission payment term this Schedule line realizes. Set instead of Payment "
+"Term when this line was generated from an Admission-sourced waiver."
+msgstr "Termin pembayaran penerimaan yang direalisasikan oleh baris jadwal ini. Diisi sebagai pengganti Termin Pembayaran bila baris ini dibuat dari keringanan biaya berbasis Penerimaan."
+
+#. module: ssi_school_fee_waiver_admission
+#: model:ir.model.fields,help:ssi_school_fee_waiver_admission.field_school_fee_waiver__admission_id
+msgid ""
+"Admission this waiver is billed against. Must already be linked to the "
+"selected Student's School Student record, created with Create Student "
+"Profile or when the admission reaches Open. Required when Billing Source is "
+"Admission -- enforced by ``_check_billing_source``, not by this field "
+"itself, so the base module's own billing source is not forced to also be a "
+"required field."
+msgstr "Penerimaan yang menjadi dasar penagihan keringanan ini. Harus sudah tertaut ke data Siswa Sekolah dari Siswa terpilih, yang dibuat melalui Buat Profil Siswa atau saat penerimaan mencapai status Terbuka. Wajib diisi bila Sumber Penagihan adalah Penerimaan -- ditegakkan oleh ``_check_billing_source``, bukan oleh field ini sendiri, sehingga sumber penagihan milik modul dasar tidak ikut dipaksa menjadi field wajib."
+
+#. module: ssi_school_fee_waiver_admission
+#: model:ir.model.fields,field_description:ssi_school_fee_waiver_admission.field_school_fee_waiver__source_type
+msgid "Billing Source"
+msgstr "Sumber Penagihan"
+
+#. module: ssi_school_fee_waiver_admission
+#: model:ir.model.fields,help:ssi_school_fee_waiver_admission.field_school_fee_waiver__source_type
+msgid ""
+"Billing source this waiver is billed against. This module only registers "
+"Enrollment -- extension modules add further values with ``selection_add`` "
+"and override the ``_get_source_*`` hooks to match."
+msgstr "Sumber penagihan yang menjadi dasar penagihan keringanan ini. Modul ini hanya mendaftarkan Pendaftaran -- modul ekstensi menambahkan nilai lain dengan ``selection_add`` dan menimpa hook ``_get_source_*`` agar sesuai."
+
+#. module: ssi_school_fee_waiver_admission
+#: model:ir.model.fields,field_description:ssi_school_fee_waiver_admission.field_school_admission__display_name
+#: model:ir.model.fields,field_description:ssi_school_fee_waiver_admission.field_school_admission_payment_term__display_name
+#: model:ir.model.fields,field_description:ssi_school_fee_waiver_admission.field_school_fee_waiver__display_name
+#: model:ir.model.fields,field_description:ssi_school_fee_waiver_admission.field_school_fee_waiver_schedule__display_name
+msgid "Display Name"
+msgstr "Nama Tampilan"
+
+#. module: ssi_school_fee_waiver_admission
+#: model:ir.model.fields,help:ssi_school_fee_waiver_admission.field_school_admission__amount_fee_waiver
+msgid ""
+"Effective fee waiver of this admission: Fee Waiver Deducted plus Fee Waiver "
+"Not Yet Deducted. The unrealized remainder of a partially deducted schedule "
+"is not counted, because it is billed to the student, so this amount can be "
+"lower than the sum of Fee Waiver Amount of the payment terms."
+msgstr "Keringanan biaya efektif dari penerimaan ini: Keringanan Biaya Terpotong ditambah Keringanan Biaya Belum Terpotong. Sisa jadwal yang terpotong sebagian dan belum terealisasi tidak dihitung, karena ditagihkan kepada siswa, sehingga jumlah ini bisa lebih rendah daripada total Jumlah Keringanan Biaya pada termin pembayaran."
+
+#. module: ssi_school_fee_waiver_admission
+#: model_terms:ir.ui.view,arch_db:ssi_school_fee_waiver_admission.school_admission_payment_term_view_form_embedded
+#: model_terms:ir.ui.view,arch_db:ssi_school_fee_waiver_admission.school_admission_view_form
+msgid "Fee Waiver"
+msgstr "Keringanan Biaya"
+
+#. module: ssi_school_fee_waiver_admission
+#: model:ir.model.fields,field_description:ssi_school_fee_waiver_admission.field_school_admission__amount_fee_waiver
+#: model:ir.model.fields,field_description:ssi_school_fee_waiver_admission.field_school_admission_payment_term__fee_waiver_amount
+msgid "Fee Waiver Amount"
+msgstr "Jumlah Keringanan Biaya"
+
+#. module: ssi_school_fee_waiver_admission
+#: model:ir.model.fields,field_description:ssi_school_fee_waiver_admission.field_school_admission__amount_fee_waiver_deducted
+#: model:ir.model.fields,field_description:ssi_school_fee_waiver_admission.field_school_admission_payment_term__fee_waiver_amount_deducted
+msgid "Fee Waiver Deducted"
+msgstr "Keringanan Biaya Terpotong"
+
+#. module: ssi_school_fee_waiver_admission
+#: model:ir.model.fields,field_description:ssi_school_fee_waiver_admission.field_school_admission_payment_term__fee_waiver_amount_deducted_planned
+msgid "Fee Waiver Deducted (Planned)"
+msgstr "Keringanan Biaya Terpotong (Rencana)"
+
+#. module: ssi_school_fee_waiver_admission
+#: model:ir.model.fields,field_description:ssi_school_fee_waiver_admission.field_school_admission__amount_fee_waiver_undeducted
+#: model:ir.model.fields,field_description:ssi_school_fee_waiver_admission.field_school_admission_payment_term__fee_waiver_amount_undeducted
+msgid "Fee Waiver Not Yet Deducted"
+msgstr "Keringanan Biaya Belum Terpotong"
+
+#. module: ssi_school_fee_waiver_admission
+#: model:ir.model.fields,field_description:ssi_school_fee_waiver_admission.field_school_admission_payment_term__fee_waiver_schedule_ids
+msgid "Fee Waiver Schedules"
+msgstr "Jadwal Keringanan Biaya"
+
+#. module: ssi_school_fee_waiver_admission
+#: model:ir.model.fields,help:ssi_school_fee_waiver_admission.field_school_admission__amount_fee_waiver_deducted
+msgid ""
+"Fee waiver already deducted from the invoices: the sum of Fee Waiver "
+"Deducted of the counted payment terms."
+msgstr "Keringanan biaya yang sudah dipotong dari faktur: total Keringanan Biaya Terpotong dari termin pembayaran yang dihitung."
+
+#. module: ssi_school_fee_waiver_admission
+#: model:ir.model.fields,help:ssi_school_fee_waiver_admission.field_school_admission_payment_term__fee_waiver_amount_deducted
+msgid ""
+"Fee waiver already deducted: the sum of Amount Realized of Realized schedule"
+" lines."
+msgstr "Keringanan biaya yang sudah dipotong: total Jumlah Terealisasi dari baris jadwal berstatus Terealisasi."
+
+#. module: ssi_school_fee_waiver_admission
+#: model:ir.model.fields,help:ssi_school_fee_waiver_admission.field_school_admission_payment_term__fee_waiver_schedule_ids
+msgid "Fee waiver schedule lines that target this payment term."
+msgstr "Baris jadwal keringanan biaya yang menyasar termin pembayaran ini."
+
+#. module: ssi_school_fee_waiver_admission
+#: model:ir.model.fields,help:ssi_school_fee_waiver_admission.field_school_admission_payment_term__fee_waiver_amount_undeducted
+msgid ""
+"Fee waiver still waiting for deduction: the sum of Amount Planned of "
+"Scheduled schedule lines whose waiver is Running or Finished."
+msgstr "Keringanan biaya yang masih menunggu pemotongan: total Jumlah Direncanakan dari baris jadwal berstatus Terjadwal yang keringanannya Berjalan atau Selesai."
+
+#. module: ssi_school_fee_waiver_admission
+#: model:ir.model.fields,help:ssi_school_fee_waiver_admission.field_school_admission__amount_fee_waiver_undeducted
+msgid ""
+"Fee waiver still waiting for deduction: the sum of Fee Waiver Not Yet "
+"Deducted of the counted payment terms."
+msgstr "Keringanan biaya yang masih menunggu pemotongan: total Keringanan Biaya Belum Terpotong dari termin pembayaran yang dihitung."
+
+#. module: ssi_school_fee_waiver_admission
+#: model:ir.model.fields,field_description:ssi_school_fee_waiver_admission.field_school_admission__id
+#: model:ir.model.fields,field_description:ssi_school_fee_waiver_admission.field_school_admission_payment_term__id
+#: model:ir.model.fields,field_description:ssi_school_fee_waiver_admission.field_school_fee_waiver__id
+#: model:ir.model.fields,field_description:ssi_school_fee_waiver_admission.field_school_fee_waiver_schedule__id
+msgid "ID"
+msgstr "ID"
+
+#. module: ssi_school_fee_waiver_admission
+#: model:ir.model.fields,field_description:ssi_school_fee_waiver_admission.field_school_admission____last_update
+#: model:ir.model.fields,field_description:ssi_school_fee_waiver_admission.field_school_admission_payment_term____last_update
+#: model:ir.model.fields,field_description:ssi_school_fee_waiver_admission.field_school_fee_waiver____last_update
+#: model:ir.model.fields,field_description:ssi_school_fee_waiver_admission.field_school_fee_waiver_schedule____last_update
+msgid "Last Modified on"
+msgstr "Terakhir Diubah pada"
+
+#. module: ssi_school_fee_waiver_admission
+#: model:ir.model.fields,help:ssi_school_fee_waiver_admission.field_school_fee_waiver__admission_payment_term_id
+msgid ""
+"Payment term this waiver closes out, restricted to payment terms of the "
+"selected Admission. Required when Billing Source is Admission and Coverage "
+"is Single Payment Term -- enforced by ``_check_coverage_payment_term``, not "
+"by this field itself. Must be empty when Coverage is Multiple Payment Terms."
+msgstr "Termin pembayaran yang diselesaikan keringanan ini, dibatasi pada termin pembayaran dari Penerimaan terpilih. Wajib diisi bila Sumber Penagihan adalah Penerimaan dan Cakupan adalah Satu Termin Pembayaran -- ditegakkan oleh ``_check_coverage_payment_term``, bukan oleh field ini sendiri. Harus kosong bila Cakupan adalah Beberapa Termin Pembayaran."
+
+#. module: ssi_school_fee_waiver_admission
+#: model:ir.model.fields,help:ssi_school_fee_waiver_admission.field_school_admission_payment_term__fee_waiver_amount_deducted_planned
+msgid ""
+"Planned amount of the fee waiver already deducted: the sum of Amount Planned"
+" of Realized schedule lines. It can exceed the actual deducted amount on a "
+"partial deduction."
+msgstr "Jumlah rencana keringanan biaya yang sudah dipotong: total Jumlah Direncanakan dari baris jadwal berstatus Terealisasi. Bisa melebihi jumlah yang benar-benar terpotong pada pemotongan sebagian."
+
+#. module: ssi_school_fee_waiver_admission
+#: model:ir.model,name:ssi_school_fee_waiver_admission.model_school_admission
+msgid "School Admission"
+msgstr "Penerimaan Sekolah"
+
+#. module: ssi_school_fee_waiver_admission
+#: model:ir.model,name:ssi_school_fee_waiver_admission.model_school_admission_payment_term
+msgid "School Admission Payment Term"
+msgstr "Termin Pembayaran Penerimaan Sekolah"
+
+#. module: ssi_school_fee_waiver_admission
+#: model:ir.model,name:ssi_school_fee_waiver_admission.model_school_fee_waiver
+msgid "School Fee Waiver"
+msgstr "Keringanan Biaya Sekolah"
+
+#. module: ssi_school_fee_waiver_admission
+#: model:ir.model,name:ssi_school_fee_waiver_admission.model_school_fee_waiver_schedule
+msgid "School Fee Waiver Schedule"
+msgstr "Jadwal Keringanan Biaya Sekolah"
+
+#. module: ssi_school_fee_waiver_admission
+#: model:ir.model.fields,help:ssi_school_fee_waiver_admission.field_school_admission_payment_term__fee_waiver_amount
+msgid ""
+"Total fee waiver given to this payment term: the sum of Amount Planned of "
+"Scheduled and Realized schedule lines whose waiver is Running or Finished."
+msgstr "Total keringanan biaya yang diberikan kepada termin pembayaran ini: total Jumlah Direncanakan dari baris jadwal berstatus Terjadwal dan Terealisasi yang keringanannya Berjalan atau Selesai."
