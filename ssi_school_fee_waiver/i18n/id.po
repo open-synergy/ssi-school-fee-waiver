@@ -1,0 +1,1384 @@
+# Translation of Odoo Server.
+# This file contains the translation of the following modules:
+# 	* ssi_school_fee_waiver
+#
+msgid ""
+msgstr ""
+"Project-Id-Version: Odoo Server 14.0\n"
+"Report-Msgid-Bugs-To: \n"
+"PO-Revision-Date: 2026-11-03 00:00+0000\n"
+"Last-Translator: \n"
+"Language-Team: \n"
+"Language: id\n"
+"MIME-Version: 1.0\n"
+"Content-Type: text/plain; charset=UTF-8\n"
+"Content-Transfer-Encoding: 8bit\n"
+"Plural-Forms: nplurals=1; plural=0;\n"
+
+#. module: ssi_school_fee_waiver
+#: model:ir.model.fields,field_description:ssi_school_fee_waiver.field_school_fee_waiver__name
+msgid "# Document"
+msgstr "No. Dokumen"
+
+#. module: ssi_school_fee_waiver
+#: model:ir.model.fields,field_description:ssi_school_fee_waiver.field_school_fee_waiver__academic_year_id
+msgid "Academic Year"
+msgstr "Tahun Ajaran"
+
+#. module: ssi_school_fee_waiver
+#: model:ir.model.fields,help:ssi_school_fee_waiver.field_school_fee_waiver__academic_year_id
+msgid "Academic year of the selected billing source."
+msgstr "Tahun ajaran dari sumber penagihan terpilih."
+
+#. module: ssi_school_fee_waiver
+#: model:ir.model.fields,field_description:ssi_school_fee_waiver.field_school_fee_waiver__message_needaction
+#: model:ir.model.fields,field_description:ssi_school_fee_waiver.field_school_fee_waiver_reason__message_needaction
+#: model:ir.model.fields,field_description:ssi_school_fee_waiver.field_school_fee_waiver_type__message_needaction
+msgid "Action Needed"
+msgstr "Perlu Tindakan"
+
+#. module: ssi_school_fee_waiver
+#: model:ir.model.fields,field_description:ssi_school_fee_waiver.field_school_fee_waiver_reason__active
+#: model:ir.model.fields,field_description:ssi_school_fee_waiver.field_school_fee_waiver_type__active
+msgid "Active"
+msgstr "Aktif"
+
+#. module: ssi_school_fee_waiver
+#: model:ir.model.fields,field_description:ssi_school_fee_waiver.field_school_fee_waiver__active_approval_ids
+msgid "Active Approvals"
+msgstr "Persetujuan Aktif"
+
+#. module: ssi_school_fee_waiver
+#: model:ir.model.fields,field_description:ssi_school_fee_waiver.field_school_fee_waiver__active_approver_partner_ids
+msgid "Active Partners"
+msgstr "Mitra Aktif"
+
+#. module: ssi_school_fee_waiver
+#: model:ir.model.fields,field_description:ssi_school_fee_waiver.field_school_fee_waiver__active_approver_user_ids
+msgid "Active Users"
+msgstr "Pengguna Aktif"
+
+#. module: ssi_school_fee_waiver
+#: model:ir.model.fields,field_description:ssi_school_fee_waiver.field_school_fee_waiver__activity_ids
+#: model:ir.model.fields,field_description:ssi_school_fee_waiver.field_school_fee_waiver_reason__activity_ids
+#: model:ir.model.fields,field_description:ssi_school_fee_waiver.field_school_fee_waiver_type__activity_ids
+msgid "Activities"
+msgstr "Aktivitas"
+
+#. module: ssi_school_fee_waiver
+#: model:ir.model.fields,field_description:ssi_school_fee_waiver.field_school_fee_waiver__activity_exception_decoration
+#: model:ir.model.fields,field_description:ssi_school_fee_waiver.field_school_fee_waiver_reason__activity_exception_decoration
+#: model:ir.model.fields,field_description:ssi_school_fee_waiver.field_school_fee_waiver_type__activity_exception_decoration
+msgid "Activity Exception Decoration"
+msgstr "Dekorasi Pengecualian Aktivitas"
+
+#. module: ssi_school_fee_waiver
+#: model:ir.model.fields,field_description:ssi_school_fee_waiver.field_school_fee_waiver__activity_state
+#: model:ir.model.fields,field_description:ssi_school_fee_waiver.field_school_fee_waiver_reason__activity_state
+#: model:ir.model.fields,field_description:ssi_school_fee_waiver.field_school_fee_waiver_type__activity_state
+msgid "Activity State"
+msgstr "Status Aktivitas"
+
+#. module: ssi_school_fee_waiver
+#: model:ir.model.fields,field_description:ssi_school_fee_waiver.field_school_fee_waiver__activity_type_icon
+#: model:ir.model.fields,field_description:ssi_school_fee_waiver.field_school_fee_waiver_reason__activity_type_icon
+#: model:ir.model.fields,field_description:ssi_school_fee_waiver.field_school_fee_waiver_type__activity_type_icon
+msgid "Activity Type Icon"
+msgstr "Ikon Jenis Aktivitas"
+
+#. module: ssi_school_fee_waiver
+#: model:res.groups,name:ssi_school_fee_waiver.school_fee_waiver_all_group
+msgid "All"
+msgstr "Semua"
+
+#. module: ssi_school_fee_waiver
+#: model:ir.model.fields,field_description:ssi_school_fee_waiver.field_school_fee_waiver__allowed_policy_template_ids
+msgid "Allowed Policy Templates"
+msgstr "Templat Kebijakan yang Diizinkan"
+
+#. module: ssi_school_fee_waiver
+#: model:ir.model.fields,field_description:ssi_school_fee_waiver.field_school_fee_waiver_schedule__amount_planned
+msgid "Amount Planned"
+msgstr "Jumlah Direncanakan"
+
+#. module: ssi_school_fee_waiver
+#: model:ir.model.fields,field_description:ssi_school_fee_waiver.field_school_fee_waiver_schedule__amount_realized
+msgid "Amount Realized"
+msgstr "Jumlah Terealisasi"
+
+#. module: ssi_school_fee_waiver
+#: model:ir.model.fields,field_description:ssi_school_fee_waiver.field_school_fee_waiver__amount_waived
+msgid "Amount Waived"
+msgstr "Jumlah Diberi Keringanan"
+
+#. module: ssi_school_fee_waiver
+#: model:ir.model.fields,help:ssi_school_fee_waiver.field_school_fee_waiver_schedule__amount_realized
+msgid ""
+"Amount actually waived for this schedule line. Filled by the deduction "
+"document, a later module out of this item's scope; always zero until then."
+msgstr "Jumlah yang benar-benar diberi keringanan untuk baris jadwal ini. Diisi oleh dokumen pemotongan, modul lanjutan di luar lingkup item ini; selalu nol sampai saat itu."
+
+#. module: ssi_school_fee_waiver
+#: model:ir.model.fields,help:ssi_school_fee_waiver.field_school_fee_waiver_schedule__amount_planned
+msgid ""
+"Amount this schedule line plans to waive: the Line's Percentage of Base "
+"Amount, its Fixed Amount, or the full Base Amount, capped at the Line's Max "
+"Amount when that ceiling is above zero, and never above Base Amount."
+msgstr "Jumlah yang direncanakan baris jadwal ini untuk diberi keringanan: Persentase Baris dari Jumlah Dasar, Jumlah Tetapnya, atau seluruh Jumlah Dasar, dibatasi pada Jumlah Maksimum Baris bila batas itu di atas nol, dan tidak pernah melebihi Jumlah Dasar."
+
+#. module: ssi_school_fee_waiver
+#: model:ir.model.fields,help:ssi_school_fee_waiver.field_school_fee_waiver__approval_template_id
+msgid "Approval Configuration"
+msgstr "Konfigurasi Persetujuan"
+
+#. module: ssi_school_fee_waiver
+#: model:ir.model.fields,field_description:ssi_school_fee_waiver.field_school_fee_waiver__approval_template_id
+msgid "Approval Template"
+msgstr "Templat Persetujuan"
+
+#. module: ssi_school_fee_waiver
+#: model:ir.model.fields,field_description:ssi_school_fee_waiver.field_school_fee_waiver__approval_ids
+msgid "Approvals"
+msgstr "Persetujuan"
+
+#. module: ssi_school_fee_waiver
+#: model:ir.model.fields,help:ssi_school_fee_waiver.field_school_fee_waiver__approve_ok
+msgid ""
+"Approve policy\n"
+"\n"
+"* If active user can see and execute 'Approve' button"
+msgstr ""
+"Kebijakan persetujuan\n"
+"\n"
+"* Jika pengguna aktif dapat melihat dan menjalankan tombol 'Setujui'"
+
+#. module: ssi_school_fee_waiver
+#: model:ir.model.fields,field_description:ssi_school_fee_waiver.field_school_fee_waiver__approved
+msgid "Approved"
+msgstr "Disetujui"
+
+#. module: ssi_school_fee_waiver
+#: model:ir.model.fields,field_description:ssi_school_fee_waiver.field_school_fee_waiver__message_attachment_count
+#: model:ir.model.fields,field_description:ssi_school_fee_waiver.field_school_fee_waiver_reason__message_attachment_count
+#: model:ir.model.fields,field_description:ssi_school_fee_waiver.field_school_fee_waiver_type__message_attachment_count
+msgid "Attachment Count"
+msgstr "Jumlah Lampiran"
+
+#. module: ssi_school_fee_waiver
+#: model:ir.model.fields,field_description:ssi_school_fee_waiver.field_school_fee_waiver_schedule__base_amount
+msgid "Base Amount"
+msgstr "Jumlah Dasar"
+
+#. module: ssi_school_fee_waiver
+#: model:ir.model.fields,field_description:ssi_school_fee_waiver.field_school_fee_waiver__source_type
+msgid "Billing Source"
+msgstr "Sumber Penagihan"
+
+#. module: ssi_school_fee_waiver
+#: model:ir.model.fields,help:ssi_school_fee_waiver.field_school_fee_waiver_schedule__base_amount
+msgid ""
+"Billing amount this schedule line's Computation is applied to: the sum of "
+"the linked payment term's detail lines matching the Line's Product, or its "
+"Product Category when the Line targets one. Detail lines marked Voided are "
+"always excluded. Zero when no payment term is linked."
+msgstr "Jumlah tagihan yang menjadi sasaran Perhitungan baris jadwal ini: total baris detail termin pembayaran tertaut yang cocok dengan Produk pada Baris, atau Kategori Produknya bila Baris menyasar kategori. Baris detail yang ditandai Dibatalkan selalu dikecualikan. Nol bila tidak ada termin pembayaran yang tertaut."
+
+#. module: ssi_school_fee_waiver
+#: model:ir.model.fields,help:ssi_school_fee_waiver.field_school_fee_waiver__line_ids
+msgid ""
+"Billing components covered by this waiver, and how much of each is waived. "
+"At least one line is expected before this waiver is confirmed."
+msgstr "Komponen tagihan yang dicakup keringanan ini, dan berapa banyak yang diberi keringanan dari masing-masing. Setidaknya satu baris diharapkan ada sebelum keringanan ini dikonfirmasi."
+
+#. module: ssi_school_fee_waiver
+#: model:ir.model.fields,help:ssi_school_fee_waiver.field_school_fee_waiver__source_type
+msgid ""
+"Billing source this waiver is billed against. This module only registers "
+"Enrollment -- extension modules add further values with ``selection_add`` "
+"and override the ``_get_source_*`` hooks to match."
+msgstr "Sumber penagihan yang menjadi dasar penagihan keringanan ini. Modul ini hanya mendaftarkan Pendaftaran -- modul ekstensi menambahkan nilai lain dengan ``selection_add`` dan menimpa hook ``_get_source_*`` agar sesuai."
+
+#. module: ssi_school_fee_waiver
+#: model:ir.model.fields,field_description:ssi_school_fee_waiver.field_school_fee_waiver__approve_ok
+msgid "Can Approve"
+msgstr "Dapat Menyetujui"
+
+#. module: ssi_school_fee_waiver
+#: model:ir.model.fields,field_description:ssi_school_fee_waiver.field_school_fee_waiver__cancel_ok
+msgid "Can Cancel"
+msgstr "Dapat Membatalkan"
+
+#. module: ssi_school_fee_waiver
+#: model:ir.model.fields,field_description:ssi_school_fee_waiver.field_school_fee_waiver__confirm_ok
+msgid "Can Confirm"
+msgstr "Dapat Mengonfirmasi"
+
+#. module: ssi_school_fee_waiver
+#: model:ir.model.fields,field_description:ssi_school_fee_waiver.field_school_fee_waiver__done_ok
+msgid "Can Finished"
+msgstr "Dapat Diselesaikan"
+
+#. module: ssi_school_fee_waiver
+#: model:ir.model.fields,field_description:ssi_school_fee_waiver.field_school_fee_waiver__generate_schedule_ok
+msgid "Can Generate Schedule"
+msgstr "Dapat Membuat Jadwal"
+
+#. module: ssi_school_fee_waiver
+#: model:ir.model.fields,field_description:ssi_school_fee_waiver.field_school_fee_waiver__manual_number_ok
+msgid "Can Input Manual Document Number"
+msgstr "Dapat Memasukkan Nomor Dokumen Manual"
+
+#. module: ssi_school_fee_waiver
+#: model:ir.model.fields,field_description:ssi_school_fee_waiver.field_school_fee_waiver__reject_ok
+msgid "Can Reject"
+msgstr "Dapat Menolak"
+
+#. module: ssi_school_fee_waiver
+#: model:ir.model.fields,field_description:ssi_school_fee_waiver.field_school_fee_waiver__restart_ok
+msgid "Can Restart"
+msgstr "Dapat Memulai Ulang"
+
+#. module: ssi_school_fee_waiver
+#: model:ir.model.fields,field_description:ssi_school_fee_waiver.field_school_fee_waiver__restart_approval_ok
+msgid "Can Restart Approval"
+msgstr "Dapat Memulai Ulang Persetujuan"
+
+#. module: ssi_school_fee_waiver
+#: model:ir.model.fields,field_description:ssi_school_fee_waiver.field_school_fee_waiver__open_ok
+msgid "Can Start"
+msgstr "Dapat Memulai"
+
+#. module: ssi_school_fee_waiver
+#: model_terms:ir.ui.view,arch_db:ssi_school_fee_waiver.school_fee_waiver_view_form
+msgid "Cancel"
+msgstr "Batal"
+
+#. module: ssi_school_fee_waiver
+#: model:ir.model.fields,field_description:ssi_school_fee_waiver.field_school_fee_waiver__cancel_reason_id
+msgid "Cancel Reason"
+msgstr "Alasan Pembatalan"
+
+#. module: ssi_school_fee_waiver
+#: model:ir.model.fields,help:ssi_school_fee_waiver.field_school_fee_waiver__cancel_ok
+msgid ""
+"Cancel policy\n"
+"\n"
+"* If active user can see and execute 'Cancel' button"
+msgstr ""
+"Kebijakan pembatalan\n"
+"\n"
+"* Jika pengguna aktif dapat melihat dan menjalankan tombol 'Batal'"
+
+#. module: ssi_school_fee_waiver
+#: model:ir.model.fields.selection,name:ssi_school_fee_waiver.selection__school_fee_waiver_schedule__state__cancelled
+msgid "Cancelled"
+msgstr "Dibatalkan"
+
+#. module: ssi_school_fee_waiver
+#: model:ir.model.fields,help:ssi_school_fee_waiver.field_school_fee_waiver_line__max_amount
+msgid ""
+"Ceiling this line may waive in a single term. Zero means there is no "
+"ceiling."
+msgstr "Batas maksimum yang boleh diberi keringanan baris ini dalam satu termin. Nol berarti tidak ada batas."
+
+#. module: ssi_school_fee_waiver
+#: model:ir.model.fields,field_description:ssi_school_fee_waiver.field_school_fee_waiver_reason__code
+#: model:ir.model.fields,field_description:ssi_school_fee_waiver.field_school_fee_waiver_type__code
+msgid "Code"
+msgstr "Kode"
+
+#. module: ssi_school_fee_waiver
+#: model:ir.model.fields,field_description:ssi_school_fee_waiver.field_school_fee_waiver__company_id
+#: model:res.groups,name:ssi_school_fee_waiver.school_fee_waiver_company_group
+msgid "Company"
+msgstr "Perusahaan"
+
+#. module: ssi_school_fee_waiver
+#: model:ir.model.fields,field_description:ssi_school_fee_waiver.field_school_fee_waiver__company_currency_id
+msgid "Company Currency"
+msgstr "Mata Uang Perusahaan"
+
+#. module: ssi_school_fee_waiver
+#: model:ir.model.fields,field_description:ssi_school_fee_waiver.field_school_fee_waiver__company_partner_id
+msgid "Company Partner"
+msgstr "Mitra Perusahaan"
+
+#. module: ssi_school_fee_waiver
+#: model:res.groups,name:ssi_school_fee_waiver.school_fee_waiver_company_child_group
+msgid "Company and All Child Companies"
+msgstr "Perusahaan dan Semua Perusahaan Anak"
+
+#. module: ssi_school_fee_waiver
+#: model:ir.model.fields,help:ssi_school_fee_waiver.field_school_fee_waiver__company_id
+msgid ""
+"Company that own the document\n"
+"\n"
+"* Automatically filled with user's company.\n"
+"  Default company can be changed"
+msgstr ""
+"Perusahaan pemilik dokumen\n"
+"\n"
+"* Otomatis diisi dengan perusahaan pengguna.\n"
+"  Perusahaan bawaan dapat diubah"
+
+#. module: ssi_school_fee_waiver
+#: model:ir.model.fields,field_description:ssi_school_fee_waiver.field_school_fee_waiver_line__computation
+msgid "Computation"
+msgstr "Perhitungan"
+
+#. module: ssi_school_fee_waiver
+#: model:ir.model.fields,help:ssi_school_fee_waiver.field_school_fee_waiver__confirm_ok
+msgid ""
+"Confirm policy\n"
+"\n"
+"* If active user can see and execute 'Confirm' button"
+msgstr ""
+"Kebijakan konfirmasi\n"
+"\n"
+"* Jika pengguna aktif dapat melihat dan menjalankan tombol 'Konfirmasi'"
+
+#. module: ssi_school_fee_waiver
+#: model:ir.model.fields,help:ssi_school_fee_waiver.field_school_fee_waiver__partner_id
+msgid "Contact partner of this waiver's billing source."
+msgstr "Mitra kontak dari sumber penagihan keringanan ini."
+
+#. module: ssi_school_fee_waiver
+#: model:ir.model.fields,field_description:ssi_school_fee_waiver.field_school_fee_waiver__coverage
+msgid "Coverage"
+msgstr "Cakupan"
+
+#. module: ssi_school_fee_waiver
+#: model:ir.model.fields,field_description:ssi_school_fee_waiver.field_school_fee_waiver__create_uid
+#: model:ir.model.fields,field_description:ssi_school_fee_waiver.field_school_fee_waiver_line__create_uid
+#: model:ir.model.fields,field_description:ssi_school_fee_waiver.field_school_fee_waiver_reason__create_uid
+#: model:ir.model.fields,field_description:ssi_school_fee_waiver.field_school_fee_waiver_schedule__create_uid
+#: model:ir.model.fields,field_description:ssi_school_fee_waiver.field_school_fee_waiver_type__create_uid
+msgid "Created by"
+msgstr "Dibuat oleh"
+
+#. module: ssi_school_fee_waiver
+#: model:ir.model.fields,field_description:ssi_school_fee_waiver.field_school_fee_waiver__create_date
+#: model:ir.model.fields,field_description:ssi_school_fee_waiver.field_school_fee_waiver_line__create_date
+#: model:ir.model.fields,field_description:ssi_school_fee_waiver.field_school_fee_waiver_reason__create_date
+#: model:ir.model.fields,field_description:ssi_school_fee_waiver.field_school_fee_waiver_schedule__create_date
+#: model:ir.model.fields,field_description:ssi_school_fee_waiver.field_school_fee_waiver_type__create_date
+msgid "Created on"
+msgstr "Dibuat pada"
+
+#. module: ssi_school_fee_waiver
+#: model:ir.model.fields,field_description:ssi_school_fee_waiver.field_school_fee_waiver_line__currency_id
+#: model:ir.model.fields,field_description:ssi_school_fee_waiver.field_school_fee_waiver_schedule__currency_id
+msgid "Currency"
+msgstr "Mata Uang"
+
+#. module: ssi_school_fee_waiver
+#: model:ir.model.fields,help:ssi_school_fee_waiver.field_school_fee_waiver_line__currency_id
+msgid ""
+"Currency Fixed Amount and Max Amount are expressed in, following the "
+"waiver's Company Currency."
+msgstr "Mata uang yang dipakai Jumlah Tetap dan Jumlah Maksimum, mengikuti Mata Uang Perusahaan milik keringanan."
+
+#. module: ssi_school_fee_waiver
+#: model:ir.model.fields,help:ssi_school_fee_waiver.field_school_fee_waiver_schedule__currency_id
+msgid ""
+"Currency the Base Amount, Amount Planned, and Amount Realized fields are "
+"expressed in, following the waiver's Company Currency."
+msgstr "Mata uang yang dipakai field Jumlah Dasar, Jumlah Direncanakan, dan Jumlah Terealisasi, mengikuti Mata Uang Perusahaan milik keringanan."
+
+#. module: ssi_school_fee_waiver
+#: model:ir.model.fields,field_description:ssi_school_fee_waiver.field_school_fee_waiver__date
+#: model:ir.model.fields,field_description:ssi_school_fee_waiver.field_school_fee_waiver_schedule__date
+msgid "Date"
+msgstr "Tanggal"
+
+#. module: ssi_school_fee_waiver
+#: model:ir.model.fields,help:ssi_school_fee_waiver.field_school_fee_waiver_schedule__date
+msgid ""
+"Date this waiver is due to take effect: the linked payment term's Estimated "
+"Due Date."
+msgstr "Tanggal keringanan ini dijadwalkan berlaku: Perkiraan Tanggal Jatuh Tempo dari termin pembayaran tertaut."
+
+#. module: ssi_school_fee_waiver
+#: model:ir.model.fields,field_description:ssi_school_fee_waiver.field_school_enrollment__display_name
+#: model:ir.model.fields,field_description:ssi_school_fee_waiver.field_school_enrollment_payment_term__display_name
+#: model:ir.model.fields,field_description:ssi_school_fee_waiver.field_school_fee_waiver__display_name
+#: model:ir.model.fields,field_description:ssi_school_fee_waiver.field_school_fee_waiver_line__display_name
+#: model:ir.model.fields,field_description:ssi_school_fee_waiver.field_school_fee_waiver_reason__display_name
+#: model:ir.model.fields,field_description:ssi_school_fee_waiver.field_school_fee_waiver_schedule__display_name
+#: model:ir.model.fields,field_description:ssi_school_fee_waiver.field_school_fee_waiver_type__display_name
+msgid "Display Name"
+msgstr "Nama Tampilan"
+
+#. module: ssi_school_fee_waiver
+#: model:ir.model.fields,help:ssi_school_fee_waiver.field_school_fee_waiver_reason__sequence
+msgid ""
+"Display order of the fee waiver reason. Lower values appear first in the "
+"list."
+msgstr "Urutan tampilan alasan keringanan biaya. Nilai lebih kecil muncul lebih dulu dalam daftar."
+
+#. module: ssi_school_fee_waiver
+#: model:ir.model.fields,help:ssi_school_fee_waiver.field_school_fee_waiver_type__sequence
+msgid ""
+"Display order of the fee waiver type. Lower values appear first in the list."
+msgstr "Urutan tampilan jenis keringanan biaya. Nilai lebih kecil muncul lebih dulu dalam daftar."
+
+#. module: ssi_school_fee_waiver
+#: model:ir.model.fields,help:ssi_school_fee_waiver.field_school_fee_waiver__done_ok
+msgid ""
+"Done policy\n"
+"\n"
+"* If active user can see and execute 'Done' button"
+msgstr ""
+"Kebijakan selesai\n"
+"\n"
+"* Jika pengguna aktif dapat melihat dan menjalankan tombol 'Selesai'"
+
+#. module: ssi_school_fee_waiver
+#: model:ir.model.fields.selection,name:ssi_school_fee_waiver.selection__school_fee_waiver_schedule__state__draft
+msgid "Draft"
+msgstr "Draf"
+
+#. module: ssi_school_fee_waiver
+#: model:ir.model.fields,help:ssi_school_fee_waiver.field_school_enrollment__amount_fee_waiver
+msgid ""
+"Effective fee waiver of this enrollment: Fee Waiver Deducted plus Fee Waiver"
+" Not Yet Deducted. The unrealized remainder of a partially deducted schedule"
+" is not counted, because it is billed to the student, so this amount can be "
+"lower than the sum of Fee Waiver Amount of the payment terms."
+msgstr "Keringanan biaya efektif dari pendaftaran ini: Keringanan Biaya Terpotong ditambah Keringanan Biaya Belum Terpotong. Sisa jadwal yang terpotong sebagian dan belum terealisasi tidak dihitung, karena ditagihkan kepada siswa, sehingga jumlah ini bisa lebih rendah daripada total Jumlah Keringanan Biaya pada termin pembayaran."
+
+#. module: ssi_school_fee_waiver
+#: model:ir.model.fields,field_description:ssi_school_fee_waiver.field_school_fee_waiver__date_end
+msgid "End Date"
+msgstr "Tanggal Berakhir"
+
+#. module: ssi_school_fee_waiver
+#: model:ir.model.fields,field_description:ssi_school_fee_waiver.field_school_fee_waiver__enrollment_id
+#: model:ir.model.fields.selection,name:ssi_school_fee_waiver.selection__school_fee_waiver__source_type__enrollment
+msgid "Enrollment"
+msgstr "Pendaftaran"
+
+#. module: ssi_school_fee_waiver
+#: model:ir.model.fields,help:ssi_school_fee_waiver.field_school_fee_waiver__enrollment_id
+msgid ""
+"Enrollment this waiver is billed against. Must belong to the selected "
+"Student. Required when Billing Source is Enrollment -- enforced by "
+"``_check_billing_source``, not by this field itself, so an extension "
+"module's own billing source is not forced to also be a required field."
+msgstr "Pendaftaran yang menjadi dasar penagihan keringanan ini. Harus milik Siswa terpilih. Wajib diisi bila Sumber Penagihan adalah Pendaftaran -- ditegakkan oleh ``_check_billing_source``, bukan oleh field ini sendiri, sehingga sumber penagihan milik modul ekstensi tidak ikut dipaksa menjadi field wajib."
+
+#. module: ssi_school_fee_waiver
+#: model:ir.ui.menu,name:ssi_school_fee_waiver.menu_school_fee_waiver
+#: model:ir.ui.menu,name:ssi_school_fee_waiver.menu_school_fee_waiver_configuration
+#: model_terms:ir.ui.view,arch_db:ssi_school_fee_waiver.school_enrollment_payment_term_view_form
+#: model_terms:ir.ui.view,arch_db:ssi_school_fee_waiver.school_enrollment_payment_term_view_form_embedded
+#: model_terms:ir.ui.view,arch_db:ssi_school_fee_waiver.school_enrollment_view_form
+msgid "Fee Waiver"
+msgstr "Keringanan Biaya"
+
+#. module: ssi_school_fee_waiver
+#: model:ir.model.fields,field_description:ssi_school_fee_waiver.field_school_enrollment__amount_fee_waiver
+#: model:ir.model.fields,field_description:ssi_school_fee_waiver.field_school_enrollment_payment_term__fee_waiver_amount
+msgid "Fee Waiver Amount"
+msgstr "Jumlah Keringanan Biaya"
+
+#. module: ssi_school_fee_waiver
+#: model:ir.model.fields,field_description:ssi_school_fee_waiver.field_school_enrollment__amount_fee_waiver_deducted
+#: model:ir.model.fields,field_description:ssi_school_fee_waiver.field_school_enrollment_payment_term__fee_waiver_amount_deducted
+msgid "Fee Waiver Deducted"
+msgstr "Keringanan Biaya Terpotong"
+
+#. module: ssi_school_fee_waiver
+#: model:ir.model.fields,field_description:ssi_school_fee_waiver.field_school_enrollment_payment_term__fee_waiver_amount_deducted_planned
+msgid "Fee Waiver Deducted (Planned)"
+msgstr "Keringanan Biaya Terpotong (Rencana)"
+
+#. module: ssi_school_fee_waiver
+#: model:ir.model.fields,field_description:ssi_school_fee_waiver.field_school_enrollment__amount_fee_waiver_undeducted
+#: model:ir.model.fields,field_description:ssi_school_fee_waiver.field_school_enrollment_payment_term__fee_waiver_amount_undeducted
+msgid "Fee Waiver Not Yet Deducted"
+msgstr "Keringanan Biaya Belum Terpotong"
+
+#. module: ssi_school_fee_waiver
+#: model:res.groups,name:ssi_school_fee_waiver.school_fee_waiver_reason_group
+msgid "Fee Waiver Reason"
+msgstr "Alasan Keringanan Biaya"
+
+#. module: ssi_school_fee_waiver
+#: model:ir.actions.act_window,name:ssi_school_fee_waiver.school_fee_waiver_reason_action
+#: model:ir.ui.menu,name:ssi_school_fee_waiver.school_fee_waiver_reason_menu
+msgid "Fee Waiver Reasons"
+msgstr "Alasan Keringanan Biaya"
+
+#. module: ssi_school_fee_waiver
+#: model:ir.model.fields,field_description:ssi_school_fee_waiver.field_school_enrollment_payment_term__fee_waiver_schedule_ids
+msgid "Fee Waiver Schedules"
+msgstr "Jadwal Keringanan Biaya"
+
+#. module: ssi_school_fee_waiver
+#: model:res.groups,name:ssi_school_fee_waiver.school_fee_waiver_type_group
+msgid "Fee Waiver Type"
+msgstr "Jenis Keringanan Biaya"
+
+#. module: ssi_school_fee_waiver
+#: model:ir.actions.act_window,name:ssi_school_fee_waiver.school_fee_waiver_type_action
+#: model:ir.ui.menu,name:ssi_school_fee_waiver.school_fee_waiver_type_menu
+msgid "Fee Waiver Types"
+msgstr "Jenis Keringanan Biaya"
+
+#. module: ssi_school_fee_waiver
+#: model:ir.actions.act_window,name:ssi_school_fee_waiver.school_fee_waiver_action
+#: model:ir.ui.menu,name:ssi_school_fee_waiver.school_fee_waiver_menu
+msgid "Fee Waivers"
+msgstr "Keringanan Biaya"
+
+#. module: ssi_school_fee_waiver
+#: model:ir.model.fields,help:ssi_school_fee_waiver.field_school_enrollment__amount_fee_waiver_deducted
+msgid ""
+"Fee waiver already deducted from the invoices: the sum of Fee Waiver "
+"Deducted of the counted payment terms."
+msgstr "Keringanan biaya yang sudah dipotong dari faktur: total Keringanan Biaya Terpotong dari termin pembayaran yang dihitung."
+
+#. module: ssi_school_fee_waiver
+#: model:ir.model.fields,help:ssi_school_fee_waiver.field_school_enrollment_payment_term__fee_waiver_amount_deducted
+msgid ""
+"Fee waiver already deducted: the sum of Amount Realized of Realized schedule"
+" lines."
+msgstr "Keringanan biaya yang sudah dipotong: total Jumlah Terealisasi dari baris jadwal berstatus Terealisasi."
+
+#. module: ssi_school_fee_waiver
+#: model:ir.model.fields,help:ssi_school_fee_waiver.field_school_fee_waiver_schedule__waiver_id
+msgid ""
+"Fee waiver of the linked Line, kept as a stored column so this model's own "
+"domains and record rules do not have to traverse through Line."
+msgstr "Keringanan biaya dari Baris tertaut, disimpan sebagai kolom tersimpan agar domain dan aturan record model ini tidak perlu menelusuri melalui Baris."
+
+#. module: ssi_school_fee_waiver
+#: model:ir.model.fields,help:ssi_school_fee_waiver.field_school_enrollment_payment_term__fee_waiver_schedule_ids
+msgid "Fee waiver schedule lines that target this payment term."
+msgstr "Baris jadwal keringanan biaya yang menyasar termin pembayaran ini."
+
+#. module: ssi_school_fee_waiver
+#: model:ir.model.fields,help:ssi_school_fee_waiver.field_school_enrollment_payment_term__fee_waiver_amount_undeducted
+msgid ""
+"Fee waiver still waiting for deduction: the sum of Amount Planned of "
+"Scheduled schedule lines whose waiver is Running or Finished."
+msgstr "Keringanan biaya yang masih menunggu pemotongan: total Jumlah Direncanakan dari baris jadwal berstatus Terjadwal yang keringanannya Berjalan atau Selesai."
+
+#. module: ssi_school_fee_waiver
+#: model:ir.model.fields,help:ssi_school_fee_waiver.field_school_enrollment__amount_fee_waiver_undeducted
+msgid ""
+"Fee waiver still waiting for deduction: the sum of Fee Waiver Not Yet "
+"Deducted of the counted payment terms."
+msgstr "Keringanan biaya yang masih menunggu pemotongan: total Keringanan Biaya Belum Terpotong dari termin pembayaran yang dihitung."
+
+#. module: ssi_school_fee_waiver
+#: model:ir.model.fields,help:ssi_school_fee_waiver.field_school_fee_waiver_line__waiver_id
+msgid "Fee waiver this line belongs to."
+msgstr "Keringanan biaya tempat baris ini berada."
+
+#. module: ssi_school_fee_waiver
+#: model:ir.model.fields,help:ssi_school_fee_waiver.field_school_fee_waiver__date_start
+msgid ""
+"First date a payment term must fall on or after to be covered, when Coverage"
+" is Multiple Payment Terms. Empty means no lower bound."
+msgstr "Tanggal paling awal yang harus dijangkau sebuah termin pembayaran agar tercakup, bila Cakupan adalah Beberapa Termin Pembayaran. Kosong berarti tanpa batas bawah."
+
+#. module: ssi_school_fee_waiver
+#: model:ir.model.fields,field_description:ssi_school_fee_waiver.field_school_fee_waiver_line__amount_fixed
+#: model:ir.model.fields.selection,name:ssi_school_fee_waiver.selection__school_fee_waiver_line__computation__fixed
+msgid "Fixed Amount"
+msgstr "Jumlah Tetap"
+
+#. module: ssi_school_fee_waiver
+#: model:ir.model.fields,help:ssi_school_fee_waiver.field_school_fee_waiver_line__amount_fixed
+msgid ""
+"Fixed amount waived by this line. Only relevant when Computation is Fixed "
+"Amount."
+msgstr "Jumlah tetap yang diberi keringanan oleh baris ini. Hanya relevan bila Perhitungan adalah Jumlah Tetap."
+
+#. module: ssi_school_fee_waiver
+#: model:ir.model.fields,field_description:ssi_school_fee_waiver.field_school_fee_waiver__message_follower_ids
+#: model:ir.model.fields,field_description:ssi_school_fee_waiver.field_school_fee_waiver_reason__message_follower_ids
+#: model:ir.model.fields,field_description:ssi_school_fee_waiver.field_school_fee_waiver_type__message_follower_ids
+msgid "Followers"
+msgstr "Pengikut"
+
+#. module: ssi_school_fee_waiver
+#: model:ir.model.fields,field_description:ssi_school_fee_waiver.field_school_fee_waiver__message_channel_ids
+#: model:ir.model.fields,field_description:ssi_school_fee_waiver.field_school_fee_waiver_reason__message_channel_ids
+#: model:ir.model.fields,field_description:ssi_school_fee_waiver.field_school_fee_waiver_type__message_channel_ids
+msgid "Followers (Channels)"
+msgstr "Pengikut (Saluran)"
+
+#. module: ssi_school_fee_waiver
+#: model:ir.model.fields,field_description:ssi_school_fee_waiver.field_school_fee_waiver__message_partner_ids
+#: model:ir.model.fields,field_description:ssi_school_fee_waiver.field_school_fee_waiver_reason__message_partner_ids
+#: model:ir.model.fields,field_description:ssi_school_fee_waiver.field_school_fee_waiver_type__message_partner_ids
+msgid "Followers (Partners)"
+msgstr "Pengikut (Mitra)"
+
+#. module: ssi_school_fee_waiver
+#: model:ir.model.fields,help:ssi_school_fee_waiver.field_school_fee_waiver__activity_type_icon
+#: model:ir.model.fields,help:ssi_school_fee_waiver.field_school_fee_waiver_reason__activity_type_icon
+#: model:ir.model.fields,help:ssi_school_fee_waiver.field_school_fee_waiver_type__activity_type_icon
+msgid "Font awesome icon e.g. fa-tasks"
+msgstr "Ikon Font Awesome, mis. fa-tasks"
+
+#. module: ssi_school_fee_waiver
+#: model:ir.model.fields,help:ssi_school_fee_waiver.field_school_fee_waiver__note
+msgid "Free-form note about this fee waiver."
+msgstr "Catatan bebas tentang keringanan biaya ini."
+
+#. module: ssi_school_fee_waiver
+#: model:ir.model.fields,help:ssi_school_fee_waiver.field_school_fee_waiver_schedule__note
+msgid "Free-form note about this schedule line."
+msgstr "Catatan bebas tentang baris jadwal ini."
+
+#. module: ssi_school_fee_waiver
+#: model:ir.model.fields.selection,name:ssi_school_fee_waiver.selection__school_fee_waiver_line__computation__full
+msgid "Full Coverage"
+msgstr "Cakupan Penuh"
+
+#. module: ssi_school_fee_waiver
+#: model_terms:ir.ui.view,arch_db:ssi_school_fee_waiver.school_fee_waiver_view_form
+msgid "Generate Schedule"
+msgstr "Buat Jadwal"
+
+#. module: ssi_school_fee_waiver
+#: model:ir.model.fields,field_description:ssi_school_fee_waiver.field_school_fee_waiver__grade_id
+msgid "Grade"
+msgstr "Tingkat"
+
+#. module: ssi_school_fee_waiver
+#: model:ir.model.fields,help:ssi_school_fee_waiver.field_school_fee_waiver__grade_id
+msgid "Grade of the selected billing source."
+msgstr "Tingkat dari sumber penagihan terpilih."
+
+#. module: ssi_school_fee_waiver
+#: model_terms:ir.ui.view,arch_db:ssi_school_fee_waiver.school_fee_waiver_view_search
+msgid "Group By"
+msgstr "Kelompokkan Berdasarkan"
+
+#. module: ssi_school_fee_waiver
+#: model:ir.model.fields,help:ssi_school_fee_waiver.field_school_fee_waiver_line__computation
+msgid ""
+"How the waived amount is computed: a percentage of the billed amount, a "
+"fixed amount, or full coverage."
+msgstr "Cara jumlah keringanan dihitung: persentase dari jumlah tagihan, jumlah tetap, atau cakupan penuh."
+
+#. module: ssi_school_fee_waiver
+#: model:ir.model.fields,field_description:ssi_school_fee_waiver.field_school_enrollment__id
+#: model:ir.model.fields,field_description:ssi_school_fee_waiver.field_school_enrollment_payment_term__id
+#: model:ir.model.fields,field_description:ssi_school_fee_waiver.field_school_fee_waiver__id
+#: model:ir.model.fields,field_description:ssi_school_fee_waiver.field_school_fee_waiver_line__id
+#: model:ir.model.fields,field_description:ssi_school_fee_waiver.field_school_fee_waiver_reason__id
+#: model:ir.model.fields,field_description:ssi_school_fee_waiver.field_school_fee_waiver_schedule__id
+#: model:ir.model.fields,field_description:ssi_school_fee_waiver.field_school_fee_waiver_type__id
+msgid "ID"
+msgstr "ID"
+
+#. module: ssi_school_fee_waiver
+#: model:ir.model.fields,field_description:ssi_school_fee_waiver.field_school_fee_waiver__activity_exception_icon
+#: model:ir.model.fields,field_description:ssi_school_fee_waiver.field_school_fee_waiver_reason__activity_exception_icon
+#: model:ir.model.fields,field_description:ssi_school_fee_waiver.field_school_fee_waiver_type__activity_exception_icon
+msgid "Icon"
+msgstr "Ikon"
+
+#. module: ssi_school_fee_waiver
+#: model:ir.model.fields,help:ssi_school_fee_waiver.field_school_fee_waiver__activity_exception_icon
+#: model:ir.model.fields,help:ssi_school_fee_waiver.field_school_fee_waiver_reason__activity_exception_icon
+#: model:ir.model.fields,help:ssi_school_fee_waiver.field_school_fee_waiver_type__activity_exception_icon
+msgid "Icon to indicate an exception activity."
+msgstr "Ikon untuk menandai aktivitas pengecualian."
+
+#. module: ssi_school_fee_waiver
+#: model:ir.model.fields,help:ssi_school_fee_waiver.field_school_fee_waiver__message_needaction
+#: model:ir.model.fields,help:ssi_school_fee_waiver.field_school_fee_waiver__message_unread
+#: model:ir.model.fields,help:ssi_school_fee_waiver.field_school_fee_waiver_reason__message_needaction
+#: model:ir.model.fields,help:ssi_school_fee_waiver.field_school_fee_waiver_reason__message_unread
+#: model:ir.model.fields,help:ssi_school_fee_waiver.field_school_fee_waiver_type__message_needaction
+#: model:ir.model.fields,help:ssi_school_fee_waiver.field_school_fee_waiver_type__message_unread
+msgid "If checked, new messages require your attention."
+msgstr "Jika dicentang, pesan baru memerlukan perhatian Anda."
+
+#. module: ssi_school_fee_waiver
+#: model:ir.model.fields,help:ssi_school_fee_waiver.field_school_fee_waiver__message_has_error
+#: model:ir.model.fields,help:ssi_school_fee_waiver.field_school_fee_waiver_reason__message_has_error
+#: model:ir.model.fields,help:ssi_school_fee_waiver.field_school_fee_waiver_type__message_has_error
+msgid "If checked, some messages have a delivery error."
+msgstr "Jika dicentang, beberapa pesan mengalami kesalahan pengiriman."
+
+#. module: ssi_school_fee_waiver
+#: model:ir.model.fields,field_description:ssi_school_fee_waiver.field_school_fee_waiver__message_is_follower
+#: model:ir.model.fields,field_description:ssi_school_fee_waiver.field_school_fee_waiver_reason__message_is_follower
+#: model:ir.model.fields,field_description:ssi_school_fee_waiver.field_school_fee_waiver_type__message_is_follower
+msgid "Is Follower"
+msgstr "Adalah Pengikut"
+
+#. module: ssi_school_fee_waiver
+#: model:ir.model.fields,field_description:ssi_school_fee_waiver.field_school_enrollment____last_update
+#: model:ir.model.fields,field_description:ssi_school_fee_waiver.field_school_enrollment_payment_term____last_update
+#: model:ir.model.fields,field_description:ssi_school_fee_waiver.field_school_fee_waiver____last_update
+#: model:ir.model.fields,field_description:ssi_school_fee_waiver.field_school_fee_waiver_line____last_update
+#: model:ir.model.fields,field_description:ssi_school_fee_waiver.field_school_fee_waiver_reason____last_update
+#: model:ir.model.fields,field_description:ssi_school_fee_waiver.field_school_fee_waiver_schedule____last_update
+#: model:ir.model.fields,field_description:ssi_school_fee_waiver.field_school_fee_waiver_type____last_update
+msgid "Last Modified on"
+msgstr "Terakhir Diubah pada"
+
+#. module: ssi_school_fee_waiver
+#: model:ir.model.fields,field_description:ssi_school_fee_waiver.field_school_fee_waiver__write_uid
+#: model:ir.model.fields,field_description:ssi_school_fee_waiver.field_school_fee_waiver_line__write_uid
+#: model:ir.model.fields,field_description:ssi_school_fee_waiver.field_school_fee_waiver_reason__write_uid
+#: model:ir.model.fields,field_description:ssi_school_fee_waiver.field_school_fee_waiver_schedule__write_uid
+#: model:ir.model.fields,field_description:ssi_school_fee_waiver.field_school_fee_waiver_type__write_uid
+msgid "Last Updated by"
+msgstr "Terakhir Diperbarui oleh"
+
+#. module: ssi_school_fee_waiver
+#: model:ir.model.fields,field_description:ssi_school_fee_waiver.field_school_fee_waiver__write_date
+#: model:ir.model.fields,field_description:ssi_school_fee_waiver.field_school_fee_waiver_line__write_date
+#: model:ir.model.fields,field_description:ssi_school_fee_waiver.field_school_fee_waiver_reason__write_date
+#: model:ir.model.fields,field_description:ssi_school_fee_waiver.field_school_fee_waiver_schedule__write_date
+#: model:ir.model.fields,field_description:ssi_school_fee_waiver.field_school_fee_waiver_type__write_date
+msgid "Last Updated on"
+msgstr "Terakhir Diperbarui pada"
+
+#. module: ssi_school_fee_waiver
+#: model:ir.model.fields,help:ssi_school_fee_waiver.field_school_fee_waiver__date_end
+msgid ""
+"Last date a payment term must fall on or before to be covered, when Coverage"
+" is Multiple Payment Terms. Empty means no upper bound."
+msgstr "Tanggal paling akhir yang tidak boleh dilampaui sebuah termin pembayaran agar tercakup, bila Cakupan adalah Beberapa Termin Pembayaran. Kosong berarti tanpa batas atas."
+
+#. module: ssi_school_fee_waiver
+#: model:ir.model.fields,help:ssi_school_fee_waiver.field_school_fee_waiver_schedule__state
+msgid ""
+"Lifecycle of this schedule line. Deliberately a plain stored field, not "
+"computed: moving a line to Skipped is a human decision the system cannot "
+"infer on its own."
+msgstr "Siklus hidup baris jadwal ini. Sengaja dibuat sebagai field tersimpan biasa, bukan hasil perhitungan: memindahkan baris ke Dilewati adalah keputusan manusia yang tidak dapat disimpulkan sistem sendiri."
+
+#. module: ssi_school_fee_waiver
+#: model:ir.model.fields,field_description:ssi_school_fee_waiver.field_school_fee_waiver_schedule__line_id
+msgid "Line"
+msgstr "Baris"
+
+#. module: ssi_school_fee_waiver
+#: model:ir.model.fields,field_description:ssi_school_fee_waiver.field_school_fee_waiver__line_ids
+#: model_terms:ir.ui.view,arch_db:ssi_school_fee_waiver.school_fee_waiver_view_form
+msgid "Lines"
+msgstr "Baris"
+
+#. module: ssi_school_fee_waiver
+#: model:ir.model.fields,field_description:ssi_school_fee_waiver.field_school_fee_waiver__message_main_attachment_id
+#: model:ir.model.fields,field_description:ssi_school_fee_waiver.field_school_fee_waiver_reason__message_main_attachment_id
+#: model:ir.model.fields,field_description:ssi_school_fee_waiver.field_school_fee_waiver_type__message_main_attachment_id
+msgid "Main Attachment"
+msgstr "Lampiran Utama"
+
+#. module: ssi_school_fee_waiver
+#: model:ir.model.fields,help:ssi_school_fee_waiver.field_school_fee_waiver__manual_number_ok
+msgid ""
+"Manual number assignment policy\n"
+"\n"
+"* If active user can edit document number"
+msgstr ""
+"Kebijakan penetapan nomor manual\n"
+"\n"
+"* Jika pengguna aktif dapat mengubah nomor dokumen"
+
+#. module: ssi_school_fee_waiver
+#: model:ir.model.fields,help:ssi_school_fee_waiver.field_school_fee_waiver_reason__active
+#: model:ir.model.fields,help:ssi_school_fee_waiver.field_school_fee_waiver_type__active
+msgid ""
+"Master data status\n"
+"\n"
+"* Inactive data can not be selected when creating new transaction\n"
+"* Transaction with inactive master data can still be viewed\n"
+"* Set master data as inactive if master data no longger needed,\n"
+"but master data already used on transaction"
+msgstr ""
+"Status data master\n"
+"\n"
+"* Data nonaktif tidak dapat dipilih saat membuat transaksi baru\n"
+"* Transaksi dengan data master nonaktif tetap dapat dilihat\n"
+"* Jadikan data master nonaktif bila data master tidak lagi diperlukan,\n"
+"tetapi data master sudah dipakai pada transaksi"
+
+#. module: ssi_school_fee_waiver
+#: model:ir.model.fields,help:ssi_school_fee_waiver.field_school_fee_waiver_reason__code
+#: model:ir.model.fields,help:ssi_school_fee_waiver.field_school_fee_waiver_type__code
+msgid ""
+"Master data unique identifier.\n"
+"\n"
+"* Fill with '/' if You do not need unique identifier\n"
+"* Click 'Generate Code' button to automatically assign code.\n"
+"  Sequence template mush be set to perform this action\n"
+"  Only master data with '/' code will be assign automatic code"
+msgstr ""
+"Pengenal unik data master.\n"
+"\n"
+"* Isi dengan '/' bila Anda tidak memerlukan pengenal unik\n"
+"* Klik tombol 'Buat Kode' untuk menetapkan kode secara otomatis.\n"
+"  Templat urutan harus ditetapkan untuk menjalankan aksi ini\n"
+"  Hanya data master dengan kode '/' yang akan ditetapkan kode otomatis"
+
+#. module: ssi_school_fee_waiver
+#: model:ir.model.fields,field_description:ssi_school_fee_waiver.field_school_fee_waiver_line__max_amount
+msgid "Max Amount"
+msgstr "Jumlah Maksimum"
+
+#. module: ssi_school_fee_waiver
+#: model:ir.model.fields,field_description:ssi_school_fee_waiver.field_school_fee_waiver__message_has_error
+#: model:ir.model.fields,field_description:ssi_school_fee_waiver.field_school_fee_waiver_reason__message_has_error
+#: model:ir.model.fields,field_description:ssi_school_fee_waiver.field_school_fee_waiver_type__message_has_error
+msgid "Message Delivery error"
+msgstr "Kesalahan Pengiriman Pesan"
+
+#. module: ssi_school_fee_waiver
+#: model:ir.model.fields,field_description:ssi_school_fee_waiver.field_school_fee_waiver__message_ids
+#: model:ir.model.fields,field_description:ssi_school_fee_waiver.field_school_fee_waiver_reason__message_ids
+#: model:ir.model.fields,field_description:ssi_school_fee_waiver.field_school_fee_waiver_type__message_ids
+msgid "Messages"
+msgstr "Pesan"
+
+#. module: ssi_school_fee_waiver
+#: model:ir.model.fields.selection,name:ssi_school_fee_waiver.selection__school_fee_waiver__coverage__multi_term
+msgid "Multiple Payment Terms"
+msgstr "Beberapa Termin Pembayaran"
+
+#. module: ssi_school_fee_waiver
+#: model:ir.model.fields,field_description:ssi_school_fee_waiver.field_school_fee_waiver__my_activity_date_deadline
+#: model:ir.model.fields,field_description:ssi_school_fee_waiver.field_school_fee_waiver_reason__my_activity_date_deadline
+#: model:ir.model.fields,field_description:ssi_school_fee_waiver.field_school_fee_waiver_type__my_activity_date_deadline
+msgid "My Activity Deadline"
+msgstr "Batas Waktu Aktivitas Saya"
+
+#. module: ssi_school_fee_waiver
+#: model:ir.model.fields,field_description:ssi_school_fee_waiver.field_school_fee_waiver_reason__name
+#: model:ir.model.fields,field_description:ssi_school_fee_waiver.field_school_fee_waiver_type__name
+msgid "Name"
+msgstr "Nama"
+
+#. module: ssi_school_fee_waiver
+#: model:ir.model.fields,field_description:ssi_school_fee_waiver.field_school_fee_waiver__need_validation
+msgid "Need Validation"
+msgstr "Perlu Validasi"
+
+#. module: ssi_school_fee_waiver
+#: model:ir.model.fields,field_description:ssi_school_fee_waiver.field_school_fee_waiver__activity_date_deadline
+#: model:ir.model.fields,field_description:ssi_school_fee_waiver.field_school_fee_waiver_reason__activity_date_deadline
+#: model:ir.model.fields,field_description:ssi_school_fee_waiver.field_school_fee_waiver_type__activity_date_deadline
+msgid "Next Activity Deadline"
+msgstr "Batas Waktu Aktivitas Berikutnya"
+
+#. module: ssi_school_fee_waiver
+#: model:ir.model.fields,field_description:ssi_school_fee_waiver.field_school_fee_waiver__activity_summary
+#: model:ir.model.fields,field_description:ssi_school_fee_waiver.field_school_fee_waiver_reason__activity_summary
+#: model:ir.model.fields,field_description:ssi_school_fee_waiver.field_school_fee_waiver_type__activity_summary
+msgid "Next Activity Summary"
+msgstr "Ringkasan Aktivitas Berikutnya"
+
+#. module: ssi_school_fee_waiver
+#: model:ir.model.fields,field_description:ssi_school_fee_waiver.field_school_fee_waiver__activity_type_id
+#: model:ir.model.fields,field_description:ssi_school_fee_waiver.field_school_fee_waiver_reason__activity_type_id
+#: model:ir.model.fields,field_description:ssi_school_fee_waiver.field_school_fee_waiver_type__activity_type_id
+msgid "Next Activity Type"
+msgstr "Jenis Aktivitas Berikutnya"
+
+#. module: ssi_school_fee_waiver
+#: model:ir.model.fields,field_description:ssi_school_fee_waiver.field_school_fee_waiver__next_approval_ids
+msgid "Next Approvals"
+msgstr "Persetujuan Berikutnya"
+
+#. module: ssi_school_fee_waiver
+#: model:ir.model.fields,field_description:ssi_school_fee_waiver.field_school_fee_waiver__note
+#: model:ir.model.fields,field_description:ssi_school_fee_waiver.field_school_fee_waiver_reason__note
+#: model:ir.model.fields,field_description:ssi_school_fee_waiver.field_school_fee_waiver_schedule__note
+#: model:ir.model.fields,field_description:ssi_school_fee_waiver.field_school_fee_waiver_type__note
+#: model_terms:ir.ui.view,arch_db:ssi_school_fee_waiver.school_fee_waiver_view_form
+msgid "Note"
+msgstr "Catatan"
+
+#. module: ssi_school_fee_waiver
+#: model:ir.model.fields,field_description:ssi_school_fee_waiver.field_school_fee_waiver__message_needaction_counter
+#: model:ir.model.fields,field_description:ssi_school_fee_waiver.field_school_fee_waiver_reason__message_needaction_counter
+#: model:ir.model.fields,field_description:ssi_school_fee_waiver.field_school_fee_waiver_type__message_needaction_counter
+msgid "Number of Actions"
+msgstr "Jumlah Tindakan"
+
+#. module: ssi_school_fee_waiver
+#: model:ir.model.fields,field_description:ssi_school_fee_waiver.field_school_fee_waiver__message_has_error_counter
+#: model:ir.model.fields,field_description:ssi_school_fee_waiver.field_school_fee_waiver_reason__message_has_error_counter
+#: model:ir.model.fields,field_description:ssi_school_fee_waiver.field_school_fee_waiver_type__message_has_error_counter
+msgid "Number of errors"
+msgstr "Jumlah kesalahan"
+
+#. module: ssi_school_fee_waiver
+#: model:ir.model.fields,help:ssi_school_fee_waiver.field_school_fee_waiver__message_needaction_counter
+#: model:ir.model.fields,help:ssi_school_fee_waiver.field_school_fee_waiver_reason__message_needaction_counter
+#: model:ir.model.fields,help:ssi_school_fee_waiver.field_school_fee_waiver_type__message_needaction_counter
+msgid "Number of messages which requires an action"
+msgstr "Jumlah pesan yang memerlukan tindakan"
+
+#. module: ssi_school_fee_waiver
+#: model:ir.model.fields,help:ssi_school_fee_waiver.field_school_fee_waiver__message_has_error_counter
+#: model:ir.model.fields,help:ssi_school_fee_waiver.field_school_fee_waiver_reason__message_has_error_counter
+#: model:ir.model.fields,help:ssi_school_fee_waiver.field_school_fee_waiver_type__message_has_error_counter
+msgid "Number of messages with delivery error"
+msgstr "Jumlah pesan dengan kesalahan pengiriman"
+
+#. module: ssi_school_fee_waiver
+#: model:ir.model.fields,help:ssi_school_fee_waiver.field_school_fee_waiver__message_unread_counter
+#: model:ir.model.fields,help:ssi_school_fee_waiver.field_school_fee_waiver_reason__message_unread_counter
+#: model:ir.model.fields,help:ssi_school_fee_waiver.field_school_fee_waiver_type__message_unread_counter
+msgid "Number of unread messages"
+msgstr "Jumlah pesan yang belum dibaca"
+
+#. module: ssi_school_fee_waiver
+#: model:ir.model.fields,field_description:ssi_school_fee_waiver.field_school_fee_waiver__partner_id
+msgid "Partner"
+msgstr "Mitra"
+
+#. module: ssi_school_fee_waiver
+#: model:ir.model.fields,field_description:ssi_school_fee_waiver.field_school_fee_waiver__payment_term_id
+#: model:ir.model.fields,field_description:ssi_school_fee_waiver.field_school_fee_waiver_schedule__payment_term_id
+msgid "Payment Term"
+msgstr "Termin Pembayaran"
+
+#. module: ssi_school_fee_waiver
+#: model:ir.model.fields,help:ssi_school_fee_waiver.field_school_fee_waiver_schedule__payment_term_id
+msgid ""
+"Payment term this schedule line realizes. Left as a plain, non-required "
+"field so an extension module can give this model its own further source "
+"field instead -- see ``_get_source_term``."
+msgstr "Termin pembayaran yang direalisasikan baris jadwal ini. Sengaja dibiarkan sebagai field biasa yang tidak wajib agar modul ekstensi dapat memberi model ini field sumber lain miliknya -- lihat ``_get_source_term``."
+
+#. module: ssi_school_fee_waiver
+#: model:ir.model.fields,help:ssi_school_fee_waiver.field_school_fee_waiver__payment_term_id
+msgid ""
+"Payment term this waiver closes out. Required when Coverage is Single "
+"Payment Term; must be empty when Coverage is Multiple Payment Terms."
+msgstr "Termin pembayaran yang diselesaikan keringanan ini. Wajib diisi bila Cakupan adalah Satu Termin Pembayaran; harus kosong bila Cakupan adalah Beberapa Termin Pembayaran."
+
+#. module: ssi_school_fee_waiver
+#: model:ir.model.fields,field_description:ssi_school_fee_waiver.field_school_fee_waiver_line__percentage
+#: model:ir.model.fields.selection,name:ssi_school_fee_waiver.selection__school_fee_waiver_line__computation__percentage
+msgid "Percentage"
+msgstr "Persentase"
+
+#. module: ssi_school_fee_waiver
+#: model:ir.model.fields,help:ssi_school_fee_waiver.field_school_fee_waiver_line__percentage
+msgid ""
+"Percentage of the billed amount waived by this line. Only relevant when "
+"Computation is Percentage."
+msgstr "Persentase dari jumlah tagihan yang diberi keringanan oleh baris ini. Hanya relevan bila Perhitungan adalah Persentase."
+
+#. module: ssi_school_fee_waiver
+#: model:ir.model.fields,help:ssi_school_fee_waiver.field_school_enrollment_payment_term__fee_waiver_amount_deducted_planned
+msgid ""
+"Planned amount of the fee waiver already deducted: the sum of Amount Planned"
+" of Realized schedule lines. It can exceed the actual deducted amount on a "
+"partial deduction."
+msgstr "Jumlah rencana keringanan biaya yang sudah dipotong: total Jumlah Direncanakan dari baris jadwal berstatus Terealisasi. Bisa melebihi jumlah yang benar-benar terpotong pada pemotongan sebagian."
+
+#. module: ssi_school_fee_waiver
+#: model:ir.model.fields,field_description:ssi_school_fee_waiver.field_school_fee_waiver__policy_template_id
+msgid "Policy Template"
+msgstr "Templat Kebijakan"
+
+#. module: ssi_school_fee_waiver
+#: model:ir.model.fields,help:ssi_school_fee_waiver.field_school_fee_waiver__generate_schedule_ok
+msgid ""
+"Policy that determines whether the per-term waiver schedule may be generated"
+" for this document."
+msgstr "Kebijakan yang menentukan apakah jadwal keringanan per termin boleh dibuat untuk dokumen ini."
+
+#. module: ssi_school_fee_waiver
+#: model:ir.model.fields,field_description:ssi_school_fee_waiver.field_school_fee_waiver_line__product_id
+msgid "Product"
+msgstr "Produk"
+
+#. module: ssi_school_fee_waiver
+#: model:ir.model.fields,field_description:ssi_school_fee_waiver.field_school_fee_waiver_line__product_category_id
+msgid "Product Category"
+msgstr "Kategori Produk"
+
+#. module: ssi_school_fee_waiver
+#: model:ir.model.fields,help:ssi_school_fee_waiver.field_school_fee_waiver_line__product_category_id
+msgid ""
+"Product category this line covers. Leave empty when this line covers a "
+"single Product instead."
+msgstr "Kategori produk yang dicakup baris ini. Kosongkan bila baris ini mencakup satu Produk saja."
+
+#. module: ssi_school_fee_waiver
+#: model:ir.model.fields,help:ssi_school_fee_waiver.field_school_fee_waiver_line__product_id
+msgid ""
+"Product this line covers. Leave empty when this line covers a whole Product "
+"Category instead."
+msgstr "Produk yang dicakup baris ini. Kosongkan bila baris ini mencakup seluruh Kategori Produk."
+
+#. module: ssi_school_fee_waiver
+#: model:ir.model.fields,help:ssi_school_fee_waiver.field_school_fee_waiver__schedule_ids
+msgid ""
+"Realization schedule of this waiver, one line per Line/payment term pairing,"
+" generated by Generate Schedule."
+msgstr "Jadwal realisasi keringanan ini, satu baris untuk setiap pasangan Baris/termin pembayaran, dibuat oleh Buat Jadwal."
+
+#. module: ssi_school_fee_waiver
+#: model:ir.model.fields.selection,name:ssi_school_fee_waiver.selection__school_fee_waiver_schedule__state__realized
+msgid "Realized"
+msgstr "Terealisasi"
+
+#. module: ssi_school_fee_waiver
+#: model:ir.model.fields,field_description:ssi_school_fee_waiver.field_school_fee_waiver__reason_id
+#: model_terms:ir.ui.view,arch_db:ssi_school_fee_waiver.school_fee_waiver_view_search
+msgid "Reason"
+msgstr "Alasan"
+
+#. module: ssi_school_fee_waiver
+#: model:ir.model.fields,help:ssi_school_fee_waiver.field_school_fee_waiver__reason_id
+msgid "Reason the applicant is requesting this fee waiver."
+msgstr "Alasan pemohon meminta keringanan biaya ini."
+
+#. module: ssi_school_fee_waiver
+#: model:ir.model.fields,help:ssi_school_fee_waiver.field_school_fee_waiver__reject_ok
+msgid ""
+"Reject policy\n"
+"\n"
+"* If active user can see and execute 'Reject' button"
+msgstr ""
+"Kebijakan penolakan\n"
+"\n"
+"* Jika pengguna aktif dapat melihat dan menjalankan tombol 'Tolak'"
+
+#. module: ssi_school_fee_waiver
+#: model:ir.model.fields,field_description:ssi_school_fee_waiver.field_school_fee_waiver__rejected
+msgid "Rejected"
+msgstr "Ditolak"
+
+#. module: ssi_school_fee_waiver
+#: model:ir.model.fields,field_description:ssi_school_fee_waiver.field_school_fee_waiver__user_id
+msgid "Responsible"
+msgstr "Penanggung Jawab"
+
+#. module: ssi_school_fee_waiver
+#: model:ir.model.fields,field_description:ssi_school_fee_waiver.field_school_fee_waiver__activity_user_id
+#: model:ir.model.fields,field_description:ssi_school_fee_waiver.field_school_fee_waiver_reason__activity_user_id
+#: model:ir.model.fields,field_description:ssi_school_fee_waiver.field_school_fee_waiver_type__activity_user_id
+msgid "Responsible User"
+msgstr "Pengguna Penanggung Jawab"
+
+#. module: ssi_school_fee_waiver
+#: model:ir.model.fields,help:ssi_school_fee_waiver.field_school_fee_waiver__restart_approval_ok
+msgid ""
+"Restart approval policy\n"
+"\n"
+"* If active user can see and execute 'Restart Approval' button"
+msgstr ""
+"Kebijakan mulai ulang persetujuan\n"
+"\n"
+"* Jika pengguna aktif dapat melihat dan menjalankan tombol 'Mulai Ulang Persetujuan'"
+
+#. module: ssi_school_fee_waiver
+#: model:ir.model.fields,help:ssi_school_fee_waiver.field_school_fee_waiver__restart_ok
+msgid ""
+"Restart policy\n"
+"\n"
+"* If active user can see and execute 'Restart' button"
+msgstr ""
+"Kebijakan mulai ulang\n"
+"\n"
+"* Jika pengguna aktif dapat melihat dan menjalankan tombol 'Mulai Ulang'"
+
+#. module: ssi_school_fee_waiver
+#: model:ir.model.fields,field_description:ssi_school_fee_waiver.field_school_fee_waiver__reviewer_id
+msgid "Reviewer"
+msgstr "Pemeriksa"
+
+#. module: ssi_school_fee_waiver
+#: model:ir.model.fields,field_description:ssi_school_fee_waiver.field_school_fee_waiver__schedule_ids
+#: model:ir.model.fields,field_description:ssi_school_fee_waiver.field_school_fee_waiver_line__schedule_ids
+#: model_terms:ir.ui.view,arch_db:ssi_school_fee_waiver.school_fee_waiver_view_form
+msgid "Schedule"
+msgstr "Jadwal"
+
+#. module: ssi_school_fee_waiver
+#: model:ir.model.fields,help:ssi_school_fee_waiver.field_school_fee_waiver_line__schedule_ids
+msgid "Schedule lines realizing this line, one per matching payment term."
+msgstr "Baris jadwal yang merealisasikan baris ini, satu untuk setiap termin pembayaran yang cocok."
+
+#. module: ssi_school_fee_waiver
+#: model:ir.model.fields.selection,name:ssi_school_fee_waiver.selection__school_fee_waiver_schedule__state__scheduled
+msgid "Scheduled"
+msgstr "Terjadwal"
+
+#. module: ssi_school_fee_waiver
+#: model:ir.model.fields,field_description:ssi_school_fee_waiver.field_school_fee_waiver__school_id
+#: model_terms:ir.ui.view,arch_db:ssi_school_fee_waiver.school_fee_waiver_view_search
+msgid "School"
+msgstr "Sekolah"
+
+#. module: ssi_school_fee_waiver
+#: model:ir.model,name:ssi_school_fee_waiver.model_school_enrollment
+msgid "School Enrollment"
+msgstr "Pendaftaran Sekolah"
+
+#. module: ssi_school_fee_waiver
+#: model:ir.model,name:ssi_school_fee_waiver.model_school_enrollment_payment_term
+msgid "School Enrollment Payment Term"
+msgstr "Termin Pembayaran Pendaftaran Sekolah"
+
+#. module: ssi_school_fee_waiver
+#: model:ir.model,name:ssi_school_fee_waiver.model_school_fee_waiver
+#: model:ir.module.category,name:ssi_school_fee_waiver.school_fee_waiver_data_ownership_module_category
+#: model:ir.module.category,name:ssi_school_fee_waiver.school_fee_waiver_workflow_module_category
+msgid "School Fee Waiver"
+msgstr "Keringanan Biaya Sekolah"
+
+#. module: ssi_school_fee_waiver
+#: model:ir.model,name:ssi_school_fee_waiver.model_school_fee_waiver_line
+msgid "School Fee Waiver Line"
+msgstr "Baris Keringanan Biaya Sekolah"
+
+#. module: ssi_school_fee_waiver
+#: model:ir.model,name:ssi_school_fee_waiver.model_school_fee_waiver_reason
+msgid "School Fee Waiver Reason"
+msgstr "Alasan Keringanan Biaya Sekolah"
+
+#. module: ssi_school_fee_waiver
+#: model:ir.model,name:ssi_school_fee_waiver.model_school_fee_waiver_schedule
+msgid "School Fee Waiver Schedule"
+msgstr "Jadwal Keringanan Biaya Sekolah"
+
+#. module: ssi_school_fee_waiver
+#: model:ir.model,name:ssi_school_fee_waiver.model_school_fee_waiver_type
+msgid "School Fee Waiver Type"
+msgstr "Jenis Keringanan Biaya Sekolah"
+
+#. module: ssi_school_fee_waiver
+#: model:ir.model.fields,help:ssi_school_fee_waiver.field_school_fee_waiver__school_id
+msgid "School of the selected billing source."
+msgstr "Sekolah dari sumber penagihan terpilih."
+
+#. module: ssi_school_fee_waiver
+#: model:ir.model.fields,help:ssi_school_fee_waiver.field_school_fee_waiver__type_id
+msgid "School-defined classification of this fee waiver."
+msgstr "Klasifikasi keringanan biaya ini yang ditetapkan sekolah."
+
+#. module: ssi_school_fee_waiver
+#: model:ir.model.fields,field_description:ssi_school_fee_waiver.field_school_fee_waiver_reason__sequence
+#: model:ir.model.fields,field_description:ssi_school_fee_waiver.field_school_fee_waiver_type__sequence
+msgid "Sequence"
+msgstr "Urutan"
+
+#. module: ssi_school_fee_waiver
+#: model:ir.model.fields.selection,name:ssi_school_fee_waiver.selection__school_fee_waiver__coverage__single_term
+msgid "Single Payment Term"
+msgstr "Satu Termin Pembayaran"
+
+#. module: ssi_school_fee_waiver
+#: model:ir.model.fields,help:ssi_school_fee_waiver.field_school_fee_waiver__coverage
+msgid ""
+"Single Payment Term closes out exactly one payment term, selected below. "
+"Multiple Payment Terms repeats this waiver over every payment term of the "
+"billing source that falls within Start Date/End Date."
+msgstr "Satu Termin Pembayaran menyelesaikan tepat satu termin pembayaran, yang dipilih di bawah. Beberapa Termin Pembayaran mengulang keringanan ini pada setiap termin pembayaran milik sumber penagihan yang jatuh dalam rentang Tanggal Mulai/Tanggal Berakhir."
+
+#. module: ssi_school_fee_waiver
+#: model_terms:ir.ui.view,arch_db:ssi_school_fee_waiver.school_fee_waiver_view_form
+msgid "Skip"
+msgstr "Lewati"
+
+#. module: ssi_school_fee_waiver
+#: model:ir.model.fields.selection,name:ssi_school_fee_waiver.selection__school_fee_waiver_schedule__state__skipped
+msgid "Skipped"
+msgstr "Dilewati"
+
+#. module: ssi_school_fee_waiver
+#: model:ir.model.fields,field_description:ssi_school_fee_waiver.field_school_fee_waiver__date_start
+msgid "Start Date"
+msgstr "Tanggal Mulai"
+
+#. module: ssi_school_fee_waiver
+#: model:ir.model.fields,help:ssi_school_fee_waiver.field_school_fee_waiver__open_ok
+msgid ""
+"Start policy\n"
+"\n"
+"* If active user can see and execute 'Start' button"
+msgstr ""
+"Kebijakan mulai\n"
+"\n"
+"* Jika pengguna aktif dapat melihat dan menjalankan tombol 'Mulai'"
+
+#. module: ssi_school_fee_waiver
+#: model:ir.model.fields,field_description:ssi_school_fee_waiver.field_school_fee_waiver__state
+#: model:ir.model.fields,field_description:ssi_school_fee_waiver.field_school_fee_waiver_schedule__state
+msgid "State"
+msgstr "Status"
+
+#. module: ssi_school_fee_waiver
+#: model:ir.model.fields,help:ssi_school_fee_waiver.field_school_fee_waiver__activity_state
+#: model:ir.model.fields,help:ssi_school_fee_waiver.field_school_fee_waiver_reason__activity_state
+#: model:ir.model.fields,help:ssi_school_fee_waiver.field_school_fee_waiver_type__activity_state
+msgid ""
+"Status based on activities\n"
+"Overdue: Due date is already passed\n"
+"Today: Activity date is today\n"
+"Planned: Future activities."
+msgstr ""
+"Status berdasarkan aktivitas\n"
+"Terlambat: Tanggal jatuh tempo sudah lewat\n"
+"Hari ini: Tanggal aktivitas adalah hari ini\n"
+"Direncanakan: Aktivitas mendatang."
+
+#. module: ssi_school_fee_waiver
+#: model:ir.model.fields,field_description:ssi_school_fee_waiver.field_school_fee_waiver__student_id
+msgid "Student"
+msgstr "Siswa"
+
+#. module: ssi_school_fee_waiver
+#: model:ir.model.fields,help:ssi_school_fee_waiver.field_school_fee_waiver__student_id
+msgid "Student this fee waiver is granted to."
+msgstr "Siswa penerima keringanan biaya ini."
+
+#. module: ssi_school_fee_waiver
+#: model:ir.model.fields,help:ssi_school_fee_waiver.field_school_fee_waiver__date
+msgid "The date of this fee waiver document."
+msgstr "Tanggal dokumen keringanan biaya ini."
+
+#. module: ssi_school_fee_waiver
+#: model:ir.model.fields,help:ssi_school_fee_waiver.field_school_enrollment_payment_term__fee_waiver_amount
+msgid ""
+"Total fee waiver given to this payment term: the sum of Amount Planned of "
+"Scheduled and Realized schedule lines whose waiver is Running or Finished."
+msgstr "Total keringanan biaya yang diberikan kepada termin pembayaran ini: total Jumlah Direncanakan dari baris jadwal berstatus Terjadwal dan Terealisasi yang keringanannya Berjalan atau Selesai."
+
+#. module: ssi_school_fee_waiver
+#: model:ir.model.fields,help:ssi_school_fee_waiver.field_school_fee_waiver__amount_waived
+msgid ""
+"Total value of this waiver, computed as the sum of its Schedule lines' "
+"Amount Planned, excluding Skipped and Cancelled lines. Empty until a "
+"Schedule exists -- see Generate Schedule."
+msgstr "Total nilai keringanan ini, dihitung sebagai jumlah Jumlah Direncanakan dari baris Jadwalnya, tidak termasuk baris Dilewati dan Dibatalkan. Kosong sampai Jadwal dibuat -- lihat Buat Jadwal."
+
+#. module: ssi_school_fee_waiver
+#: model:ir.model.fields,help:ssi_school_fee_waiver.field_school_fee_waiver__name
+msgid ""
+"Transaction/document number\n"
+"\n"
+"* Unique indentifer of transaction\n"
+"* Leave '/' to automatically generate number\n"
+"* Change '/' into any number/identifier to manually assign number.\n"
+"  Manual number assignment can be done in 'Draft' state\n"
+"  Only user with 'Can Manualy Assign Number' policy can manually assign number.\n"
+"* Transaction with number other than '/' can not be deleted."
+msgstr ""
+"Nomor transaksi/dokumen\n"
+"\n"
+"* Pengenal unik transaksi\n"
+"* Biarkan '/' untuk menghasilkan nomor secara otomatis\n"
+"* Ubah '/' menjadi nomor/pengenal apa pun untuk menetapkan nomor secara manual.\n"
+"  Penetapan nomor manual dapat dilakukan pada status 'Draf'\n"
+"  Hanya pengguna dengan kebijakan 'Dapat Menetapkan Nomor Secara Manual' yang dapat menetapkan nomor secara manual.\n"
+"* Transaksi dengan nomor selain '/' tidak dapat dihapus."
+
+#. module: ssi_school_fee_waiver
+#: model:ir.model.fields,field_description:ssi_school_fee_waiver.field_school_fee_waiver__type_id
+#: model_terms:ir.ui.view,arch_db:ssi_school_fee_waiver.school_fee_waiver_view_search
+msgid "Type"
+msgstr "Jenis"
+
+#. module: ssi_school_fee_waiver
+#: model:ir.model.fields,help:ssi_school_fee_waiver.field_school_fee_waiver__activity_exception_decoration
+#: model:ir.model.fields,help:ssi_school_fee_waiver.field_school_fee_waiver_reason__activity_exception_decoration
+#: model:ir.model.fields,help:ssi_school_fee_waiver.field_school_fee_waiver_type__activity_exception_decoration
+msgid "Type of the exception activity on record."
+msgstr "Jenis aktivitas pengecualian pada data."
+
+#. module: ssi_school_fee_waiver
+#: model:ir.model.fields,field_description:ssi_school_fee_waiver.field_school_fee_waiver__message_unread
+#: model:ir.model.fields,field_description:ssi_school_fee_waiver.field_school_fee_waiver_reason__message_unread
+#: model:ir.model.fields,field_description:ssi_school_fee_waiver.field_school_fee_waiver_type__message_unread
+msgid "Unread Messages"
+msgstr "Pesan yang Belum Dibaca"
+
+#. module: ssi_school_fee_waiver
+#: model:ir.model.fields,field_description:ssi_school_fee_waiver.field_school_fee_waiver__message_unread_counter
+#: model:ir.model.fields,field_description:ssi_school_fee_waiver.field_school_fee_waiver_reason__message_unread_counter
+#: model:ir.model.fields,field_description:ssi_school_fee_waiver.field_school_fee_waiver_type__message_unread_counter
+msgid "Unread Messages Counter"
+msgstr "Penghitung Pesan yang Belum Dibaca"
+
+#. module: ssi_school_fee_waiver
+#: model:res.groups,name:ssi_school_fee_waiver.school_fee_waiver_user_group
+msgid "User"
+msgstr "Pengguna"
+
+#. module: ssi_school_fee_waiver
+#: model:ir.model.fields,help:ssi_school_fee_waiver.field_school_fee_waiver__user_id
+msgid ""
+"User that responsible for document\n"
+"\n"
+"* Create user can be different with responsible user\n"
+"* Automatically filled with user that initiate document creation.\n"
+"  Default responsible can be changed."
+msgstr ""
+"Pengguna yang bertanggung jawab atas dokumen\n"
+"\n"
+"* Pengguna pembuat dapat berbeda dengan pengguna penanggung jawab\n"
+"* Otomatis diisi dengan pengguna yang memulai pembuatan dokumen.\n"
+"  Penanggung jawab bawaan dapat diubah."
+
+#. module: ssi_school_fee_waiver
+#: model:ir.model.fields,help:ssi_school_fee_waiver.field_school_fee_waiver__reviewer_id
+msgid ""
+"User that responsible to review document\n"
+"\n"
+"* Unless it configured to approve reviewer does not equal to approver"
+msgstr ""
+"Pengguna yang bertanggung jawab memeriksa dokumen\n"
+"\n"
+"* Kecuali dikonfigurasi untuk menyetujui, pemeriksa tidak sama dengan penyetuju"
+
+#. module: ssi_school_fee_waiver
+#: model:ir.model.fields,help:ssi_school_fee_waiver.field_school_fee_waiver__active_approver_user_ids
+msgid "Users that can approve/reject document"
+msgstr "Pengguna yang dapat menyetujui/menolak dokumen"
+
+#. module: ssi_school_fee_waiver
+#: model:res.groups,name:ssi_school_fee_waiver.school_fee_waiver_validator_group
+msgid "Validator"
+msgstr "Validator"
+
+#. module: ssi_school_fee_waiver
+#: model:res.groups,name:ssi_school_fee_waiver.school_fee_waiver_viewer_group
+msgid "Viewer"
+msgstr "Penampil"
+
+#. module: ssi_school_fee_waiver
+#: model:ir.model.fields,field_description:ssi_school_fee_waiver.field_school_fee_waiver_line__waiver_id
+#: model:ir.model.fields,field_description:ssi_school_fee_waiver.field_school_fee_waiver_schedule__waiver_id
+msgid "Waiver"
+msgstr "Keringanan"
+
+#. module: ssi_school_fee_waiver
+#: model:ir.model.fields,help:ssi_school_fee_waiver.field_school_fee_waiver_schedule__line_id
+msgid "Waiver line this schedule line realizes one term of."
+msgstr "Baris keringanan yang direalisasikan satu termin oleh baris jadwal ini."
+
+#. module: ssi_school_fee_waiver
+#: model:ir.model.fields,field_description:ssi_school_fee_waiver.field_school_fee_waiver__website_message_ids
+#: model:ir.model.fields,field_description:ssi_school_fee_waiver.field_school_fee_waiver_reason__website_message_ids
+#: model:ir.model.fields,field_description:ssi_school_fee_waiver.field_school_fee_waiver_type__website_message_ids
+msgid "Website Messages"
+msgstr "Pesan Situs Web"
+
+#. module: ssi_school_fee_waiver
+#: model:ir.model.fields,help:ssi_school_fee_waiver.field_school_fee_waiver__website_message_ids
+#: model:ir.model.fields,help:ssi_school_fee_waiver.field_school_fee_waiver_reason__website_message_ids
+#: model:ir.model.fields,help:ssi_school_fee_waiver.field_school_fee_waiver_type__website_message_ids
+msgid "Website communication history"
+msgstr "Riwayat komunikasi situs web"
