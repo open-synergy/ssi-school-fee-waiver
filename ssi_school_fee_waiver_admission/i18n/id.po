@@ -133,14 +133,14 @@ msgstr "Baris jadwal keringanan biaya yang menyasar termin pembayaran ini."
 msgid ""
 "Fee waiver still waiting for deduction: the sum of Amount Planned of "
 "Scheduled schedule lines whose waiver is Running or Finished."
-msgstr "Keringanan biaya yang masih menunggu pemotongan: total Jumlah Direncanakan dari baris jadwal berstatus Terjadwal yang keringanannya Berjalan atau Selesai."
+msgstr "Keringanan biaya yang masih menunggu potongan: total Jumlah Direncanakan dari baris jadwal berstatus Terjadwal yang keringanannya Berjalan atau Selesai."
 
 #. module: ssi_school_fee_waiver_admission
 #: model:ir.model.fields,help:ssi_school_fee_waiver_admission.field_school_admission__amount_fee_waiver_undeducted
 msgid ""
 "Fee waiver still waiting for deduction: the sum of Fee Waiver Not Yet "
 "Deducted of the counted payment terms."
-msgstr "Keringanan biaya yang masih menunggu pemotongan: total Keringanan Biaya Belum Terpotong dari termin pembayaran yang dihitung."
+msgstr "Keringanan biaya yang masih menunggu potongan: total Keringanan Biaya Belum Terpotong dari termin pembayaran yang dihitung."
 
 #. module: ssi_school_fee_waiver_admission
 #: model:ir.model.fields,field_description:ssi_school_fee_waiver_admission.field_school_admission__id
@@ -173,17 +173,17 @@ msgid ""
 "Planned amount of the fee waiver already deducted: the sum of Amount Planned"
 " of Realized schedule lines. It can exceed the actual deducted amount on a "
 "partial deduction."
-msgstr "Jumlah rencana keringanan biaya yang sudah dipotong: total Jumlah Direncanakan dari baris jadwal berstatus Terealisasi. Bisa melebihi jumlah yang benar-benar terpotong pada pemotongan sebagian."
+msgstr "Jumlah rencana keringanan biaya yang sudah dipotong: total Jumlah Direncanakan dari baris jadwal berstatus Terealisasi. Bisa melebihi jumlah yang benar-benar terpotong pada potongan sebagian."
 
 #. module: ssi_school_fee_waiver_admission
 #: model:ir.model,name:ssi_school_fee_waiver_admission.model_school_admission
 msgid "School Admission"
-msgstr "Penerimaan Sekolah"
+msgstr "Penerimaan Siswa"
 
 #. module: ssi_school_fee_waiver_admission
 #: model:ir.model,name:ssi_school_fee_waiver_admission.model_school_admission_payment_term
 msgid "School Admission Payment Term"
-msgstr "Termin Pembayaran Penerimaan Sekolah"
+msgstr "Termin Pembayaran Penerimaan Siswa"
 
 #. module: ssi_school_fee_waiver_admission
 #: model:ir.model,name:ssi_school_fee_waiver_admission.model_school_fee_waiver
