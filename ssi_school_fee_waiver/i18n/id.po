@@ -116,7 +116,7 @@ msgstr "Jumlah Diberi Keringanan"
 msgid ""
 "Amount actually waived for this schedule line. Filled by the deduction "
 "document, a later module out of this item's scope; always zero until then."
-msgstr "Jumlah yang benar-benar diberi keringanan untuk baris jadwal ini. Diisi oleh dokumen pemotongan, modul lanjutan di luar lingkup item ini; selalu nol sampai saat itu."
+msgstr "Jumlah yang benar-benar diberi keringanan untuk baris jadwal ini. Diisi oleh dokumen potongan, modul lanjutan di luar lingkup item ini; selalu nol sampai saat itu."
 
 #. module: ssi_school_fee_waiver
 #: model:ir.model.fields,help:ssi_school_fee_waiver.field_school_fee_waiver_schedule__amount_planned
@@ -150,7 +150,7 @@ msgid ""
 msgstr ""
 "Kebijakan persetujuan\n"
 "\n"
-"* Jika pengguna aktif dapat melihat dan menjalankan tombol 'Setujui'"
+"* Jika pengguna aktif dapat melihat dan mengeksekusi tombol 'Setujui'"
 
 #. module: ssi_school_fee_waiver
 #: model:ir.model.fields,field_description:ssi_school_fee_waiver.field_school_fee_waiver__approved
@@ -181,14 +181,14 @@ msgid ""
 "the linked payment term's detail lines matching the Line's Product, or its "
 "Product Category when the Line targets one. Detail lines marked Voided are "
 "always excluded. Zero when no payment term is linked."
-msgstr "Jumlah tagihan yang menjadi sasaran Perhitungan baris jadwal ini: total baris detail termin pembayaran tertaut yang cocok dengan Produk pada Baris, atau Kategori Produknya bila Baris menyasar kategori. Baris detail yang ditandai Dibatalkan selalu dikecualikan. Nol bila tidak ada termin pembayaran yang tertaut."
+msgstr "Jumlah penagihan yang menjadi sasaran Perhitungan baris jadwal ini: total baris detail termin pembayaran tertaut yang cocok dengan Produk pada Baris, atau Kategori Produknya bila Baris menyasar kategori. Baris detail yang ditandai Dialihkan selalu dikecualikan. Nol bila tidak ada termin pembayaran yang tertaut."
 
 #. module: ssi_school_fee_waiver
 #: model:ir.model.fields,help:ssi_school_fee_waiver.field_school_fee_waiver__line_ids
 msgid ""
 "Billing components covered by this waiver, and how much of each is waived. "
 "At least one line is expected before this waiver is confirmed."
-msgstr "Komponen tagihan yang dicakup keringanan ini, dan berapa banyak yang diberi keringanan dari masing-masing. Setidaknya satu baris diharapkan ada sebelum keringanan ini dikonfirmasi."
+msgstr "Komponen penagihan yang dicakup keringanan ini, dan berapa banyak yang diberi keringanan dari masing-masing. Setidaknya satu baris diharapkan ada sebelum keringanan ini dikonfirmasi."
 
 #. module: ssi_school_fee_waiver
 #: model:ir.model.fields,help:ssi_school_fee_waiver.field_school_fee_waiver__source_type
@@ -226,7 +226,7 @@ msgstr "Dapat Membuat Jadwal"
 #. module: ssi_school_fee_waiver
 #: model:ir.model.fields,field_description:ssi_school_fee_waiver.field_school_fee_waiver__manual_number_ok
 msgid "Can Input Manual Document Number"
-msgstr "Dapat Memasukkan Nomor Dokumen Manual"
+msgstr "Dapat Mengisi Nomor Dokumen Manual"
 
 #. module: ssi_school_fee_waiver
 #: model:ir.model.fields,field_description:ssi_school_fee_waiver.field_school_fee_waiver__reject_ok
@@ -267,7 +267,7 @@ msgid ""
 msgstr ""
 "Kebijakan pembatalan\n"
 "\n"
-"* Jika pengguna aktif dapat melihat dan menjalankan tombol 'Batal'"
+"* Jika aktif, pengguna dapat melihat dan menekan tombol 'Batal'"
 
 #. module: ssi_school_fee_waiver
 #: model:ir.model.fields.selection,name:ssi_school_fee_waiver.selection__school_fee_waiver_schedule__state__cancelled
@@ -306,7 +306,7 @@ msgstr "Mitra Perusahaan"
 #. module: ssi_school_fee_waiver
 #: model:res.groups,name:ssi_school_fee_waiver.school_fee_waiver_company_child_group
 msgid "Company and All Child Companies"
-msgstr "Perusahaan dan Semua Perusahaan Anak"
+msgstr "Perusahaan dan Semua Perusahaan Turunan"
 
 #. module: ssi_school_fee_waiver
 #: model:ir.model.fields,help:ssi_school_fee_waiver.field_school_fee_waiver__company_id
@@ -318,8 +318,8 @@ msgid ""
 msgstr ""
 "Perusahaan pemilik dokumen\n"
 "\n"
-"* Otomatis diisi dengan perusahaan pengguna.\n"
-"  Perusahaan bawaan dapat diubah"
+"* Terisi otomatis dengan perusahaan pengguna.\n"
+"  Perusahaan default dapat diubah"
 
 #. module: ssi_school_fee_waiver
 #: model:ir.model.fields,field_description:ssi_school_fee_waiver.field_school_fee_waiver_line__computation
@@ -335,7 +335,7 @@ msgid ""
 msgstr ""
 "Kebijakan konfirmasi\n"
 "\n"
-"* Jika pengguna aktif dapat melihat dan menjalankan tombol 'Konfirmasi'"
+"* Jika pengguna aktif dapat melihat dan mengeksekusi tombol 'Konfirmasi'"
 
 #. module: ssi_school_fee_waiver
 #: model:ir.model.fields,help:ssi_school_fee_waiver.field_school_fee_waiver__partner_id
@@ -429,9 +429,9 @@ msgid ""
 "\n"
 "* If active user can see and execute 'Done' button"
 msgstr ""
-"Kebijakan selesai\n"
+"Kebijakan Selesai\n"
 "\n"
-"* Jika pengguna aktif dapat melihat dan menjalankan tombol 'Selesai'"
+"* Jika aktif, pengguna dapat melihat dan mengeksekusi tombol 'Selesai'"
 
 #. module: ssi_school_fee_waiver
 #: model:ir.model.fields.selection,name:ssi_school_fee_waiver.selection__school_fee_waiver_schedule__state__draft
@@ -563,14 +563,14 @@ msgstr "Baris jadwal keringanan biaya yang menyasar termin pembayaran ini."
 msgid ""
 "Fee waiver still waiting for deduction: the sum of Amount Planned of "
 "Scheduled schedule lines whose waiver is Running or Finished."
-msgstr "Keringanan biaya yang masih menunggu pemotongan: total Jumlah Direncanakan dari baris jadwal berstatus Terjadwal yang keringanannya Berjalan atau Selesai."
+msgstr "Keringanan biaya yang masih menunggu potongan: total Jumlah Direncanakan dari baris jadwal berstatus Terjadwal yang keringanannya Berjalan atau Selesai."
 
 #. module: ssi_school_fee_waiver
 #: model:ir.model.fields,help:ssi_school_fee_waiver.field_school_enrollment__amount_fee_waiver_undeducted
 msgid ""
 "Fee waiver still waiting for deduction: the sum of Fee Waiver Not Yet "
 "Deducted of the counted payment terms."
-msgstr "Keringanan biaya yang masih menunggu pemotongan: total Keringanan Biaya Belum Terpotong dari termin pembayaran yang dihitung."
+msgstr "Keringanan biaya yang masih menunggu potongan: total Keringanan Biaya Belum Terpotong dari termin pembayaran yang dihitung."
 
 #. module: ssi_school_fee_waiver
 #: model:ir.model.fields,help:ssi_school_fee_waiver.field_school_fee_waiver_line__waiver_id
@@ -623,7 +623,7 @@ msgstr "Pengikut (Mitra)"
 #: model:ir.model.fields,help:ssi_school_fee_waiver.field_school_fee_waiver_reason__activity_type_icon
 #: model:ir.model.fields,help:ssi_school_fee_waiver.field_school_fee_waiver_type__activity_type_icon
 msgid "Font awesome icon e.g. fa-tasks"
-msgstr "Ikon Font Awesome, mis. fa-tasks"
+msgstr "Ikon Font Awesome mis. fa-tasks"
 
 #. module: ssi_school_fee_waiver
 #: model:ir.model.fields,help:ssi_school_fee_waiver.field_school_fee_waiver__note
@@ -785,9 +785,9 @@ msgid ""
 "\n"
 "* If active user can edit document number"
 msgstr ""
-"Kebijakan penetapan nomor manual\n"
+"Kebijakan penomoran manual\n"
 "\n"
-"* Jika pengguna aktif dapat mengubah nomor dokumen"
+"* Jika aktif, pengguna dapat mengedit nomor dokumen"
 
 #. module: ssi_school_fee_waiver
 #: model:ir.model.fields,help:ssi_school_fee_waiver.field_school_fee_waiver_reason__active
@@ -802,10 +802,10 @@ msgid ""
 msgstr ""
 "Status data master\n"
 "\n"
-"* Data nonaktif tidak dapat dipilih saat membuat transaksi baru\n"
-"* Transaksi dengan data master nonaktif tetap dapat dilihat\n"
-"* Jadikan data master nonaktif bila data master tidak lagi diperlukan,\n"
-"tetapi data master sudah dipakai pada transaksi"
+"* Data tidak aktif tidak dapat dipilih saat membuat transaksi baru\n"
+"* Transaksi dengan data master tidak aktif masih dapat dilihat\n"
+"* Setel data master menjadi tidak aktif jika data master tidak lagi diperlukan,\n"
+"tetapi data master sudah digunakan pada transaksi"
 
 #. module: ssi_school_fee_waiver
 #: model:ir.model.fields,help:ssi_school_fee_waiver.field_school_fee_waiver_reason__code
@@ -818,12 +818,12 @@ msgid ""
 "  Sequence template mush be set to perform this action\n"
 "  Only master data with '/' code will be assign automatic code"
 msgstr ""
-"Pengenal unik data master.\n"
+"Pengidentifikasi unik data master.\n"
 "\n"
-"* Isi dengan '/' bila Anda tidak memerlukan pengenal unik\n"
+"* Isi dengan '/' jika Anda tidak memerlukan pengidentifikasi unik\n"
 "* Klik tombol 'Buat Kode' untuk menetapkan kode secara otomatis.\n"
-"  Templat urutan harus ditetapkan untuk menjalankan aksi ini\n"
-"  Hanya data master dengan kode '/' yang akan ditetapkan kode otomatis"
+"  Template penomoran harus disetel untuk melakukan tindakan ini\n"
+"  Hanya data master dengan kode '/' yang akan diberi kode otomatis"
 
 #. module: ssi_school_fee_waiver
 #: model:ir.model.fields,field_description:ssi_school_fee_waiver.field_school_fee_waiver_line__max_amount
@@ -982,7 +982,7 @@ msgid ""
 "Planned amount of the fee waiver already deducted: the sum of Amount Planned"
 " of Realized schedule lines. It can exceed the actual deducted amount on a "
 "partial deduction."
-msgstr "Jumlah rencana keringanan biaya yang sudah dipotong: total Jumlah Direncanakan dari baris jadwal berstatus Terealisasi. Bisa melebihi jumlah yang benar-benar terpotong pada pemotongan sebagian."
+msgstr "Jumlah rencana keringanan biaya yang sudah dipotong: total Jumlah Direncanakan dari baris jadwal berstatus Terealisasi. Bisa melebihi jumlah yang benar-benar terpotong pada potongan sebagian."
 
 #. module: ssi_school_fee_waiver
 #: model:ir.model.fields,field_description:ssi_school_fee_waiver.field_school_fee_waiver__policy_template_id
@@ -1052,7 +1052,7 @@ msgid ""
 msgstr ""
 "Kebijakan penolakan\n"
 "\n"
-"* Jika pengguna aktif dapat melihat dan menjalankan tombol 'Tolak'"
+"* Jika pengguna aktif dapat melihat dan mengeksekusi tombol 'Tolak'"
 
 #. module: ssi_school_fee_waiver
 #: model:ir.model.fields,field_description:ssi_school_fee_waiver.field_school_fee_waiver__rejected
@@ -1080,7 +1080,7 @@ msgid ""
 msgstr ""
 "Kebijakan mulai ulang persetujuan\n"
 "\n"
-"* Jika pengguna aktif dapat melihat dan menjalankan tombol 'Mulai Ulang Persetujuan'"
+"* Jika pengguna aktif dapat melihat dan mengeksekusi tombol 'Mulai Ulang Persetujuan'"
 
 #. module: ssi_school_fee_waiver
 #: model:ir.model.fields,help:ssi_school_fee_waiver.field_school_fee_waiver__restart_ok
@@ -1091,7 +1091,7 @@ msgid ""
 msgstr ""
 "Kebijakan mulai ulang\n"
 "\n"
-"* Jika pengguna aktif dapat melihat dan menjalankan tombol 'Mulai Ulang'"
+"* Jika aktif, pengguna dapat melihat dan menjalankan tombol 'Mulai Ulang'"
 
 #. module: ssi_school_fee_waiver
 #: model:ir.model.fields,field_description:ssi_school_fee_waiver.field_school_fee_waiver__reviewer_id
@@ -1124,12 +1124,12 @@ msgstr "Sekolah"
 #. module: ssi_school_fee_waiver
 #: model:ir.model,name:ssi_school_fee_waiver.model_school_enrollment
 msgid "School Enrollment"
-msgstr "Pendaftaran Sekolah"
+msgstr "Pendaftaran Siswa"
 
 #. module: ssi_school_fee_waiver
 #: model:ir.model,name:ssi_school_fee_waiver.model_school_enrollment_payment_term
 msgid "School Enrollment Payment Term"
-msgstr "Termin Pembayaran Pendaftaran Sekolah"
+msgstr "Termin Pembayaran Pendaftaran Siswa"
 
 #. module: ssi_school_fee_waiver
 #: model:ir.model,name:ssi_school_fee_waiver.model_school_fee_waiver
@@ -1211,7 +1211,7 @@ msgid ""
 msgstr ""
 "Kebijakan mulai\n"
 "\n"
-"* Jika pengguna aktif dapat melihat dan menjalankan tombol 'Mulai'"
+"* Jika aktif, pengguna dapat melihat dan mengeksekusi tombol 'Mulai'"
 
 #. module: ssi_school_fee_waiver
 #: model:ir.model.fields,field_description:ssi_school_fee_waiver.field_school_fee_waiver__state
@@ -1282,7 +1282,7 @@ msgstr ""
 "* Biarkan '/' untuk menghasilkan nomor secara otomatis\n"
 "* Ubah '/' menjadi nomor/pengenal apa pun untuk menetapkan nomor secara manual.\n"
 "  Penetapan nomor manual dapat dilakukan pada status 'Draf'\n"
-"  Hanya pengguna dengan kebijakan 'Dapat Menetapkan Nomor Secara Manual' yang dapat menetapkan nomor secara manual.\n"
+"  Hanya pengguna dengan kebijakan 'Dapat Menetapkan Nomor Manual' yang dapat menetapkan nomor secara manual.\n"
 "* Transaksi dengan nomor selain '/' tidak dapat dihapus."
 
 #. module: ssi_school_fee_waiver
@@ -1296,7 +1296,7 @@ msgstr "Jenis"
 #: model:ir.model.fields,help:ssi_school_fee_waiver.field_school_fee_waiver_reason__activity_exception_decoration
 #: model:ir.model.fields,help:ssi_school_fee_waiver.field_school_fee_waiver_type__activity_exception_decoration
 msgid "Type of the exception activity on record."
-msgstr "Jenis aktivitas pengecualian pada data."
+msgstr "Jenis aktivitas pengecualian pada catatan."
 
 #. module: ssi_school_fee_waiver
 #: model:ir.model.fields,field_description:ssi_school_fee_waiver.field_school_fee_waiver__message_unread
@@ -1329,8 +1329,8 @@ msgstr ""
 "Pengguna yang bertanggung jawab atas dokumen\n"
 "\n"
 "* Pengguna pembuat dapat berbeda dengan pengguna penanggung jawab\n"
-"* Otomatis diisi dengan pengguna yang memulai pembuatan dokumen.\n"
-"  Penanggung jawab bawaan dapat diubah."
+"* Terisi otomatis dengan pengguna yang memulai pembuatan dokumen.\n"
+"  Penanggung jawab default dapat diubah."
 
 #. module: ssi_school_fee_waiver
 #: model:ir.model.fields,help:ssi_school_fee_waiver.field_school_fee_waiver__reviewer_id
@@ -1339,7 +1339,7 @@ msgid ""
 "\n"
 "* Unless it configured to approve reviewer does not equal to approver"
 msgstr ""
-"Pengguna yang bertanggung jawab memeriksa dokumen\n"
+"Pengguna yang bertanggung jawab meninjau dokumen\n"
 "\n"
 "* Kecuali dikonfigurasi untuk menyetujui, pemeriksa tidak sama dengan penyetuju"
 
