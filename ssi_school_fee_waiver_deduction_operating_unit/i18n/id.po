@@ -39,4 +39,4 @@ msgstr "Unit Operasi"
 #. module: ssi_school_fee_waiver_deduction_operating_unit
 #: model:ir.model,name:ssi_school_fee_waiver_deduction_operating_unit.model_school_fee_waiver_deduction
 msgid "School Fee Waiver Deduction"
-msgstr "Pemotongan Keringanan Biaya Sekolah"
+msgstr "Potongan Keringanan Biaya Sekolah"
