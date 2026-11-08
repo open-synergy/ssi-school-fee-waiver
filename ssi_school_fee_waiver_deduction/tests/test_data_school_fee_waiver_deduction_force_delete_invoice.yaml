@@ -225,6 +225,9 @@ scenarios:
           grade_id: "REC: fx_grade.id"
           grade_class_id: "REC: fx_grade_class.id"
           student_id: "REC: fx_student.id"
+          receivable_journal_id: "REC: fx_sale_journal.id"
+          receivable_account_id: "REC: fx_receivable_account.id"
+          customer_invoice_type_id: "REC: fx_invoice_type.id"
 
       - step: "FX: create Payment Term 1 (1,000,000)"
         action: "create"
@@ -261,6 +264,30 @@ scenarios:
                 uom_quantity: 1.0
                 uom_id: "REF: uom.product_uom_unit"
                 price_unit: 1000000.0
+
+      - step: "FX: confirm the enrollment (force delete policy needs open)"
+        action: "call"
+        target: "fx_enrollment"
+        method: "action_confirm"
+        as_user: "base.user_admin"
+
+      - step: "FX: force a refresh before reading approve_ok (T-04)"
+        action: "assert"
+        target: "fx_enrollment"
+        asserts:
+          state:
+            type: "value"
+            expected: "confirm"
+
+      - step: "FX: approve the enrollment"
+        action: "call"
+        target: "fx_enrollment"
+        method: "action_approve_approval"
+        as_user: "base.user_admin"
+        asserts:
+          state:
+            type: "value"
+            expected: "open"
 
       - step: "FX: create the fee waiver document (Multiple Payment Terms)"
         action: "create"
@@ -322,14 +349,6 @@ scenarios:
           ]
         save_as: "fx_sched2"
         limit: 1
-
-      - step: "FX: set the enrollment's invoicing defaults"
-        action: "write"
-        target: "fx_enrollment"
-        values:
-          receivable_journal_id: "REC: fx_sale_journal.id"
-          receivable_account_id: "REC: fx_receivable_account.id"
-          customer_invoice_type_id: "REC: fx_invoice_type.id"
 
       - step: "FX Invoice A: create the invoice from its own payment term"
         action: "call"
