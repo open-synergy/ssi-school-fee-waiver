@@ -1,0 +1,503 @@
+# Copyright 2026 OpenSynergy Indonesia
+# Copyright 2026 PT. Simetri Sinergi Indonesia
+# License AGPL-3.0 or later (http://www.gnu.org/licenses/agpl).
+#
+# T-01 (odoo-development-unit-test/test-traps.md): scenarios in one YAML file
+# share one un-rolled-back DB transaction and a `setup:` block replays before
+# every scenario, so this file uses exactly ONE scenario, no `setup:` block.
+# Fixture codes use the `FX*`/`fx_*` prefix, deliberately different from the
+# other test files of this module, to avoid unique-constraint collisions.
+#
+# The academic term is created with `enrollment_state: "open"`: ssi_school's
+# `_check_enrollment_window` rejects an enrollment reaching `open` otherwise.
+# Preceding pattern: test_data_school_fee_waiver_deduction_enrollment_recognition.yaml
+# (term 1). A second term is not needed: `action_done` is never called here.
+options:
+  auto_refresh: true
+scenarios:
+  - name: "Force Delete Invoice - guard of fee waiver deduction allocation"
+    steps:
+      # ── Shared fixtures (school hierarchy, accounts, journals, product,
+      # invoice type) plus one waiver with two 1,000,000 payment terms. ──
+      - step: "Create the grade type"
+        action: "create"
+        model: "school_grade_type"
+        save_as: "fx_grade_type"
+        values:
+          name: "FX Grade Type"
+          code: "FXGT"
+
+      - step: "Create the school"
+        action: "create"
+        model: "school"
+        save_as: "fx_school"
+        values:
+          name: "FX School"
+          code: "FXSC"
+          grade_type_id: "REC: fx_grade_type.id"
+
+      - step: "Create the academic year"
+        action: "create"
+        model: "school_academic_year"
+        save_as: "fx_academic_year"
+        values:
+          name: "FX Academic Year"
+          code: "FXAY"
+          date_start: 2026-07-01
+          date_end: 2027-06-30
+
+      - step: "Create the academic term"
+        action: "create"
+        model: "school_academic_term"
+        save_as: "fx_academic_term"
+        values:
+          name: "FX Term"
+          code: "FXTM"
+          date_start: 2026-07-01
+          date_end: 2026-12-31
+          year_id: "REC: fx_academic_year.id"
+          enrollment_state: "open"
+
+      - step: "Create the grade"
+        action: "create"
+        model: "school_grade"
+        save_as: "fx_grade"
+        values:
+          name: "FX Grade"
+          code: "FXGR"
+          type_id: "REC: fx_grade_type.id"
+
+      - step: "Create the grade class"
+        action: "create"
+        model: "school_grade_class"
+        save_as: "fx_grade_class"
+        values:
+          name: "FX Class"
+          code: "FXCL"
+          school_id: "REC: fx_school.id"
+          grade_id: "REC: fx_grade.id"
+
+      - step: "Get the account.account.type Receivable reference"
+        action: "ref"
+        xml_id: "account.data_account_type_receivable"
+        save_as: "fx_receivable_acc_type"
+
+      - step: "Get the account.account.type Income reference"
+        action: "ref"
+        xml_id: "account.data_account_type_revenue"
+        save_as: "fx_income_acc_type"
+
+      - step: "Get the account.account.type Expense reference"
+        action: "ref"
+        xml_id: "account.data_account_type_expenses"
+        save_as: "fx_expense_acc_type"
+
+      - step: "Get the account.account.type Liquidity reference"
+        action: "ref"
+        xml_id: "account.data_account_type_liquidity"
+        save_as: "fx_liquidity_acc_type"
+
+      - step: "Create the shared Receivable Account"
+        action: "create"
+        model: "account.account"
+        save_as: "fx_receivable_account"
+        values:
+          name: "FX Receivable Account"
+          code: "FXRA"
+          user_type_id: "REC: fx_receivable_acc_type.id"
+          reconcile: true
+
+      - step: "Create the income account used by terms and invoices"
+        action: "create"
+        model: "account.account"
+        save_as: "fx_income_account"
+        values:
+          name: "FX Income Account"
+          code: "FXIA"
+          user_type_id: "REC: fx_income_acc_type.id"
+          reconcile: false
+
+      - step: "Create the discount (contra-revenue) account"
+        action: "create"
+        model: "account.account"
+        save_as: "fx_discount_account"
+        values:
+          name: "FX Discount Account"
+          code: "FXDA"
+          user_type_id: "REC: fx_expense_acc_type.id"
+          reconcile: false
+
+      - step: "Create the liquidity account used by the customer payment"
+        action: "create"
+        model: "account.account"
+        save_as: "fx_liquidity_account"
+        values:
+          name: "FX Liquidity Account"
+          code: "FXLQ"
+          user_type_id: "REC: fx_liquidity_acc_type.id"
+          reconcile: false
+
+      - step: "Create the deduction journal"
+        action: "create"
+        model: "account.journal"
+        save_as: "fx_deduction_journal"
+        values:
+          name: "FX Deduction Journal"
+          code: "FXDJ"
+          type: "general"
+
+      - step: "Create the sale journal (customer invoices)"
+        action: "create"
+        model: "account.journal"
+        save_as: "fx_sale_journal"
+        values:
+          name: "FX Sale Journal"
+          code: "FXSJ"
+          type: "sale"
+
+      - step: "Create the general journal used by the customer payment"
+        action: "create"
+        model: "account.journal"
+        save_as: "fx_payment_journal"
+        values:
+          name: "FX Payment Journal"
+          code: "FXPJ"
+          type: "general"
+
+      - step: "Create the product covered by the waiver lines"
+        action: "create"
+        model: "product.product"
+        save_as: "fx_product"
+        values:
+          name: "FX Product"
+          type: "service"
+
+      - step: "Create the fee waiver type, with deduction accounting defaults"
+        action: "create"
+        model: "school_fee_waiver_type"
+        save_as: "fx_type"
+        values:
+          name: "FX Type"
+          code: "FXTY"
+          deduction_journal_id: "REC: fx_deduction_journal.id"
+          discount_account_id: "REC: fx_discount_account.id"
+
+      - step: "Create the fee waiver reason"
+        action: "create"
+        model: "school_fee_waiver_reason"
+        save_as: "fx_reason"
+        values:
+          name: "FX Reason"
+          code: "FXRS"
+
+      - step: "Create the customer invoice type"
+        action: "create"
+        model: "customer_invoice_type"
+        save_as: "fx_invoice_type"
+        values:
+          name: "FX Invoice Type"
+          code: "/"
+          journal_id: "REC: fx_sale_journal.id"
+          receivable_account_id: "REC: fx_receivable_account.id"
+
+      # ══ FX -- one waiver whose Schedules are deducted by four deductions.
+      # Each deduction has Line A 200,000 (Invoice A) and Line B 100,000
+      # (Invoice B); only the Allocations (or Journal) differ. ═══════════
+      - step: "FX: create the student contact"
+        action: "create"
+        model: "res.partner"
+        save_as: "fx_contact"
+        values:
+          name: "FX Contact"
+
+      - step: "FX: create the student"
+        action: "create"
+        model: "school_student"
+        save_as: "fx_student"
+        values:
+          name: "FX Student"
+          code: "FXST"
+          contact_id: "REC: fx_contact.id"
+          school_id: "REC: fx_school.id"
+
+      - step: "FX: create the enrollment"
+        action: "create"
+        model: "school_enrollment"
+        save_as: "fx_enrollment"
+        values:
+          academic_year_id: "REC: fx_academic_year.id"
+          academic_term_id: "REC: fx_academic_term.id"
+          school_id: "REC: fx_school.id"
+          grade_id: "REC: fx_grade.id"
+          grade_class_id: "REC: fx_grade_class.id"
+          student_id: "REC: fx_student.id"
+          receivable_journal_id: "REC: fx_sale_journal.id"
+          receivable_account_id: "REC: fx_receivable_account.id"
+          customer_invoice_type_id: "REC: fx_invoice_type.id"
+
+      - step: "FX: create Payment Term 1 (1,000,000)"
+        action: "create"
+        model: "school_enrollment_payment_term"
+        save_as: "fx_term1"
+        values:
+          enrollment_id: "REC: fx_enrollment.id"
+          name: "FX Term 1"
+          date_due: 2026-08-15
+          detail_ids:
+            - - 0
+              - 0
+              - product_id: "REC: fx_product.id"
+                name: "FX Term 1 Fee"
+                account_id: "REC: fx_income_account.id"
+                uom_quantity: 1.0
+                uom_id: "REF: uom.product_uom_unit"
+                price_unit: 1000000.0
+
+      - step: "FX: create Payment Term 2 (1,000,000)"
+        action: "create"
+        model: "school_enrollment_payment_term"
+        save_as: "fx_term2"
+        values:
+          enrollment_id: "REC: fx_enrollment.id"
+          name: "FX Term 2"
+          date_due: 2026-09-15
+          detail_ids:
+            - - 0
+              - 0
+              - product_id: "REC: fx_product.id"
+                name: "FX Term 2 Fee"
+                account_id: "REC: fx_income_account.id"
+                uom_quantity: 1.0
+                uom_id: "REF: uom.product_uom_unit"
+                price_unit: 1000000.0
+
+      - step: "FX: confirm the enrollment (force delete policy needs open)"
+        action: "call"
+        target: "fx_enrollment"
+        method: "action_confirm"
+        as_user: "base.user_admin"
+
+      - step: "FX: assert enrollment is confirm before approve (forces refresh, T-04)"
+        action: "assert"
+        target: "fx_enrollment"
+        asserts:
+          state:
+            type: "value"
+            expected: "confirm"
+
+      - step: "FX: approve the enrollment"
+        action: "call"
+        target: "fx_enrollment"
+        method: "action_approve_approval"
+        as_user: "base.user_admin"
+        asserts:
+          state:
+            type: "value"
+            expected: "open"
+
+      - step: "FX: create the fee waiver document (Multiple Payment Terms)"
+        action: "create"
+        model: "school_fee_waiver"
+        save_as: "fx_waiver"
+        values:
+          type_id: "REC: fx_type.id"
+          reason_id: "REC: fx_reason.id"
+          student_id: "REC: fx_student.id"
+          enrollment_id: "REC: fx_enrollment.id"
+          coverage: "multi_term"
+          date_start: 2026-07-01
+          date_end: 2026-12-31
+          user_id: "REF: base.user_admin"
+          line_ids:
+            - - 0
+              - 0
+              - product_id: "REC: fx_product.id"
+                computation: "full"
+
+      - step: "FX: confirm the fee waiver"
+        action: "call"
+        target: "fx_waiver"
+        method: "action_confirm"
+        as_user: "base.user_admin"
+        asserts:
+          state:
+            type: "value"
+            expected: "confirm"
+
+      - step: "FX: approve the fee waiver"
+        action: "call"
+        target: "fx_waiver"
+        method: "action_approve_approval"
+        as_user: "base.user_admin"
+        asserts:
+          state:
+            type: "value"
+            expected: "open"
+
+      - step: "FX: find the Term 1 Schedule line"
+        action: "search"
+        model: "school_fee_waiver_schedule"
+        domain:
+          [
+            ["waiver_id", "=", "REC: fx_waiver.id"],
+            ["payment_term_id", "=", "REC: fx_term1.id"],
+          ]
+        save_as: "fx_sched1"
+        limit: 1
+
+      - step: "FX: find the Term 2 Schedule line"
+        action: "search"
+        model: "school_fee_waiver_schedule"
+        domain:
+          [
+            ["waiver_id", "=", "REC: fx_waiver.id"],
+            ["payment_term_id", "=", "REC: fx_term2.id"],
+          ]
+        save_as: "fx_sched2"
+        limit: 1
+
+      - step: "FX Invoice A: create the invoice from its own payment term"
+        action: "call"
+        target: "fx_term1"
+        method: "action_create_invoice"
+        as_user: "base.user_admin"
+
+      - step: "FX Invoice A: get the term's generated invoice"
+        action: "search"
+        model: "customer_invoice"
+        domain: [["id", "=", "REC: fx_term1.customer_invoice_id.id"]]
+        save_as: "fx_invoice_a"
+        expect_count: 1
+
+      - step: "FX: confirm Invoice A"
+        action: "call"
+        target: "fx_invoice_a"
+        method: "action_confirm"
+        as_user: "base.user_admin"
+        asserts:
+          state:
+            type: "value"
+            expected: "confirm"
+
+      - step: "FX: approve Invoice A"
+        action: "call"
+        target: "fx_invoice_a"
+        method: "action_approve_approval"
+        as_user: "base.user_admin"
+        asserts:
+          state:
+            type: "value"
+            expected: "open"
+          amount_residual:
+            type: "value"
+            expected: 1000000.0
+
+      - step: "FX Invoice B: create the invoice from its own payment term"
+        action: "call"
+        target: "fx_term2"
+        method: "action_create_invoice"
+        as_user: "base.user_admin"
+
+      - step: "FX Invoice B: get the term's generated invoice"
+        action: "search"
+        model: "customer_invoice"
+        domain: [["id", "=", "REC: fx_term2.customer_invoice_id.id"]]
+        save_as: "fx_invoice_b"
+        expect_count: 1
+
+      - step: "FX: confirm Invoice B"
+        action: "call"
+        target: "fx_invoice_b"
+        method: "action_confirm"
+        as_user: "base.user_admin"
+        asserts:
+          state:
+            type: "value"
+            expected: "confirm"
+
+      - step: "FX: approve Invoice B"
+        action: "call"
+        target: "fx_invoice_b"
+        method: "action_approve_approval"
+        as_user: "base.user_admin"
+        asserts:
+          state:
+            type: "value"
+            expected: "open"
+          amount_residual:
+            type: "value"
+            expected: 1000000.0
+
+      # ══ Invoice A is referenced by a deduction Allocation (draft
+      # deduction -- the restrict reference holds whatever its state). ══
+      - step: "FX: create the fee waiver deduction document"
+        action: "create"
+        model: "school_fee_waiver_deduction"
+        save_as: "fx_deduction"
+        values:
+          waiver_id: "REC: fx_waiver.id"
+          journal_id: "REC: fx_deduction_journal.id"
+          receivable_account_id: "REC: fx_receivable_account.id"
+          date: 2026-08-25
+
+      - step: "FX: add an Allocation pointing to Invoice A"
+        action: "create"
+        model: "school_fee_waiver_deduction_allocation"
+        save_as: "fx_alloc"
+        values:
+          deduction_id: "REC: fx_deduction.id"
+          customer_invoice_id: "REC: fx_invoice_a.id"
+          amount: 100000.0
+
+      - step: "FX: force deleting Invoice A is rejected, naming the document"
+        action: "call"
+        target: "fx_term1"
+        method: "action_force_delete_invoice"
+        as_user: "base.user_admin"
+        expect_error:
+          type: "UserError"
+          message_contains: "referenced by fee waiver deduction allocation"
+
+      - step: "FX: Invoice A and Term 1 are unchanged"
+        action: "assert"
+        target: "fx_term1"
+        asserts:
+          state:
+            type: "value"
+            expected: "invoiced"
+          customer_invoice_id:
+            type: "m2o"
+            expected: "REC: fx_invoice_a"
+
+      - step: "FX: Invoice A is still open with its full residual"
+        action: "assert"
+        target: "fx_invoice_a"
+        asserts:
+          state:
+            type: "value"
+            expected: "open"
+          amount_residual:
+            type: "value"
+            expected: 1000000.0
+
+      - step: "FX: the Allocation still exists"
+        action: "search"
+        model: "school_fee_waiver_deduction_allocation"
+        domain: [["id", "=", "REC: fx_alloc.id"]]
+        save_as: "fx_alloc_check"
+        expect_count: 1
+
+      # ══ Invoice B has no Allocation: the override does not reject it. ══
+      - step: "FX: force deleting Invoice B (no Allocation) is not rejected"
+        action: "call"
+        target: "fx_term2"
+        method: "action_force_delete_invoice"
+        as_user: "base.user_admin"
+
+      - step: "FX: Term 2 is uninvoiced again"
+        action: "assert"
+        target: "fx_term2"
+        asserts:
+          state:
+            type: "value"
+            expected: "uninvoiced"
