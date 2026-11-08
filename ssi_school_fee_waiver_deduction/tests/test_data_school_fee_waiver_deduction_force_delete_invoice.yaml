@@ -7,6 +7,11 @@
 # every scenario, so this file uses exactly ONE scenario, no `setup:` block.
 # Fixture codes use the `FX*`/`fx_*` prefix, deliberately different from the
 # other test files of this module, to avoid unique-constraint collisions.
+#
+# The academic term is created with `enrollment_state: "open"`: ssi_school's
+# `_check_enrollment_window` rejects an enrollment reaching `open` otherwise.
+# Preceding pattern: test_data_school_fee_waiver_deduction_enrollment_recognition.yaml
+# (term 1). A second term is not needed: `action_done` is never called here.
 options:
   auto_refresh: true
 scenarios:
@@ -51,6 +56,7 @@ scenarios:
           date_start: 2026-07-01
           date_end: 2026-12-31
           year_id: "REC: fx_academic_year.id"
+          enrollment_state: "open"
 
       - step: "Create the grade"
         action: "create"
@@ -271,7 +277,7 @@ scenarios:
         method: "action_confirm"
         as_user: "base.user_admin"
 
-      - step: "FX: force a refresh before reading approve_ok (T-04)"
+      - step: "FX: assert enrollment is confirm before approve (forces refresh, T-04)"
         action: "assert"
         target: "fx_enrollment"
         asserts:
